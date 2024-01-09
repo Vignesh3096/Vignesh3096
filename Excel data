@@ -1,0 +1,40 @@
+import org.apache.poi.ss.usermodel.*;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class ExcelReader {
+
+    public static void main(String[] args) {
+        String filePath = "path/to/your/excel/file.xlsx";
+        String searchString = "SearchValue";
+
+        try {
+            FileInputStream file = new FileInputStream(new File(filePath));
+            Workbook workbook = WorkbookFactory.create(file);
+            Sheet sheet = workbook.getSheetAt(0);
+
+            for (Row row : sheet) {
+                for (Cell cell : row) {
+                    if (cell.getCellType() == CellType.STRING && cell.getStringCellValue().equals(searchString)) {
+                        int columnIndex = cell.getColumnIndex();
+                        Row dataRow = sheet.getRow(row.getRowNum());
+                        for (int i = columnIndex + 1; i <= dataRow.getLastCellNum(); i++) {
+                            Cell nextCell = dataRow.getCell(i);
+                            if (nextCell != null) {
+                                System.out.println(nextCell.getStringCellValue());
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+
+            file.close();
+            workbook.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
