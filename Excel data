@@ -8,27 +8,32 @@ public class ExcelReader {
 
     public static void main(String[] args) {
         String filePath = "path/to/your/excel/file.xlsx";
+        String sheetName = "Sheet1"; // Change this to your desired sheet name
         String searchString = "SearchValue";
 
         try {
             FileInputStream file = new FileInputStream(new File(filePath));
             Workbook workbook = WorkbookFactory.create(file);
-            Sheet sheet = workbook.getSheetAt(0);
+            Sheet sheet = workbook.getSheet(sheetName);
 
-            for (Row row : sheet) {
-                for (Cell cell : row) {
-                    if (cell.getCellType() == CellType.STRING && cell.getStringCellValue().equals(searchString)) {
-                        int columnIndex = cell.getColumnIndex();
-                        Row dataRow = sheet.getRow(row.getRowNum());
-                        for (int i = columnIndex + 1; i <= dataRow.getLastCellNum(); i++) {
-                            Cell nextCell = dataRow.getCell(i);
-                            if (nextCell != null) {
-                                System.out.println(nextCell.getStringCellValue());
+            if (sheet != null) {
+                for (Row row : sheet) {
+                    for (Cell cell : row) {
+                        if (cell.getCellType() == CellType.STRING && cell.getStringCellValue().equals(searchString)) {
+                            int columnIndex = cell.getColumnIndex();
+                            Row dataRow = sheet.getRow(row.getRowNum());
+                            for (int i = columnIndex + 1; i <= dataRow.getLastCellNum(); i++) {
+                                Cell nextCell = dataRow.getCell(i);
+                                if (nextCell != null) {
+                                    System.out.println(nextCell.getStringCellValue());
+                                }
                             }
+                            break;
                         }
-                        break;
                     }
                 }
+            } else {
+                System.out.println("Sheet not found!");
             }
 
             file.close();
