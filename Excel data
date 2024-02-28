@@ -45,7 +45,9 @@ public class ExcelColumnNameSearch {
                     columnValues.add(cell.getStringCellValue());
                 }
             }
-        } catch (IOException | EncryptedDocumentException | InvalidFormatException e) {
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InvalidFormatException e) {
             e.printStackTrace();
         }
 
