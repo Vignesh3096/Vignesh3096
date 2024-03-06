@@ -3,26 +3,21 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class ExcelColumnValueSearch {
     public static void main(String[] args) {
-        // Path to the Excel file
         String filePath = "your_excel_file.xlsx";
-
-        // Sheet name to search
         String sheetName = "Sheet1";
-
-        // Column name to retrieve values from
         String columnName = "Column1";
 
-        // Retrieve values from Excel column
         List<String> stringValues = getColumnValues(filePath, sheetName, columnName, CellType.STRING);
         List<Double> numericValues = getColumnValues(filePath, sheetName, columnName, CellType.NUMERIC);
         List<Boolean> booleanValues = getColumnValues(filePath, sheetName, columnName, CellType.BOOLEAN);
-        List<Date> dateValues = getColumnValues(filePath, sheetName, columnName, CellType.NUMERIC); // Date cells are also treated as numeric
+        List<Date> dateValues = getColumnDateValues(filePath, sheetName, columnName);
 
         // Print the retrieved values
         System.out.println("String Values: " + stringValues);
@@ -46,50 +41,33 @@ public class ExcelColumnValueSearch {
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fileInputStream)) {
 
-            // Get the sheet by name
             Sheet sheet = workbook.getSheet(sheetName);
             if (sheet == null) {
                 System.out.println("Sheet not found!");
                 return columnValues;
             }
 
-            // Get the header row to find the column index by column name
-            Row headerRow = sheet.getRow(0);
-            int columnIndex = -1;
-            for (Cell cell : headerRow) {
-                if (cell.getStringCellValue().equals(columnName)) {
-                    columnIndex = cell.getColumnIndex();
-                    break;
-                }
-            }
-
+            int columnIndex = getColumnIndex(sheet, columnName);
             if (columnIndex == -1) {
                 System.out.println("Column not found!");
                 return columnValues;
             }
 
-            // Iterate over rows and retrieve data from the specified column
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row != null) {
                     Cell cell = row.getCell(columnIndex);
                     if (cell != null && cell.getCellType() == cellType) {
-                        // Add cell value to columnValues list
                         switch (cellType) {
                             case STRING:
                                 columnValues.add((T) cell.getStringCellValue());
                                 break;
                             case NUMERIC:
-                                if (DateUtil.isCellDateFormatted(cell)) {
-                                    columnValues.add((T) cell.getDateCellValue());
-                                } else {
-                                    columnValues.add((T) Double.valueOf(cell.getNumericCellValue()));
-                                }
+                                columnValues.add((T) Double.valueOf(cell.getNumericCellValue()));
                                 break;
                             case BOOLEAN:
                                 columnValues.add((T) Boolean.valueOf(cell.getBooleanCellValue()));
                                 break;
-                            // Handle other cell types if necessary
                         }
                     }
                 }
@@ -99,5 +77,61 @@ public class ExcelColumnValueSearch {
         }
 
         return columnValues;
+    }
+
+    /**
+     * Retrieve date values from a specified column in an Excel sheet.
+     *
+     * @param filePath   Path to the Excel file.
+     * @param sheetName  Name of the sheet in the Excel file.
+     * @param columnName Name of the column to retrieve date values from.
+     * @return List of date values retrieved from the specified column.
+     */
+    private static List<Date> getColumnDateValues(String filePath, String sheetName, String columnName) {
+        List<Date> dateValues = new ArrayList<>();
+        try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
+             Workbook workbook = WorkbookFactory.create(fileInputStream)) {
+            Sheet sheet = workbook.getSheet(sheetName);
+            if (sheet == null) {
+                System.out.println("Sheet not found!");
+                return dateValues;
+            }
+            int columnIndex = getColumnIndex(sheet, columnName);
+            if (columnIndex == -1) {
+                System.out.println("Column not found!");
+                return dateValues;
+            }
+            for (int i = 1; i <= sheet.getLastRowNum(); i++) {
+                Row row = sheet.getRow(i);
+                if (row != null) {
+                    Cell cell = row.getCell(columnIndex);
+                    if (cell != null && cell.getCellType() == CellType.NUMERIC && DateUtil.isCellDateFormatted(cell)) {
+                        dateValues.add(cell.getDateCellValue());
+                    }
+                }
+            }
+        } catch (IOException | InvalidFormatException e) {
+            e.printStackTrace();
+        }
+        return dateValues;
+    }
+
+    /**
+     * Retrieve the index of a column by name.
+     *
+     * @param sheet      The Excel sheet.
+     * @param columnName Name of the column.
+     * @return Index of the column, or -1 if not found.
+     */
+    private static int getColumnIndex(Sheet sheet, String columnName) {
+        Row headerRow = sheet.getRow(0);
+        if (headerRow != null) {
+            for (Cell cell : headerRow) {
+                if (cell.getStringCellValue().equals(columnName)) {
+                    return cell.getColumnIndex();
+                }
+            }
+        }
+        return -1;
     }
 }
