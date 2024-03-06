@@ -3,6 +3,7 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -49,7 +50,7 @@ public class ExcelReader {
                                 columnValues.add((T) cell.getStringCellValue());
                                 break;
                             case NUMERIC:
-                                columnValues.add((T) Double.valueOf(cell.getNumericCellValue()));
+                                columnValues.add((T) parseNumericCellValue(cell));
                                 break;
                             case BOOLEAN:
                                 columnValues.add((T) Boolean.valueOf(cell.getBooleanCellValue()));
@@ -118,35 +119,15 @@ public class ExcelReader {
         }
         return -1;
     }
-}
 
-
-import java.util.Date;
-import java.util.List;
-
-public class Main {
-    public static void main(String[] args) {
-        String filePath = "your_excel_file.xlsx";
-        String sheetName = "Sheet1";
-        String columnName = "Column1";
-
-        ExcelReader excelReader = new ExcelReader(filePath);
-
-        // Retrieve String values
-        List<String> stringValues = excelReader.getColumnValues(sheetName, columnName, CellType.STRING);
-        System.out.println("String Values: " + stringValues);
-
-        // Retrieve Numeric values
-        List<Double> numericValues = excelReader.getColumnValues(sheetName, columnName, CellType.NUMERIC);
-        System.out.println("Numeric Values: " + numericValues);
-
-        // Retrieve Boolean values
-        List<Boolean> booleanValues = excelReader.getColumnValues(sheetName, columnName, CellType.BOOLEAN);
-        System.out.println("Boolean Values: " + booleanValues);
-
-        // Retrieve Date values
-        List<Date> dateValues = excelReader.getColumnDateValues(sheetName, columnName);
-        System.out.println("Date Values: " + dateValues);
+    /**
+     * Parse the numeric cell value, handling E notation.
+     *
+     * @param cell The cell containing the numeric value.
+     * @return The parsed numeric value as Double.
+     */
+    private static Double parseNumericCellValue(Cell cell) {
+        DecimalFormat df = new DecimalFormat("#.#########");
+        return Double.parseDouble(df.format(cell.getNumericCellValue()));
     }
 }
-
