@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ExcelColumnValueSearch {
     public static void main(String[] args) {
@@ -15,6 +17,12 @@ public class ExcelColumnValueSearch {
 
         // Column name to retrieve values from
         String columnName = "Column1";
+
+        // ArrayLists to store values based on data type
+        List<String> stringValues = new ArrayList<>();
+        List<Double> numericValues = new ArrayList<>();
+        List<Boolean> booleanValues = new ArrayList<>();
+        List<String> dateValues = new ArrayList<>();
 
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fileInputStream)) {
@@ -47,26 +55,23 @@ public class ExcelColumnValueSearch {
                 if (row != null) {
                     Cell cell = row.getCell(columnIndex);
                     if (cell != null) {
-                        // Check cell type and retrieve value accordingly
+                        // Check cell type and add value to corresponding ArrayList
                         switch (cell.getCellType()) {
                             case STRING:
-                                String stringValue = cell.getStringCellValue();
-                                System.out.println("String value at row " + (i + 1) + ": " + stringValue);
+                                stringValues.add(cell.getStringCellValue());
                                 break;
                             case NUMERIC:
                                 if (DateUtil.isCellDateFormatted(cell)) {
-                                    System.out.println("Date value at row " + (i + 1) + ": " + cell.getDateCellValue());
+                                    // Format date value and add to dateValues list
+                                    dateValues.add(cell.getDateCellValue().toString());
                                 } else {
-                                    // Format numeric value as string without exponential notation
-                                    double numericValue = cell.getNumericCellValue();
-                                    DecimalFormat decimalFormat = new DecimalFormat("#");
-                                    String formattedValue = decimalFormat.format(numericValue);
-                                    System.out.println("Numeric value at row " + (i + 1) + ": " + formattedValue);
+                                    // Add numeric value to numericValues list
+                                    numericValues.add(cell.getNumericCellValue());
                                 }
                                 break;
                             case BOOLEAN:
-                                boolean booleanValue = cell.getBooleanCellValue();
-                                System.out.println("Boolean value at row " + (i + 1) + ": " + booleanValue);
+                                // Add boolean value to booleanValues list
+                                booleanValues.add(cell.getBooleanCellValue());
                                 break;
                             case BLANK:
                                 // Handle blank cells if needed
@@ -81,5 +86,11 @@ public class ExcelColumnValueSearch {
         } catch (InvalidFormatException e) {
             e.printStackTrace();
         }
+
+        // Print the values from ArrayLists
+        System.out.println("String Values: " + stringValues);
+        System.out.println("Numeric Values: " + numericValues);
+        System.out.println("Date Values: " + dateValues);
+        System.out.println("Boolean Values: " + booleanValues);
     }
 }
