@@ -3,24 +3,30 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ExcelColumnNameSearch {
+public class ExcelColumnValueSearch {
     public static void main(String[] args) {
         // Path to the Excel file
         String filePath = "your_excel_file.xlsx";
 
+        // Sheet name to search
+        String sheetName = "Sheet1";
+
         // Column name to search
         String columnName = "Column1";
 
-        List<String> columnValues = new ArrayList<>();
+        // Value to search for in the specified column
+        String searchValue = "value_to_search_for";
 
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fileInputStream)) {
 
-            // Get the first sheet from the workbook
-            Sheet sheet = workbook.getSheetAt(0);
+            // Get the sheet by name
+            Sheet sheet = workbook.getSheet(sheetName);
+            if (sheet == null) {
+                System.out.println("Sheet not found!");
+                return;
+            }
 
             // Get the header row to find the column index by column name
             Row headerRow = sheet.getRow(0);
@@ -37,23 +43,35 @@ public class ExcelColumnNameSearch {
                 return;
             }
 
-            // Iterate over rows and retrieve data based on column index
+            // Iterate over rows and retrieve data based on column index and search value
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
-                Cell cell = row.getCell(columnIndex);
-                if (cell != null) {
-                    columnValues.add(cell.getStringCellValue());
+                if (row != null) {
+                    Cell cell = row.getCell(columnIndex);
+                    if (cell != null) {
+                        // Check if the cell value is numeric
+                        if (cell.getCellType() == CellType.NUMERIC) {
+                            // Convert numeric value to string to handle exponential notation
+                            String stringValue = String.valueOf((long)cell.getNumericCellValue());
+                            if (stringValue.equals(searchValue)) {
+                                System.out.println("Integer value found at row " + (i + 1) + ": " + stringValue);
+                            }
+                        } else if (cell.getCellType() == CellType.STRING) {
+                            String stringValue = cell.getStringCellValue();
+                            if (stringValue.equals(searchValue)) {
+                                System.out.println("String value found at row " + (i + 1) + ": " + stringValue);
+                            }
+                        } else if (cell.getCellType() == CellType.BOOLEAN) {
+                            boolean booleanValue = cell.getBooleanCellValue();
+                            System.out.println("Boolean value found at row " + (i + 1) + ": " + booleanValue);
+                        }
+                    }
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InvalidFormatException e) {
             e.printStackTrace();
-        }
-
-        // Print out the retrieved values
-        for (String value : columnValues) {
-            System.out.println(value);
         }
     }
 }
