@@ -12,11 +12,8 @@ public class ExcelColumnValueSearch {
         // Sheet name to search
         String sheetName = "Sheet1";
 
-        // Column name to search
+        // Column name to retrieve values from
         String columnName = "Column1";
-
-        // Value to search for in the specified column
-        String searchValue = "value_to_search_for";
 
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fileInputStream)) {
@@ -43,27 +40,33 @@ public class ExcelColumnValueSearch {
                 return;
             }
 
-            // Iterate over rows and retrieve data based on column index and search value
+            // Iterate over rows and retrieve data from the specified column
             for (int i = 1; i <= sheet.getLastRowNum(); i++) {
                 Row row = sheet.getRow(i);
                 if (row != null) {
                     Cell cell = row.getCell(columnIndex);
                     if (cell != null) {
-                        // Check if the cell value is numeric
-                        if (cell.getCellType() == CellType.NUMERIC) {
-                            // Convert numeric value to string to handle exponential notation
-                            String stringValue = String.valueOf((long)cell.getNumericCellValue());
-                            if (stringValue.equals(searchValue)) {
-                                System.out.println("Integer value found at row " + (i + 1) + ": " + stringValue);
-                            }
-                        } else if (cell.getCellType() == CellType.STRING) {
-                            String stringValue = cell.getStringCellValue();
-                            if (stringValue.equals(searchValue)) {
-                                System.out.println("String value found at row " + (i + 1) + ": " + stringValue);
-                            }
-                        } else if (cell.getCellType() == CellType.BOOLEAN) {
-                            boolean booleanValue = cell.getBooleanCellValue();
-                            System.out.println("Boolean value found at row " + (i + 1) + ": " + booleanValue);
+                        // Check cell type and retrieve value accordingly
+                        switch (cell.getCellType()) {
+                            case STRING:
+                                String stringValue = cell.getStringCellValue();
+                                System.out.println("String value at row " + (i + 1) + ": " + stringValue);
+                                break;
+                            case NUMERIC:
+                                if (DateUtil.isCellDateFormatted(cell)) {
+                                    System.out.println("Date value at row " + (i + 1) + ": " + cell.getDateCellValue());
+                                } else {
+                                    System.out.println("Numeric value at row " + (i + 1) + ": " + cell.getNumericCellValue());
+                                }
+                                break;
+                            case BOOLEAN:
+                                boolean booleanValue = cell.getBooleanCellValue();
+                                System.out.println("Boolean value at row " + (i + 1) + ": " + booleanValue);
+                                break;
+                            case BLANK:
+                                // Handle blank cells if needed
+                                break;
+                            // Handle other cell types if necessary
                         }
                     }
                 }
