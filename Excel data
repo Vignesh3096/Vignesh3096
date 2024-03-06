@@ -3,41 +3,27 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class ExcelColumnValueSearch {
-    public static void main(String[] args) {
-        String filePath = "your_excel_file.xlsx";
-        String sheetName = "Sheet1";
-        String columnName = "Column1";
+public class ExcelReader {
+    private String filePath;
 
-        List<String> stringValues = getColumnValues(filePath, sheetName, columnName, CellType.STRING);
-        List<Double> numericValues = getColumnValues(filePath, sheetName, columnName, CellType.NUMERIC);
-        List<Boolean> booleanValues = getColumnValues(filePath, sheetName, columnName, CellType.BOOLEAN);
-        List<Date> dateValues = getColumnDateValues(filePath, sheetName, columnName);
-
-        // Print the retrieved values
-        System.out.println("String Values: " + stringValues);
-        System.out.println("Numeric Values: " + numericValues);
-        System.out.println("Boolean Values: " + booleanValues);
-        System.out.println("Date Values: " + dateValues);
+    public ExcelReader(String filePath) {
+        this.filePath = filePath;
     }
 
     /**
      * Retrieve values from a specified column in an Excel sheet.
      *
-     * @param filePath   Path to the Excel file.
      * @param sheetName  Name of the sheet in the Excel file.
      * @param columnName Name of the column to retrieve values from.
      * @param cellType   Type of cells to retrieve (STRING, NUMERIC, BOOLEAN, etc.).
      * @return List of values retrieved from the specified column.
      */
-    private static <T> List<T> getColumnValues(String filePath, String sheetName, String columnName, CellType cellType) {
+    public <T> List<T> getColumnValues(String sheetName, String columnName, CellType cellType) {
         List<T> columnValues = new ArrayList<>();
-
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fileInputStream)) {
 
@@ -75,19 +61,17 @@ public class ExcelColumnValueSearch {
         } catch (IOException | InvalidFormatException e) {
             e.printStackTrace();
         }
-
         return columnValues;
     }
 
     /**
      * Retrieve date values from a specified column in an Excel sheet.
      *
-     * @param filePath   Path to the Excel file.
      * @param sheetName  Name of the sheet in the Excel file.
      * @param columnName Name of the column to retrieve date values from.
      * @return List of date values retrieved from the specified column.
      */
-    private static List<Date> getColumnDateValues(String filePath, String sheetName, String columnName) {
+    public List<Date> getColumnDateValues(String sheetName, String columnName) {
         List<Date> dateValues = new ArrayList<>();
         try (FileInputStream fileInputStream = new FileInputStream(new File(filePath));
              Workbook workbook = WorkbookFactory.create(fileInputStream)) {
@@ -135,3 +119,34 @@ public class ExcelColumnValueSearch {
         return -1;
     }
 }
+
+
+import java.util.Date;
+import java.util.List;
+
+public class Main {
+    public static void main(String[] args) {
+        String filePath = "your_excel_file.xlsx";
+        String sheetName = "Sheet1";
+        String columnName = "Column1";
+
+        ExcelReader excelReader = new ExcelReader(filePath);
+
+        // Retrieve String values
+        List<String> stringValues = excelReader.getColumnValues(sheetName, columnName, CellType.STRING);
+        System.out.println("String Values: " + stringValues);
+
+        // Retrieve Numeric values
+        List<Double> numericValues = excelReader.getColumnValues(sheetName, columnName, CellType.NUMERIC);
+        System.out.println("Numeric Values: " + numericValues);
+
+        // Retrieve Boolean values
+        List<Boolean> booleanValues = excelReader.getColumnValues(sheetName, columnName, CellType.BOOLEAN);
+        System.out.println("Boolean Values: " + booleanValues);
+
+        // Retrieve Date values
+        List<Date> dateValues = excelReader.getColumnDateValues(sheetName, columnName);
+        System.out.println("Date Values: " + dateValues);
+    }
+}
+
