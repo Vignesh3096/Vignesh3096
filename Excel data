@@ -3,6 +3,7 @@ import org.apache.poi.ss.usermodel.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 public class ExcelColumnValueSearch {
     public static void main(String[] args) {
@@ -56,7 +57,11 @@ public class ExcelColumnValueSearch {
                                 if (DateUtil.isCellDateFormatted(cell)) {
                                     System.out.println("Date value at row " + (i + 1) + ": " + cell.getDateCellValue());
                                 } else {
-                                    System.out.println("Numeric value at row " + (i + 1) + ": " + cell.getNumericCellValue());
+                                    // Format numeric value as string without exponential notation
+                                    double numericValue = cell.getNumericCellValue();
+                                    DecimalFormat decimalFormat = new DecimalFormat("#");
+                                    String formattedValue = decimalFormat.format(numericValue);
+                                    System.out.println("Numeric value at row " + (i + 1) + ": " + formattedValue);
                                 }
                                 break;
                             case BOOLEAN:
