@@ -1,5 +1,4 @@
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.*;
 import java.util.*;
@@ -13,13 +12,19 @@ public class ExcelFileSaver {
 
     public static void saveAllExcelFiles() {
         try {
-            List<Workbook> workbooks = getOpenWorkbooks();
-            for (Workbook workbook : workbooks) {
-                String originalFileName = workbook.getSheetName() + ".xlsx";
-                workbook.write(new FileOutputStream(originalFileName));
+            List<File> openWorkbooks = getOpenWorkbooks();
+            for (File file : openWorkbooks) {
+                Workbook workbook = WorkbookFactory.create(file);
+                String originalFileName = file.getName();
+                String extension = ".xlsx";
+                if (originalFileName.endsWith(".xls")) {
+                    extension = ".xls";
+                }
+                String outputFileName = originalFileName.substring(0, originalFileName.lastIndexOf(extension)) + "_saved" + extension;
+                workbook.write(new FileOutputStream(outputFileName));
                 workbook.close();
             }
-        } catch (IOException e) {
+        } catch (IOException | InvalidFormatException e) {
             e.printStackTrace();
         }
     }
@@ -32,20 +37,20 @@ public class ExcelFileSaver {
         }
     }
 
-    public static List<Workbook> getOpenWorkbooks() {
-        List<Workbook> openWorkbooks = new ArrayList<>();
+    public static List<File> getOpenWorkbooks() {
+        List<File> openWorkbooks = new ArrayList<>();
         try {
             String property = System.getProperty("user.home");
             File directory = new File(property + "\\AppData\\Roaming\\Microsoft\\Excel");
             File[] files = directory.listFiles();
             if (files != null) {
                 for (File file : files) {
-                    if (file.isFile() && file.getName().endsWith(".xlsx")) {
-                        openWorkbooks.add(new XSSFWorkbook(new FileInputStream(file)));
+                    if (file.isFile() && (file.getName().endsWith(".xls") || file.getName().endsWith(".xlsx"))) {
+                        openWorkbooks.add(file);
                     }
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return openWorkbooks;
