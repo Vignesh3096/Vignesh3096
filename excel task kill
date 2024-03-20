@@ -1,5 +1,4 @@
-import com4j.*;
-import java.io.*;
+import org.jvnet.com4j.*;
 
 public class ExcelFileSaver {
 
@@ -9,26 +8,28 @@ public class ExcelFileSaver {
     }
 
     public static void saveAllExcelFiles() {
+        ComThread.InitMTA(true);
         try {
-            Com4jObject excelApp = Com4jObject.createInstance("{Excel.Application}");
-            Dispatch excel = excelApp.queryInterface(Dispatch.class);
-            Dispatch workbooks = Dispatch.get(excel, "Workbooks").toDispatch();
-            int count = Dispatch.call(workbooks, "Count").getInt();
+            ExcelApplication excel = ExcelApplicationFactory.createExcelApplication();
+            Dispatch workbooks = excel.getWorkbooks();
+            int count = Dispatch.get(workbooks, "Count").getInt();
             for (int i = 1; i <= count; i++) {
                 Dispatch workbook = Dispatch.call(workbooks, "Item", i).toDispatch();
                 Dispatch.call(workbook, "Save");
                 Dispatch.call(workbook, "Close", false);
             }
-            Dispatch.call(excel, "Quit");
-        } catch (Exception e) {
+            excel.quit();
+        } catch (ComException e) {
             e.printStackTrace();
+        } finally {
+            ComThread.Release();
         }
     }
 
     public static void closeExcel() {
         try {
             Runtime.getRuntime().exec("taskkill /f /im excel.exe");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
