@@ -1,4 +1,8 @@
-import org.jvnet.com4j.*;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.*;
+import java.util.*;
 
 public class ExcelFileSaver {
 
@@ -8,29 +12,41 @@ public class ExcelFileSaver {
     }
 
     public static void saveAllExcelFiles() {
-        ComThread.InitMTA(true);
         try {
-            ExcelApplication excel = ExcelApplicationFactory.createExcelApplication();
-            Dispatch workbooks = excel.getWorkbooks();
-            int count = Dispatch.get(workbooks, "Count").getInt();
-            for (int i = 1; i <= count; i++) {
-                Dispatch workbook = Dispatch.call(workbooks, "Item", i).toDispatch();
-                Dispatch.call(workbook, "Save");
-                Dispatch.call(workbook, "Close", false);
+            List<Workbook> workbooks = getOpenWorkbooks();
+            for (Workbook workbook : workbooks) {
+                workbook.write(new FileOutputStream(workbook.getSheetName() + ".xlsx"));
+                workbook.close();
             }
-            excel.quit();
-        } catch (ComException e) {
+        } catch (IOException e) {
             e.printStackTrace();
-        } finally {
-            ComThread.Release();
         }
     }
 
     public static void closeExcel() {
         try {
             Runtime.getRuntime().exec("taskkill /f /im excel.exe");
-        } catch (Exception e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static List<Workbook> getOpenWorkbooks() {
+        List<Workbook> openWorkbooks = new ArrayList<>();
+        try {
+            String property = System.getProperty("user.home");
+            File directory = new File(property + "\\AppData\\Roaming\\Microsoft\\Excel");
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    if (file.isFile() && file.getName().endsWith(".xlsx")) {
+                        openWorkbooks.add(new XSSFWorkbook(new FileInputStream(file)));
+                    }
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return openWorkbooks;
     }
 }
