@@ -15,7 +15,7 @@ public class ExcelFileSaver {
         try {
             List<Workbook> workbooks = getOpenWorkbooks();
             for (Workbook workbook : workbooks) {
-                String originalFileName = ((XSSFWorkbook)workbook).getPackage().getPartName().getName();
+                String originalFileName = workbook.getSheetName() + ".xlsx";
                 workbook.write(new FileOutputStream(originalFileName));
                 workbook.close();
             }
