@@ -16,12 +16,10 @@ public class ExcelFileSaver {
             for (File file : openWorkbooks) {
                 Workbook workbook = WorkbookFactory.create(file);
                 String originalFileName = file.getName();
-                String extension = ".xlsx";
-                if (originalFileName.endsWith(".xls")) {
-                    extension = ".xls";
-                }
-                String outputFileName = originalFileName.substring(0, originalFileName.lastIndexOf(extension)) + "_saved" + extension;
-                workbook.write(new FileOutputStream(outputFileName));
+                String outputFilePath = file.getParentFile().getAbsolutePath() + File.separator + originalFileName;
+                FileOutputStream fileOut = new FileOutputStream(outputFilePath);
+                workbook.write(fileOut);
+                fileOut.close();
                 workbook.close();
             }
         } catch (IOException | InvalidFormatException e) {
