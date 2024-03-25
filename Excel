@@ -1,31 +1,25 @@
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 
 public class Main {
     public static void main(String[] args) {
-        BigDecimal decimalValue1 = new BigDecimal("0.12");
-        BigDecimal decimalValue2 = new BigDecimal("1.08");
-        BigDecimal decimalValue3 = new BigDecimal("0.96");
-        BigDecimal decimalValue4 = new BigDecimal("368362827.94");
+        BigDecimal decimalValue1 = new BigDecimal("12.1235");
+        BigDecimal decimalValue2 = new BigDecimal("123.1235");
 
-        System.out.println("Output 1: " + formatDecimal(decimalValue1));
-        System.out.println("Output 2: " + formatDecimal(decimalValue2));
-        System.out.println("Output 3: " + formatDecimal(decimalValue3));
-        System.out.println("Output 4: " + formatDecimal(decimalValue4));
+        System.out.println("Formatted Output 1: " + formatDecimal(decimalValue1));
+        System.out.println("Formatted Output 2: " + formatDecimal(decimalValue2));
     }
 
     public static String formatDecimal(BigDecimal decimalValue) {
         String stringValue = decimalValue.toPlainString();
         int dotIndex = stringValue.indexOf('.');
-        
-        if (dotIndex != -1 && dotIndex + 2 < stringValue.length()) {
-            // Check if the digit after the first decimal place is 0 or 5
-            char nextDigit = stringValue.charAt(dotIndex + 2);
-            if (nextDigit == '0' || nextDigit == '5') {
-                return stringValue.substring(0, dotIndex + 2);
-            }
-            // If not, round the value to one decimal place
-            return stringValue.substring(0, dotIndex + 3);
+
+        if (dotIndex != -1 && dotIndex == 1) {
+            // Only round values with one digit before the decimal point
+            DecimalFormat decimalFormat = new DecimalFormat("#.#");
+            return decimalFormat.format(decimalValue);
         } else {
+            // For values with more than one digit before the decimal point, no rounding
             return stringValue;
         }
     }
