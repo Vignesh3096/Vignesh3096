@@ -1,0 +1,52 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+
+public class ExcelUniqueValues {
+
+    public static void main(String[] args) {
+        String excelFilePath = "path/to/your/excel/file.xlsx";
+
+        try (FileInputStream fis = new FileInputStream(excelFilePath);
+             Workbook workbook = new XSSFWorkbook(fis)) {
+
+            // Choose the first sheet
+            Sheet sheet = workbook.getSheetAt(0);
+
+            // Define sets to store unique values
+            Set<String> uniqueColumn1Values = new HashSet<>();
+            Set<Integer> uniqueColumn2Values = new HashSet<>();
+
+            // Iterate over rows
+            for (Row row : sheet) {
+                // Skip the header row if present
+                if (row.getRowNum() == 0) {
+                    continue;
+                }
+
+                // Get values from specific columns
+                Cell cell1 = row.getCell(0); // Assuming column1 is the first column
+                Cell cell2 = row.getCell(1); // Assuming column2 is the second column
+
+                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
+                    uniqueColumn1Values.add(cell1.getStringCellValue());
+                }
+
+                if (cell2 != null && cell2.getCellType() == CellType.NUMERIC) {
+                    uniqueColumn2Values.add((int) cell2.getNumericCellValue());
+                }
+            }
+
+            // Print unique values
+            System.out.println("Unique values in Column 1: " + uniqueColumn1Values);
+            System.out.println("Unique values in Column 2: " + uniqueColumn2Values);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
