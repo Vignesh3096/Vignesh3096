@@ -3,13 +3,16 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class ExcelUniqueValues {
 
     public static void main(String[] args) {
         String excelFilePath = "path/to/your/excel/file.xlsx";
+        String targetColumnName = "YourColumnName"; // Replace with your target column name
 
         try (FileInputStream fis = new FileInputStream(excelFilePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
@@ -17,33 +20,42 @@ public class ExcelUniqueValues {
             // Choose the first sheet
             Sheet sheet = workbook.getSheetAt(0);
 
-            // Define sets to store unique values
-            Set<String> uniqueColumn1Values = new HashSet<>();
-            Set<Integer> uniqueColumn2Values = new HashSet<>();
+            // Read the header row
+            Row headerRow = sheet.getRow(0);
+            Map<String, Integer> columnMap = new HashMap<>();
+            for (Cell cell : headerRow) {
+                columnMap.put(cell.getStringCellValue(), cell.getColumnIndex());
+            }
 
-            // Iterate over rows
-            for (Row row : sheet) {
-                // Skip the header row if present
-                if (row.getRowNum() == 0) {
-                    continue;
-                }
+            // Get the column index for the target column name
+            Integer targetColumnIndex = columnMap.get(targetColumnName);
 
-                // Get values from specific columns
-                Cell cell1 = row.getCell(0); // Assuming column1 is the first column
-                Cell cell2 = row.getCell(1); // Assuming column2 is the second column
+            if (targetColumnIndex == null) {
+                System.out.println("Column name '" + targetColumnName + "' not found in the header row.");
+                return;
+            }
 
-                if (cell1 != null && cell1.getCellType() == CellType.STRING) {
-                    uniqueColumn1Values.add(cell1.getStringCellValue());
-                }
+            // Define a set to store unique values
+            Set<String> uniqueValues = new HashSet<>();
 
-                if (cell2 != null && cell2.getCellType() == CellType.NUMERIC) {
-                    uniqueColumn2Values.add((int) cell2.getNumericCellValue());
+            // Iterate over rows, skipping the header row
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
+                Row row = sheet.getRow(rowIndex);
+
+                if (row != null) {
+                    // Get value from the target column
+                    Cell cell = row.getCell(targetColumnIndex);
+
+                    if (cell != null && cell.getCellType() == CellType.STRING) {
+                        uniqueValues.add(cell.getStringCellValue());
+                    } else if (cell != null && cell.getCellType() == CellType.NUMERIC) {
+                        uniqueValues.add(String.valueOf(cell.getNumericCellValue()));
+                    }
                 }
             }
 
             // Print unique values
-            System.out.println("Unique values in Column 1: " + uniqueColumn1Values);
-            System.out.println("Unique values in Column 2: " + uniqueColumn2Values);
+            System.out.println("Unique values in column '" + targetColumnName + "': " + uniqueValues);
 
         } catch (IOException e) {
             e.printStackTrace();
