@@ -11,7 +11,7 @@ import java.util.Set;
 public class ExcelUniqueValues {
 
     public static void main(String[] args) {
-        String excelFilePath = "path/to/your/excel/file.xlsx";
+        String excelFilePath = "path/to/your/excel/file.xlsx"; // Replace with your file path
         String targetSheetName = "YourSheetName"; // Replace with your target sheet name
         String targetColumnName = "YourColumnName"; // Replace with your target column name
 
@@ -48,6 +48,9 @@ public class ExcelUniqueValues {
             // Define a set to store unique values
             Set<String> uniqueValues = new HashSet<>();
 
+            // Create a DataFormatter to format cell values as strings
+            DataFormatter dataFormatter = new DataFormatter();
+
             // Iterate over rows, skipping the header row
             for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
@@ -55,22 +58,9 @@ public class ExcelUniqueValues {
                     // Get value from the target column
                     Cell cell = row.getCell(targetColumnIndex);
                     if (cell != null) {
-                        switch (cell.getCellType()) {
-                            case STRING:
-                                uniqueValues.add(cell.getStringCellValue());
-                                break;
-                            case NUMERIC:
-                                uniqueValues.add(String.valueOf(cell.getNumericCellValue()));
-                                break;
-                            case BOOLEAN:
-                                uniqueValues.add(String.valueOf(cell.getBooleanCellValue()));
-                                break;
-                            case FORMULA:
-                                uniqueValues.add(cell.getCellFormula());
-                                break;
-                            default:
-                                break;
-                        }
+                        // Get the formatted cell value as a string
+                        String cellValue = dataFormatter.formatCellValue(cell);
+                        uniqueValues.add(cellValue);
                     }
                 }
             }
