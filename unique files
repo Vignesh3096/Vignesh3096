@@ -12,16 +12,27 @@ public class ExcelUniqueValues {
 
     public static void main(String[] args) {
         String excelFilePath = "path/to/your/excel/file.xlsx";
+        String targetSheetName = "YourSheetName"; // Replace with your target sheet name
         String targetColumnName = "YourColumnName"; // Replace with your target column name
 
         try (FileInputStream fis = new FileInputStream(excelFilePath);
              Workbook workbook = new XSSFWorkbook(fis)) {
 
-            // Choose the first sheet
-            Sheet sheet = workbook.getSheetAt(0);
+            // Get the sheet by name
+            Sheet sheet = workbook.getSheet(targetSheetName);
+            if (sheet == null) {
+                System.out.println("Sheet name '" + targetSheetName + "' not found.");
+                return;
+            }
 
             // Read the header row
             Row headerRow = sheet.getRow(0);
+            if (headerRow == null) {
+                System.out.println("Header row not found in sheet '" + targetSheetName + "'.");
+                return;
+            }
+
+            // Map column names to indices
             Map<String, Integer> columnMap = new HashMap<>();
             for (Cell cell : headerRow) {
                 columnMap.put(cell.getStringCellValue(), cell.getColumnIndex());
@@ -29,7 +40,6 @@ public class ExcelUniqueValues {
 
             // Get the column index for the target column name
             Integer targetColumnIndex = columnMap.get(targetColumnName);
-
             if (targetColumnIndex == null) {
                 System.out.println("Column name '" + targetColumnName + "' not found in the header row.");
                 return;
@@ -41,21 +51,32 @@ public class ExcelUniqueValues {
             // Iterate over rows, skipping the header row
             for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
                 Row row = sheet.getRow(rowIndex);
-
                 if (row != null) {
                     // Get value from the target column
                     Cell cell = row.getCell(targetColumnIndex);
-
-                    if (cell != null && cell.getCellType() == CellType.STRING) {
-                        uniqueValues.add(cell.getStringCellValue());
-                    } else if (cell != null && cell.getCellType() == CellType.NUMERIC) {
-                        uniqueValues.add(String.valueOf(cell.getNumericCellValue()));
+                    if (cell != null) {
+                        switch (cell.getCellType()) {
+                            case STRING:
+                                uniqueValues.add(cell.getStringCellValue());
+                                break;
+                            case NUMERIC:
+                                uniqueValues.add(String.valueOf(cell.getNumericCellValue()));
+                                break;
+                            case BOOLEAN:
+                                uniqueValues.add(String.valueOf(cell.getBooleanCellValue()));
+                                break;
+                            case FORMULA:
+                                uniqueValues.add(cell.getCellFormula());
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
             }
 
             // Print unique values
-            System.out.println("Unique values in column '" + targetColumnName + "': " + uniqueValues);
+            System.out.println("Unique values in column '" + targetColumnName + "' in sheet '" + targetSheetName + "': " + uniqueValues);
 
         } catch (IOException e) {
             e.printStackTrace();
