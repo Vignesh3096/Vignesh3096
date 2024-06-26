@@ -50,6 +50,7 @@ public class ExcelUniqueValues {
 
             // Create a DataFormatter to format cell values as strings
             DataFormatter dataFormatter = new DataFormatter();
+            FormulaEvaluator formulaEvaluator = workbook.getCreationHelper().createFormulaEvaluator();
 
             // Iterate over rows, skipping the header row
             for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++) {
@@ -58,6 +59,11 @@ public class ExcelUniqueValues {
                     // Get value from the target column
                     Cell cell = row.getCell(targetColumnIndex);
                     if (cell != null) {
+                        // Evaluate the cell if it contains a formula
+                        if (cell.getCellType() == CellType.FORMULA) {
+                            cell = formulaEvaluator.evaluateInCell(cell);
+                        }
+
                         // Get the formatted cell value as a string
                         String cellValue = dataFormatter.formatCellValue(cell);
                         uniqueValues.add(cellValue);
