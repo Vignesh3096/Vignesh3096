@@ -1,0 +1,54 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.Keys;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class DateValidation {
+    public static void main(String[] args) {
+        // Set the path to your WebDriver executable
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+
+        // Initialize the WebDriver
+        WebDriver driver = new ChromeDriver();
+
+        try {
+            // Open the web page
+            driver.get("url_of_your_page");
+
+            // Initialize WebDriverWait
+            WebDriverWait wait = new WebDriverWait(driver, 10);
+
+            // Locate the "From Date" field and input the date using JavaScript
+            WebElement fromDateField = driver.findElement(By.id("fromDateFieldId")); // Replace with the actual locator
+            ((JavascriptExecutor) driver).executeScript("arguments[0].value='07/05/2025';", fromDateField);
+
+            // Locate the "To Date" field and input the date using JavaScript
+            WebElement toDateField = driver.findElement(By.id("toDateFieldId")); // Replace with the actual locator
+            ((JavascriptExecutor) driver).executeScript("arguments[0].value='07/05/2024';", toDateField);
+
+            // Trigger validation (if needed)
+            toDateField.sendKeys(Keys.RETURN);
+
+            // Wait for the error message to appear
+            wait.until(ExpectedConditions.visibilityOfElementLocated(By.id("errorMessageFieldId"))); // Replace with the actual locator
+
+            // Validate the error message
+            WebElement errorMessage = driver.findElement(By.id("errorMessageFieldId")); // Replace with the actual locator
+            String expectedErrorMessage = "The 'To Date' cannot be earlier than the 'From Date'.";
+            if (errorMessage.getText().equals(expectedErrorMessage)) {
+                System.out.println("Error message validation passed.");
+            } else {
+                System.out.println("Error message validation failed.");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            // Close the browser
+            driver.quit();
+        }
+    }
+}
