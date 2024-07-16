@@ -172,7 +172,140 @@ wait.until { driver.current_url.include?('/dashboard') }
 - **Cypress** provides automatic retries for assertions, reducing test flakiness and execution time.
 - **Selenium** requires manual handling of assertions and waits, which can introduce delays and additional code complexity.
 
-These examples show how Cypress's architecture and built-in features streamline test writing and execution, making it faster and more efficient compared to Selenium.
+These examples show how Cypress's architecture and built-in features streamline test writing and execution, making it faster and more efficient compared to Certainly! Here are the examples rewritten using Selenium with Java:
+
+### Example 1: Element Waiting
+
+**Cypress**:
+```javascript
+// Cypress automatically waits for elements to appear
+cy.get('button').click();
+cy.get('.success-message').should('contain', 'Success!');
+```
+
+**Selenium (Java)**:
+```java
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class ElementWaitingExample {
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+
+        driver.get("http://example.com");
+
+        // Explicitly wait for the button to be clickable
+        WebElement button = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("button")));
+        button.click();
+
+        // Explicitly wait for the success message to be present
+        WebElement successMessage = wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".success-message")));
+        assert successMessage.getText().contains("Success!");
+
+        driver.quit();
+    }
+}
+```
+
+### Example 2: Direct Browser Execution
+
+**Cypress**:
+```javascript
+// Commands are executed directly in the browser
+cy.visit('http://example.com');
+cy.get('input[name="username"]').type('user');
+cy.get('input[name="password"]').type('password');
+cy.get('form').submit();
+cy.url().should('include', '/dashboard');
+```
+
+**Selenium (Java)**:
+```java
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class DirectBrowserExecutionExample {
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+
+        driver.get("http://example.com");
+
+        // Find the username and password fields and type values
+        WebElement username = driver.findElement(By.name("username"));
+        WebElement password = driver.findElement(By.name("password"));
+        WebElement form = driver.findElement(By.tagName("form"));
+
+        username.sendKeys("user");
+        password.sendKeys("password");
+        form.submit();
+
+        // Wait for the URL to change to the dashboard
+        wait.until(ExpectedConditions.urlContains("/dashboard"));
+
+        driver.quit();
+    }
+}
+```
+
+### Example 3: Automatic Assertions
+
+**Cypress**:
+```javascript
+// Assertions are built-in and automatically retried
+cy.get('input[name="username"]').should('be.visible').type('user');
+cy.get('input[name="password"]').should('be.visible').type('password');
+cy.get('form').should('be.visible').submit();
+cy.url().should('include', '/dashboard');
+```
+
+**Selenium (Java)**:
+```java
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
+
+public class AutomaticAssertionsExample {
+    public static void main(String[] args) {
+        WebDriver driver = new ChromeDriver();
+        WebDriverWait wait = new WebDriverWait(driver, 10);
+
+        driver.get("http://example.com");
+
+        // Wait for the username and password fields to be visible
+        WebElement username = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("username")));
+        WebElement password = wait.until(ExpectedConditions.visibilityOfElementLocated(By.name("password")));
+        WebElement form = wait.until(ExpectedConditions.visibilityOfElementLocated(By.tagName("form")));
+
+        username.sendKeys("user");
+        password.sendKeys("password");
+        form.submit();
+
+        // Wait for the URL to change to the dashboard
+        wait.until(ExpectedConditions.urlContains("/dashboard"));
+
+        driver.quit();
+    }
+}
+```
+
+In each of these examples, Selenium requires explicit waits and more verbose code to achieve the same functionality that Cypress provides out of the box. This additional complexity can slow down test execution and make tests harder to maintain.
+
+
+
+
 
 
 
