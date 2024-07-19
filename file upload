@@ -1,0 +1,23 @@
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+
+public class FileUploadWithJS {
+    public static void main(String[] args) {
+        System.setProperty("webdriver.chrome.driver", "path/to/chromedriver");
+        WebDriver driver = new ChromeDriver();
+        
+        driver.get("http://example.com/upload");
+        
+        WebElement uploadElement = driver.findElement(By.id("uploadfile"));
+        JavascriptExecutor js = (JavascriptExecutor) driver;
+        js.executeScript("arguments[0].style.display='block';", uploadElement);
+        js.executeScript("arguments[0].value='C:\\path\\to\\file.txt';", uploadElement);
+        
+        driver.findElement(By.id("submit")).click();
+        
+        driver.quit();
+    }
+}
