@@ -1,3 +1,4 @@
+import java.util.regex.*;
 import org.sikuli.script.*;
 
 public class FetchStatusBarSum {
@@ -6,22 +7,25 @@ public class FetchStatusBarSum {
 
         try {
             // Step 1: Select the range of cells in Excel
-            // Assume that we select cells from A1 to A10 (you can adjust coordinates as needed)
             s.dragDrop(new Location(100, 200), new Location(100, 400));  // Adjust coordinates
 
-            // Step 2: Locate the Excel status bar
-            // You will need to take a screenshot of the area where the sum appears and save it as "statusBar.png"
-            // Example: The sum text like "Sum: 848494839393" appears in the bottom-right corner of Excel.
-            Match statusBar = s.find("statusBar.png");  // Ensure this image is a screenshot of the part of the status bar where the sum appears
+            // Step 2: Locate the Excel status bar image
+            Match statusBar = s.find("statusBar.png");
 
             if (statusBar != null) {
                 // Step 3: Use OCR to extract the sum from the status bar
-                String sumText = statusBar.text();  // This uses OCR to get the text from the matched region
-                System.out.println("Status bar sum: " + sumText);
+                String sumText = statusBar.text();  // OCR text from the status bar
 
-                // Extract the numeric part from the sum text
-                String sumValue = sumText.replaceAll("[^0-9]", "");  // Remove any non-numeric characters
-                System.out.println("Extracted sum value: " + sumValue);
+                // Step 4: Use regex to extract the numeric portion (handle 6-digit, 13-digit, etc.)
+                Pattern pattern = Pattern.compile("\\d{6,}");  // Matches numbers with 6 or more digits
+                Matcher matcher = pattern.matcher(sumText);
+
+                if (matcher.find()) {
+                    String sumValue = matcher.group();  // Extracted numeric value
+                    System.out.println("Extracted sum value: " + sumValue);
+                } else {
+                    System.out.println("No matching sum value found in status bar text.");
+                }
             } else {
                 System.out.println("Status bar not found.");
             }
