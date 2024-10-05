@@ -1,0 +1,40 @@
+import org.sikuli.script.*;
+import java.util.Random;
+
+public class FetchNextSumExample {
+    public static void main(String[] args) {
+        // Initialize Sikuli screen object
+        Screen s = new Screen();
+
+        // Enable OCR to read text in the screen
+        Settings.OcrTextRead = true;
+        Settings.OcrLanguage = "eng"; // Set the appropriate language for OCR
+
+        try {
+            // Locate the current sum value using OCR (you can adjust the search text)
+            String searchText = "Sum";
+            Match sumCell = s.findText(searchText); // Locate the cell that has the sum
+            
+            if (sumCell != null) {
+                System.out.println("Sum cell found at: " + sumCell.getRect());
+
+                // Define the region below the current sum to move to the next range of cells
+                Region nextRange = sumCell.getRect().below(100); // Move 100 pixels below (adjust as needed)
+
+                // Highlight the next range (you can also use this to click and sum cells in Excel)
+                nextRange.highlight(2);  // Highlights the region for 2 seconds
+
+                // Assume that we use Excel's functionality to sum the next range
+                s.type("=SUM("); // Start Excel's SUM function
+                s.paste(nextRange.toString());  // Paste the range (you can manually specify range if needed)
+                s.type(")"); // Close the SUM formula
+                s.type(Key.ENTER); // Press Enter to calculate the sum
+
+            } else {
+                System.out.println("Sum cell not found.");
+            }
+        } catch (FindFailed e) {
+            e.printStackTrace();
+        }
+    }
+}
