@@ -15,13 +15,14 @@ public class FetchStatusBarSum {
             if (statusBar != null) {
                 // Step 3: Use OCR to extract the sum from the status bar
                 String sumText = statusBar.text();  // OCR text from the status bar
+                System.out.println("Raw OCR text: " + sumText);
 
-                // Step 4: Use regex to extract the numeric portion (handle 6-digit, 13-digit, etc.)
-                Pattern pattern = Pattern.compile("\\d{6,}");  // Matches numbers with 6 or more digits
+                // Step 4: Use regex to extract the numeric portion, including commas and dots
+                Pattern pattern = Pattern.compile("\\d{1,3}(,\\d{3})*(\\.\\d+)?");  
                 Matcher matcher = pattern.matcher(sumText);
 
                 if (matcher.find()) {
-                    String sumValue = matcher.group();  // Extracted numeric value
+                    String sumValue = matcher.group();  // Extracted numeric value with commas and dots
                     System.out.println("Extracted sum value: " + sumValue);
                 } else {
                     System.out.println("No matching sum value found in status bar text.");
