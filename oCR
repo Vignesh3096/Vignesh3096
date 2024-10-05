@@ -1,38 +1,31 @@
 import org.sikuli.script.*;
-import java.util.Random;
 
-public class FetchNextSumExample {
+public class FetchStatusBarSum {
     public static void main(String[] args) {
-        // Initialize Sikuli screen object
         Screen s = new Screen();
 
-        // Enable OCR to read text in the screen
-        Settings.OcrTextRead = true;
-        Settings.OcrLanguage = "eng"; // Set the appropriate language for OCR
-
         try {
-            // Locate the current sum value using OCR (you can adjust the search text)
-            String searchText = "Sum";
-            Match sumCell = s.findText(searchText); // Locate the cell that has the sum
-            
-            if (sumCell != null) {
-                System.out.println("Sum cell found at: " + sumCell.getRect());
+            // Step 1: Select the range of cells in Excel
+            // Assume that we select cells from A1 to A10 (you can adjust coordinates as needed)
+            s.dragDrop(new Location(100, 200), new Location(100, 400));  // Adjust coordinates
 
-                // Define the region below the current sum to move to the next range of cells
-                Region nextRange = sumCell.getRect().below(100); // Move 100 pixels below (adjust as needed)
+            // Step 2: Locate the Excel status bar
+            // You will need to take a screenshot of the area where the sum appears and save it as "statusBar.png"
+            // Example: The sum text like "Sum: 848494839393" appears in the bottom-right corner of Excel.
+            Match statusBar = s.find("statusBar.png");  // Ensure this image is a screenshot of the part of the status bar where the sum appears
 
-                // Highlight the next range (you can also use this to click and sum cells in Excel)
-                nextRange.highlight(2);  // Highlights the region for 2 seconds
+            if (statusBar != null) {
+                // Step 3: Use OCR to extract the sum from the status bar
+                String sumText = statusBar.text();  // This uses OCR to get the text from the matched region
+                System.out.println("Status bar sum: " + sumText);
 
-                // Assume that we use Excel's functionality to sum the next range
-                s.type("=SUM("); // Start Excel's SUM function
-                s.paste(nextRange.toString());  // Paste the range (you can manually specify range if needed)
-                s.type(")"); // Close the SUM formula
-                s.type(Key.ENTER); // Press Enter to calculate the sum
-
+                // Extract the numeric part from the sum text
+                String sumValue = sumText.replaceAll("[^0-9]", "");  // Remove any non-numeric characters
+                System.out.println("Extracted sum value: " + sumValue);
             } else {
-                System.out.println("Sum cell not found.");
+                System.out.println("Status bar not found.");
             }
+
         } catch (FindFailed e) {
             e.printStackTrace();
         }
