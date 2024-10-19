@@ -1,0 +1,45 @@
+<dependencies>
+    <!-- Appium Java Client -->
+    <dependency>
+        <groupId>io.appium</groupId>
+        <artifactId>java-client</artifactId>
+        <version>8.0.0</version>
+    </dependency>
+
+    <!-- Selenium WebDriver -->
+    <dependency>
+        <groupId>org.seleniumhq.selenium</groupId>
+        <artifactId>selenium-java</artifactId>
+        <version>4.11.0</version>
+    </dependency>
+
+    <!-- TestNG -->
+    <dependency>
+        <groupId>org.testng</groupId>
+        <artifactId>testng</artifactId>
+        <version>7.7.0</version>
+        <scope>test</scope>
+    </dependency>
+
+    <!-- Optional: WebDriverManager for managing drivers -->
+    <dependency>
+        <groupId>io.github.bonigarcia</groupId>
+        <artifactId>webdrivermanager</artifactId>
+        <version>5.5.3</version>
+    </dependency>
+</dependencies>
+
+<build>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <version>2.22.2</version>
+            <configuration>
+                <includes>
+                    <include>**/WinAppDriverTestNG.java</include>
+                </includes>
+            </configuration>
+        </plugin>
+    </plugins>
+</build>
