@@ -1,0 +1,58 @@
+import io.appium.java_client.windows.WindowsDriver;
+import io.appium.java_client.windows.WindowsElement;
+import org.openqa.selenium.remote.DesiredCapabilities;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+public class WinAppDriverTestNG {
+
+    private static WindowsDriver<WindowsElement> driver = null;
+
+    @BeforeClass
+    public void setup() {
+        try {
+            // Set desired capabilities for Windows application
+            DesiredCapabilities capabilities = new DesiredCapabilities();
+            capabilities.setCapability("app", "Microsoft.WindowsCalculator_8wekyb3d8bbwe!App"); // Calculator app
+            capabilities.setCapability("platformName", "Windows");
+            capabilities.setCapability("deviceName", "WindowsPC");
+
+            // Initialize the WindowsDriver for the Calculator app
+            driver = new WindowsDriver<>(new URL("http://127.0.0.1:4723"), capabilities);
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAddition() {
+        // Clear the display
+        driver.findElementByName("Clear").click();
+
+        // Perform 1 + 7 = operation
+        driver.findElementByName("One").click();
+        driver.findElementByName("Plus").click();
+        driver.findElementByName("Seven").click();
+        driver.findElementByName("Equals").click();
+
+        // Get the result from the Calculator display
+        String result = driver.findElementByAccessibilityId("CalculatorResults").getText();
+        System.out.println("Result: " + result);
+
+        // Validate the result using TestNG assertion
+        Assert.assertEquals(result, "Display is 8");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        // Close the driver session
+        if (driver != null) {
+            driver.quit();
+        }
+    }
+}
