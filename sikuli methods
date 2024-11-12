@@ -192,4 +192,125 @@ Screen secondaryScreen = Screen.getScreen(1);  // Accesses the second screen in 
 
 screen.setThrowException(false);  // Disable exception throwing
 
+We’ve covered a broad range of Screen class methods, including both simple and advanced functionalities. However, there are a few additional, less commonly used methods or techniques that may still be useful in specific scenarios. Here’s a list of a few additional or rarely used methods and capabilities that can be part of more complex Sikuli automation:
+
+1. Screen Region Management
+
+	•	selectRegion(): Opens a GUI selection tool to manually define a region on the screen. Useful in dynamic or exploratory automation.
+
+Region selectedRegion = screen.selectRegion();
+selectedRegion.highlight(2);  // Highlights the selected region for 2 seconds
+
+
+	•	setROI(int x, int y, int w, int h): Sets a Region of Interest (ROI) on the screen by specifying x, y, width, and height. This focuses the screen search on a specific area, improving performance.
+
+screen.setROI(100, 100, 300, 300);  // Sets a 300x300 region starting at (100, 100)
+screen.click("path/to/image.png");   // Searches and clicks only within the ROI
+
+
+	•	getROI(): Retrieves the current Region of Interest.
+
+Region roi = screen.getROI();
+
+
+	•	resetROI(): Resets the screen region to the full screen, clearing any previously set Region of Interest.
+
+screen.resetROI();
+
+
+
+2. Using Java Robot for Low-Level Interaction
+
+While not directly a Sikuli method, integrating Java’s Robot class can provide low-level control in Sikuli scripts, particularly for fine-grained actions.
+
+import java.awt.Robot;
+import java.awt.event.KeyEvent;
+
+Robot robot = new Robot();
+robot.keyPress(KeyEvent.VK_ENTER);
+robot.keyRelease(KeyEvent.VK_ENTER);
+
+3. Keyboard and Mouse Control
+
+Sikuli also has built-in methods for handling more advanced keyboard and mouse interactions:
+	•	mouseMove(Location loc): Moves the mouse to a specified location on the screen.
+
+Location loc = new Location(100, 200);
+screen.mouseMove(loc);
+
+
+	•	mouseDown(int buttons): Presses the specified mouse button(s) down without releasing, enabling custom dragging.
+
+screen.mouseDown(Button.LEFT);  // Presses left mouse button down
+
+
+	•	mouseUp(int buttons): Releases a previously held mouse button.
+
+screen.mouseUp(Button.LEFT);  // Releases left mouse button
+
+
+	•	keyDown(String keys): Holds down specified key(s).
+
+screen.keyDown(Key.CTRL + "a");  // Holds down Ctrl + A for select all
+
+
+	•	keyUp(String keys): Releases previously held key(s).
+
+screen.keyUp(Key.CTRL + "a");  // Releases Ctrl + A
+
+4. Advanced Wait and Observe Methods
+
+	•	waitFor(Object target, double timeout): Waits for a target to appear, similar to wait, but can be used in chained calls or customized conditions.
+
+screen.waitFor("path/to/image.png", 10);  // Waits up to 10 seconds for the image
+
+
+	•	hasObserver(Object target): Checks if a target is currently being observed.
+
+boolean observing = screen.hasObserver("path/to/image.png");
+System.out.println("Observing image: " + observing);
+
+5. Screen Comparison Utilities
+
+	•	capture(): Captures the current screen or a specific region as an image.
+
+screen.capture().save("path/to/save", "screenshot.png");  // Saves the entire screen as a screenshot
+
+
+	•	capture(Region region): Captures a specific region and saves it as an image.
+
+Region region = new Region(100, 100, 200, 200);
+screen.capture(region).save("path/to/save", "region_screenshot.png");
+
+6. Helper Methods and Debugging
+
+	•	log(): Logs messages to the Sikuli output. This is particularly useful for debugging and script output management.
+
+screen.log("This is a test log message.");
+
+
+	•	print(): Prints messages to the console, similar to log() but more immediate and primarily for testing scripts.
+
+screen.print("Hello, Sikuli!");
+
+7. Timeout and Error Management
+
+	•	getAutoWaitTimeout(): Retrieves the current auto-wait timeout setting.
+
+float timeout = screen.getAutoWaitTimeout();
+System.out.println("Current wait timeout: " + timeout);
+
+
+	•	getThrowException(): Checks whether Sikuli is set to throw exceptions on failed matches.
+
+boolean willThrow = screen.getThrowException();
+System.out.println("Will throw exceptions: " + willThrow);
+
+
+	•	getWaitScanRate(): Retrieves the current scan rate used in wait operations.
+
+int scanRate = screen.getWaitScanRate();
+System.out.println("Wait scan rate: " + scanRate);
+
+These additional methods provide some specialized control for screen regions, keyboard and mouse events, logging, and exception management. Sikuli’s extensive API offers flexibility for both standard and advanced automation needs. Let me know if you’d like examples or explanations for any other specific methods!
 These examples should cover the primary methods and offer a wide variety of use cases for Screen class methods in Sikuli. Let me know if you need more detailed examples on any particular method!
