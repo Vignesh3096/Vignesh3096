@@ -1,0 +1,195 @@
+Here’s a comprehensive set of examples for the major Sikuli Screen class methods, organized by category. To make this manageable, I’ll demonstrate each key concept rather than provide exhaustive examples for all methods. Feel free to let me know if you need more specific examples for certain methods!
+
+1. Basic Finding and Waiting
+
+	•	find(Object target): Searches for the specified image or pattern on the screen.
+
+Screen screen = new Screen();
+Match match = screen.find("path/to/image.png");  // Finds the specified image on the screen
+
+
+	•	wait(Object target, double timeout): Waits for the target to appear on the screen.
+
+screen.wait("path/to/image.png", 10);  // Waits up to 10 seconds for the image
+
+
+	•	exists(Object target, double timeout): Checks if the target appears within the timeout.
+
+if (screen.exists("path/to/image.png", 5) != null) {
+    System.out.println("Image found!");
+}
+
+
+	•	waitVanish(Object target, double timeout): Waits for the target to disappear.
+
+screen.waitVanish("path/to/image.png", 5);  // Waits up to 5 seconds for the image to vanish
+
+2. Basic Clicking and Typing
+
+	•	click(Object target): Clicks on the specified target on the screen.
+
+screen.click("path/to/image.png");  // Clicks on the image
+
+
+	•	doubleClick(Object target): Double-clicks on the target.
+
+screen.doubleClick("path/to/image.png");  // Double-clicks on the image
+
+
+	•	rightClick(Object target): Right-clicks on the target.
+
+screen.rightClick("path/to/image.png");  // Right-clicks on the image
+
+
+	•	type(String text): Types the specified text at the current location.
+
+screen.type("Hello World!");  // Types the text
+
+
+	•	paste(String text): Pastes text at the current location.
+
+screen.paste("Sample text to paste");  // Pastes the text
+
+3. Drag and Drop
+
+	•	dragDrop(Object from, Object to): Drags from a start location to an end location.
+
+screen.dragDrop("path/to/startImage.png", "path/to/endImage.png");
+
+
+	•	drag(Object target): Begins dragging from the specified target.
+
+screen.drag("path/to/image.png");
+
+
+	•	dropAt(Object target): Drops the dragged item at the specified target.
+
+screen.dropAt("path/to/targetImage.png");
+
+4. Screen Information
+
+	•	getNumberScreens(): Returns the number of screens connected.
+
+int screens = screen.getNumberScreens();
+System.out.println("Number of screens: " + screens);
+
+
+	•	getBounds(): Gets the screen bounds.
+
+Rectangle bounds = screen.getBounds();
+System.out.println("Screen bounds: " + bounds);
+
+
+	•	getCenter(): Returns the screen’s center location.
+
+Location center = screen.getCenter();
+screen.click(center);  // Clicks at the center of the screen
+
+5. Highlighting
+
+	•	highlight(int seconds): Highlights the entire screen for a duration.
+
+screen.highlight(2);  // Highlights the screen for 2 seconds
+
+6. Observing Events
+
+	•	onAppear(Object target, ObserverCallBack callback): Sets an event for when the target appears.
+
+screen.onAppear("path/to/image.png", new ObserverCallBack() {
+    public void appeared(ObserveEvent e) {
+        System.out.println("Image appeared!");
+    }
+});
+
+7. Pattern Matching
+
+	•	findAll(Object target): Finds all occurrences of the specified target.
+
+Iterator<Match> matches = screen.findAll("path/to/image.png");
+while (matches.hasNext()) {
+    Match match = matches.next();
+    screen.click(match);  // Click each found instance
+}
+
+8. Location and Coordinate Management
+
+	•	setLocation(Location loc): Sets the screen’s focus to the specified location.
+
+Location loc = new Location(100, 100);
+screen.setLocation(loc);  // Sets focus to (100, 100) on the screen
+
+9. Advanced Pattern Matching
+
+	•	setPattern(Pattern pattern): Sets a specific pattern as the target.
+
+Pattern pattern = new Pattern("path/to/image.png").similar(0.8);
+screen.setPattern(pattern);
+screen.click();  // Clicks using the set pattern
+
+
+	•	setSimilarity(float similarity): Sets the similarity threshold.
+
+screen.setSimilarity(0.85f);  // Sets similarity threshold to 85%
+
+10. Image Caching
+
+	•	setImageCache(int cacheSize): Sets the number of images Sikuli caches in memory.
+
+screen.setImageCache(10);  // Cache up to 10 images
+
+
+	•	clearImageCache(): Clears the cached images.
+
+screen.clearImageCache();
+
+11. Pixel and Color Analysis
+
+	•	getColor(int x, int y): Returns the color at specified coordinates.
+
+Color color = screen.getColor(200, 300);
+System.out.println("Color at (200, 300): " + color);
+
+
+	•	isColor(Color color, int x, int y): Checks if the color at a location matches.
+
+if (screen.isColor(Color.RED, 200, 300)) {
+    System.out.println("Color is RED at the specified location.");
+}
+
+12. Handling Matches
+
+	•	clickAll(Object target): Clicks on all occurrences of a target.
+
+screen.clickAll("path/to/image.png");  // Clicks on all occurrences of the image
+
+13. Adaptive and Custom Waiting
+
+	•	setAutoWaitTimeout(float timeout): Sets a default timeout for all wait calls.
+
+screen.setAutoWaitTimeout(5);  // Set default wait timeout to 5 seconds
+
+
+	•	setWaitScanRate(int milliseconds): Sets the interval between scans during wait.
+
+screen.setWaitScanRate(500);  // Sets scan rate to 500 ms
+
+14. OCR and Text Recognition
+
+	•	text(): Extracts visible text from the screen.
+
+String screenText = screen.text();
+System.out.println("Screen text: " + screenText);
+
+15. Multi-Screen Support
+
+	•	getScreen(int id): Gets a screen object for a specific screen ID.
+
+Screen secondaryScreen = Screen.getScreen(1);  // Accesses the second screen in a multi-monitor setup
+
+16. Exception and Timeout Control
+
+	•	setThrowException(boolean throwException): Sets whether exceptions should be thrown on match failures.
+
+screen.setThrowException(false);  // Disable exception throwing
+
+These examples should cover the primary methods and offer a wide variety of use cases for Screen class methods in Sikuli. Let me know if you need more detailed examples on any particular method!
