@@ -1,0 +1,117 @@
+import org.apache.poi.openxml4j.opc.OPCPackage;
+import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.InputStream;
+import java.util.HashSet;
+
+public class ExcelUniqueValueExtractor {
+
+    /**
+     * Fetches unique values from a specific column of a specified sheet in an Excel file.
+     *
+     * @param filePath   The path to the Excel file.
+     * @param sheetName  The name of the sheet to process.
+     * @param columnName The column name (e.g., "A", "B") from which to fetch unique values.
+     * @return A set of unique values from the specified column.
+     * @throws Exception If an error occurs while reading the file.
+     */
+    public HashSet<String> fetchUniqueValues(String filePath, String sheetName, String columnName) throws Exception {
+        HashSet<String> uniqueValues = new HashSet<>();
+
+        // Open the Excel file
+        OPCPackage pkg = OPCPackage.open(filePath);
+        XSSFReader reader = new XSSFReader(pkg);
+
+        // Locate the target sheet by name
+        XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
+        InputStream targetSheetStream = null;
+        while (sheets.hasNext()) {
+            InputStream sheetStream = sheets.next();
+            if (sheets.getSheetName().equalsIgnoreCase(sheetName)) {
+                targetSheetStream = sheetStream;
+                break;
+            }
+            sheetStream.close();
+        }
+
+        if (targetSheetStream == null) {
+            pkg.close();
+            throw new IllegalArgumentException("Sheet with name '" + sheetName + "' not found.");
+        }
+
+        // Create a SAX parser
+        SAXParserFactory factory = SAXParserFactory.newInstance();
+        SAXParser saxParser = factory.newSAXParser();
+        XMLReader xmlReader = saxParser.getXMLReader();
+
+        // Custom handler to process unique values for the specified column
+        UniqueColumnValueHandler handler = new UniqueColumnValueHandler(columnName);
+        xmlReader.setContentHandler(handler);
+
+        // Parse the target sheet
+        InputSource sheetSource = new InputSource(targetSheetStream);
+        xmlReader.parse(sheetSource);
+
+        targetSheetStream.close();
+        pkg.close();
+
+        return handler.getUniqueValues();
+    }
+}
+
+// Custom SAX handler to extract unique values from a specific column
+class UniqueColumnValueHandler extends org.xml.sax.helpers.DefaultHandler {
+    private final HashSet<String> uniqueValues = new HashSet<>();
+    private final String targetColumn;
+    private boolean isValueElement = false;
+    private StringBuilder currentValue = new StringBuilder();
+    private String currentCellReference;
+
+    public UniqueColumnValueHandler(String targetColumn) {
+        this.targetColumn = targetColumn.toUpperCase();
+    }
+
+    public HashSet<String> getUniqueValues() {
+        return uniqueValues;
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        // Detect when inside a cell element
+        if ("c".equals(qName)) {
+            currentCellReference = attributes.getValue("r"); // Get cell reference (e.g., A1, B2)
+        }
+
+        // Detect when inside a value element
+        if ("v".equals(qName)) {
+            isValueElement = true;
+            currentValue.setLength(0); // Reset the current value
+        }
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) {
+        if (isValueElement) {
+            currentValue.append(ch, start, length);
+        }
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) {
+        // Add the value to the set when reaching the end of a value element
+        if ("v".equals(qName)) {
+            isValueElement = false;
+            String value = currentValue.toString().trim();
+
+            // Check if the cell belongs to the target column
+            if (currentCellReference != null && currentCellReference.startsWith(targetColumn)) {
+                uniqueValues.add(value);
+            }
+        }
+    }
+}
