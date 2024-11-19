@@ -1,135 +1,192 @@
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
+import org.apache.poi.ss.usermodel.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
+import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.ArrayList;
 
-public class ExcelAllCellTypesExtractor {
+public class ExcelUniqueValuesSAX {
 
-    /**
-     * Fetches unique values from a specific column of a specified sheet in an Excel file, handling all cell types.
-     *
-     * @param filePath   The path to the Excel file.
-     * @param sheetName  The name of the sheet to process.
-     * @param columnName The column name (e.g., "A", "B") from which to fetch unique values.
-     * @return A set of unique values from the specified column.
-     * @throws Exception If an error occurs while reading the file.
-     */
-    public HashSet<String> fetchUniqueValues(String filePath, String sheetName, String columnName) throws Exception {
-        HashSet<String> uniqueValues = new HashSet<>();
+    public static void main(String[] args) {
+        String excelFilePath = "path/to/your/excel/file.xlsx"; // Replace with your file path
+        String targetSheetName = "YourSheetName"; // Replace with your target sheet name
+        String targetColumnName = "YourColumnName"; // Replace with your target column name
 
-        // Open the Excel file
-        OPCPackage pkg = OPCPackage.open(filePath);
-        XSSFReader reader = new XSSFReader(pkg);
-        SharedStringsTable sharedStringsTable = reader.getSharedStringsTable();
+        try (FileInputStream fis = new FileInputStream(excelFilePath)) {
+            // Open the Excel file package
+            OPCPackage pkg = OPCPackage.open(fis);
+            XSSFReader reader = new XSSFReader(pkg);
 
-        // Locate the target sheet by name
-        XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
-        InputStream targetSheetStream = null;
-        while (sheets.hasNext()) {
-            InputStream sheetStream = sheets.next();
-            if (sheets.getSheetName().equalsIgnoreCase(sheetName)) {
-                targetSheetStream = sheetStream;
-                break;
+            // Get shared strings XML and parse the shared strings
+            List<String> sharedStrings = parseSharedStrings(reader);
+
+            // Iterate through sheets to find the target sheet
+            XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
+            InputStream targetSheetStream = null;
+            while (sheets.hasNext()) {
+                InputStream sheetStream = sheets.next();
+                if (sheets.getSheetName().equalsIgnoreCase(targetSheetName)) {
+                    targetSheetStream = sheetStream;
+                    break;
+                }
+                sheetStream.close();
             }
-            sheetStream.close();
-        }
 
-        if (targetSheetStream == null) {
+            if (targetSheetStream == null) {
+                System.out.println("Sheet name '" + targetSheetName + "' not found.");
+                return;
+            }
+
+            // Create SAX parser
+            SAXParserFactory factory = SAXParserFactory.newInstance();
+            SAXParser saxParser = factory.newSAXParser();
+            XMLReader xmlReader = saxParser.getXMLReader();
+
+            // Create the handler for processing the sheet
+            UniqueValueHandler handler = new UniqueValueHandler(targetColumnName, sharedStrings);
+            xmlReader.setContentHandler(handler);
+
+            // Parse the sheet
+            InputSource sheetSource = new InputSource(targetSheetStream);
+            xmlReader.parse(sheetSource);
+
+            // Output the unique values
+            Set<String> uniqueValues = handler.getUniqueValues();
+            System.out.println("Unique values in column '" + targetColumnName + "' in sheet '" + targetSheetName + "': " + uniqueValues);
+
+            // Close the stream and package
+            targetSheetStream.close();
             pkg.close();
-            throw new IllegalArgumentException("Sheet with name '" + sheetName + "' not found.");
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+    }
 
-        // Create a SAX parser
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        SAXParser saxParser = factory.newSAXParser();
-        XMLReader xmlReader = saxParser.getXMLReader();
-
-        // Custom handler to process unique values for the specified column
-        AllCellTypesHandler handler = new AllCellTypesHandler(columnName, sharedStringsTable);
-        xmlReader.setContentHandler(handler);
-
-        // Parse the target sheet
-        InputSource sheetSource = new InputSource(targetSheetStream);
-        xmlReader.parse(sheetSource);
-
-        targetSheetStream.close();
-        pkg.close();
-
-        return handler.getUniqueValues();
+    // Method to parse shared strings from sharedStrings.xml
+    private static List<String> parseSharedStrings(XSSFReader reader) throws IOException {
+        List<String> sharedStrings = new ArrayList<>();
+        try (InputStream sharedStringsInputStream = reader.getSharedStringsData()) {
+            SharedStringsParser sharedStringsParser = new SharedStringsParser(sharedStrings);
+            XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+            xmlReader.setContentHandler(sharedStringsParser);
+            xmlReader.parse(new InputSource(sharedStringsInputStream));
+        }
+        return sharedStrings;
     }
 }
 
-// Custom SAX handler to handle all cell types
-class AllCellTypesHandler extends org.xml.sax.helpers.DefaultHandler {
-    private final HashSet<String> uniqueValues = new HashSet<>();
+// Custom SAX handler to parse shared strings
+class SharedStringsParser extends DefaultHandler {
+    private final List<String> sharedStrings;
+    private boolean isTextElement = false;
+    private StringBuilder currentText = new StringBuilder();
+
+    public SharedStringsParser(List<String> sharedStrings) {
+        this.sharedStrings = sharedStrings;
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) {
+        if ("t".equals(qName)) {
+            // Start of a shared string element
+            isTextElement = true;
+            currentText.setLength(0); // Clear previous text
+        }
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) {
+        if (isTextElement) {
+            currentText.append(ch, start, length); // Collect the text of the shared string
+        }
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) {
+        if ("t".equals(qName)) {
+            // End of a shared string element
+            sharedStrings.add(currentText.toString());
+            isTextElement = false;
+        }
+    }
+}
+
+// SAX Handler for parsing the main sheet and extracting unique values
+class UniqueValueHandler extends DefaultHandler {
+    private final Set<String> uniqueValues = new HashSet<>();
     private final String targetColumn;
-    private final SharedStringsTable sharedStringsTable;
+    private final List<String> sharedStrings;
+
     private boolean isValueElement = false;
     private StringBuilder currentValue = new StringBuilder();
     private String currentCellReference;
     private String cellType;
 
-    public AllCellTypesHandler(String targetColumn, SharedStringsTable sharedStringsTable) {
-        this.targetColumn = targetColumn.toUpperCase();
-        this.sharedStringsTable = sharedStringsTable;
+    public UniqueValueHandler(String targetColumn, List<String> sharedStrings) {
+        this.targetColumn = targetColumn.toUpperCase();  // Convert to uppercase for uniformity
+        this.sharedStrings = sharedStrings;
     }
 
-    public HashSet<String> getUniqueValues() {
+    public Set<String> getUniqueValues() {
         return uniqueValues;
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        // Detect when inside a cell element
         if ("c".equals(qName)) {
-            currentCellReference = attributes.getValue("r"); // Get cell reference (e.g., A1, B2)
-            cellType = attributes.getValue("t"); // Cell type (e.g., string, boolean, etc.)
+            // Get cell reference and type (t)
+            currentCellReference = attributes.getValue("r");
+            cellType = attributes.getValue("t");
         }
 
-        // Detect when inside a value element
+        // Check if inside a value tag (v)
         if ("v".equals(qName)) {
             isValueElement = true;
-            currentValue.setLength(0); // Reset the current value
+            currentValue.setLength(0); // Reset the value
         }
     }
 
     @Override
     public void characters(char[] ch, int start, int length) {
         if (isValueElement) {
-            currentValue.append(ch, start, length);
+            currentValue.append(ch, start, length); // Collect value
         }
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) {
-        // Add the value to the set when reaching the end of a value element
         if ("v".equals(qName)) {
             isValueElement = false;
 
-            // Extract the value based on the cell type
             String value = currentValue.toString().trim();
             if (currentCellReference != null && currentCellReference.startsWith(targetColumn)) {
                 if ("s".equals(cellType)) {
-                    // Handle shared string cell type
+                    // Shared string type (s)
                     int index = Integer.parseInt(value);
-                    // Use XSSFRichTextString to resolve the shared string
-                    XSSFRichTextString richText = new XSSFRichTextString(sharedStringsTable.getEntryAt(index).toString());
-                    value = richText.toString();
+                    value = sharedStrings.get(index); // Retrieve shared string from the list
                 } else if ("b".equals(cellType)) {
-                    // Handle boolean cell type
+                    // Boolean type (b)
                     value = "1".equals(value) ? "TRUE" : "FALSE";
                 } else if (cellType == null || "n".equals(cellType)) {
-                    // Numeric or formula type: Value is already in the correct format
+                    // Numeric or formula type
+                    // The value is already numeric, so no change
                 }
 
+                // Add value to unique set
                 if (!value.isEmpty()) {
                     uniqueValues.add(value);
                 }
