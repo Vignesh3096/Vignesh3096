@@ -1,11 +1,11 @@
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.ss.usermodel.*;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
+import org.apache.poi.ss.usermodel.*;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -24,7 +24,7 @@ public class ExcelUniqueValuesSAX {
         Set<String> uniqueValues = new HashSet<>();
 
         try (FileInputStream fis = new FileInputStream(excelFilePath)) {
-            // Open the Excel file package
+            // Open the Excel file package for streaming reading
             OPCPackage pkg = OPCPackage.open(fis);
             XSSFReader reader = new XSSFReader(pkg);
 
@@ -68,7 +68,10 @@ public class ExcelUniqueValuesSAX {
             targetSheetStream.close();
             pkg.close();
 
+        } catch (IOException e) {
+            System.err.println("IOException: " + e.getMessage());
         } catch (Exception e) {
+            System.err.println("Error: " + e.getMessage());
             e.printStackTrace();
         }
 
