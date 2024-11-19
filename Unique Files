@@ -9,7 +9,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -185,7 +184,7 @@ public class ExcelUniqueValuesSAX {
                         // The value is already numeric, so no change
                     }
 
-                    // Add value to unique set
+                    // Add value to unique set if it's not empty
                     if (!value.isEmpty()) {
                         uniqueValues.add(value);
                     }
