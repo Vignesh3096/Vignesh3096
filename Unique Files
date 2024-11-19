@@ -20,10 +20,9 @@ import java.util.ArrayList;
 
 public class ExcelUniqueValuesSAX {
 
-    public static void main(String[] args) {
-        String excelFilePath = "path/to/your/excel/file.xlsx"; // Replace with your file path
-        String targetSheetName = "YourSheetName"; // Replace with your target sheet name
-        String targetColumnName = "YourColumnName"; // Replace with your target column name
+    // Method to get unique values from the specified column in a given sheet
+    public static Set<String> getUniqueValues(String excelFilePath, String targetSheetName, String targetColumnName) {
+        Set<String> uniqueValues = new HashSet<>();
 
         try (FileInputStream fis = new FileInputStream(excelFilePath)) {
             // Open the Excel file package
@@ -47,7 +46,7 @@ public class ExcelUniqueValuesSAX {
 
             if (targetSheetStream == null) {
                 System.out.println("Sheet name '" + targetSheetName + "' not found.");
-                return;
+                return uniqueValues;
             }
 
             // Create SAX parser
@@ -64,8 +63,7 @@ public class ExcelUniqueValuesSAX {
             xmlReader.parse(sheetSource);
 
             // Output the unique values
-            Set<String> uniqueValues = handler.getUniqueValues();
-            System.out.println("Unique values in column '" + targetColumnName + "' in sheet '" + targetSheetName + "': " + uniqueValues);
+            uniqueValues = handler.getUniqueValues();
 
             // Close the stream and package
             targetSheetStream.close();
@@ -74,6 +72,8 @@ public class ExcelUniqueValuesSAX {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return uniqueValues;
     }
 
     // Method to parse shared strings from sharedStrings.xml
@@ -87,108 +87,108 @@ public class ExcelUniqueValuesSAX {
         }
         return sharedStrings;
     }
-}
 
-// Custom SAX handler to parse shared strings
-class SharedStringsParser extends DefaultHandler {
-    private final List<String> sharedStrings;
-    private boolean isTextElement = false;
-    private StringBuilder currentText = new StringBuilder();
+    // Custom SAX handler to parse shared strings
+    static class SharedStringsParser extends DefaultHandler {
+        private final List<String> sharedStrings;
+        private boolean isTextElement = false;
+        private StringBuilder currentText = new StringBuilder();
 
-    public SharedStringsParser(List<String> sharedStrings) {
-        this.sharedStrings = sharedStrings;
-    }
+        public SharedStringsParser(List<String> sharedStrings) {
+            this.sharedStrings = sharedStrings;
+        }
 
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        if ("t".equals(qName)) {
-            // Start of a shared string element
-            isTextElement = true;
-            currentText.setLength(0); // Clear previous text
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if ("t".equals(qName)) {
+                // Start of a shared string element
+                isTextElement = true;
+                currentText.setLength(0); // Clear previous text
+            }
+        }
+
+        @Override
+        public void characters(char[] ch, int start, int length) {
+            if (isTextElement) {
+                currentText.append(ch, start, length); // Collect the text of the shared string
+            }
+        }
+
+        @Override
+        public void endElement(String uri, String localName, String qName) {
+            if ("t".equals(qName)) {
+                // End of a shared string element
+                sharedStrings.add(currentText.toString());
+                isTextElement = false;
+            }
         }
     }
 
-    @Override
-    public void characters(char[] ch, int start, int length) {
-        if (isTextElement) {
-            currentText.append(ch, start, length); // Collect the text of the shared string
-        }
-    }
+    // SAX Handler for parsing the main sheet and extracting unique values
+    static class UniqueValueHandler extends DefaultHandler {
+        private final Set<String> uniqueValues = new HashSet<>();
+        private final String targetColumn;
+        private final List<String> sharedStrings;
 
-    @Override
-    public void endElement(String uri, String localName, String qName) {
-        if ("t".equals(qName)) {
-            // End of a shared string element
-            sharedStrings.add(currentText.toString());
-            isTextElement = false;
-        }
-    }
-}
+        private boolean isValueElement = false;
+        private StringBuilder currentValue = new StringBuilder();
+        private String currentCellReference;
+        private String cellType;
 
-// SAX Handler for parsing the main sheet and extracting unique values
-class UniqueValueHandler extends DefaultHandler {
-    private final Set<String> uniqueValues = new HashSet<>();
-    private final String targetColumn;
-    private final List<String> sharedStrings;
-
-    private boolean isValueElement = false;
-    private StringBuilder currentValue = new StringBuilder();
-    private String currentCellReference;
-    private String cellType;
-
-    public UniqueValueHandler(String targetColumn, List<String> sharedStrings) {
-        this.targetColumn = targetColumn.toUpperCase();  // Convert to uppercase for uniformity
-        this.sharedStrings = sharedStrings;
-    }
-
-    public Set<String> getUniqueValues() {
-        return uniqueValues;
-    }
-
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) {
-        if ("c".equals(qName)) {
-            // Get cell reference and type (t)
-            currentCellReference = attributes.getValue("r");
-            cellType = attributes.getValue("t");
+        public UniqueValueHandler(String targetColumn, List<String> sharedStrings) {
+            this.targetColumn = targetColumn.toUpperCase();  // Convert to uppercase for uniformity
+            this.sharedStrings = sharedStrings;
         }
 
-        // Check if inside a value tag (v)
-        if ("v".equals(qName)) {
-            isValueElement = true;
-            currentValue.setLength(0); // Reset the value
+        public Set<String> getUniqueValues() {
+            return uniqueValues;
         }
-    }
 
-    @Override
-    public void characters(char[] ch, int start, int length) {
-        if (isValueElement) {
-            currentValue.append(ch, start, length); // Collect value
+        @Override
+        public void startElement(String uri, String localName, String qName, Attributes attributes) {
+            if ("c".equals(qName)) {
+                // Get cell reference and type (t)
+                currentCellReference = attributes.getValue("r");
+                cellType = attributes.getValue("t");
+            }
+
+            // Check if inside a value tag (v)
+            if ("v".equals(qName)) {
+                isValueElement = true;
+                currentValue.setLength(0); // Reset the value
+            }
         }
-    }
 
-    @Override
-    public void endElement(String uri, String localName, String qName) {
-        if ("v".equals(qName)) {
-            isValueElement = false;
+        @Override
+        public void characters(char[] ch, int start, int length) {
+            if (isValueElement) {
+                currentValue.append(ch, start, length); // Collect value
+            }
+        }
 
-            String value = currentValue.toString().trim();
-            if (currentCellReference != null && currentCellReference.startsWith(targetColumn)) {
-                if ("s".equals(cellType)) {
-                    // Shared string type (s)
-                    int index = Integer.parseInt(value);
-                    value = sharedStrings.get(index); // Retrieve shared string from the list
-                } else if ("b".equals(cellType)) {
-                    // Boolean type (b)
-                    value = "1".equals(value) ? "TRUE" : "FALSE";
-                } else if (cellType == null || "n".equals(cellType)) {
-                    // Numeric or formula type
-                    // The value is already numeric, so no change
-                }
+        @Override
+        public void endElement(String uri, String localName, String qName) {
+            if ("v".equals(qName)) {
+                isValueElement = false;
 
-                // Add value to unique set
-                if (!value.isEmpty()) {
-                    uniqueValues.add(value);
+                String value = currentValue.toString().trim();
+                if (currentCellReference != null && currentCellReference.startsWith(targetColumn)) {
+                    if ("s".equals(cellType)) {
+                        // Shared string type (s)
+                        int index = Integer.parseInt(value);
+                        value = sharedStrings.get(index); // Retrieve shared string from the list
+                    } else if ("b".equals(cellType)) {
+                        // Boolean type (b)
+                        value = "1".equals(value) ? "TRUE" : "FALSE";
+                    } else if (cellType == null || "n".equals(cellType)) {
+                        // Numeric or formula type
+                        // The value is already numeric, so no change
+                    }
+
+                    // Add value to unique set
+                    if (!value.isEmpty()) {
+                        uniqueValues.add(value);
+                    }
                 }
             }
         }
