@@ -1,5 +1,6 @@
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
+import org.apache.poi.xssf.model.SharedStringsTable;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -26,6 +27,7 @@ public class ExcelAllCellTypesExtractor {
         // Open the Excel file
         OPCPackage pkg = OPCPackage.open(filePath);
         XSSFReader reader = new XSSFReader(pkg);
+        SharedStringsTable sharedStringsTable = reader.getSharedStringsTable();
 
         // Locate the target sheet by name
         XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) reader.getSheetsData();
@@ -50,7 +52,7 @@ public class ExcelAllCellTypesExtractor {
         XMLReader xmlReader = saxParser.getXMLReader();
 
         // Custom handler to process unique values for the specified column
-        AllCellTypesHandler handler = new AllCellTypesHandler(columnName);
+        AllCellTypesHandler handler = new AllCellTypesHandler(columnName, sharedStringsTable);
         xmlReader.setContentHandler(handler);
 
         // Parse the target sheet
@@ -68,13 +70,15 @@ public class ExcelAllCellTypesExtractor {
 class AllCellTypesHandler extends org.xml.sax.helpers.DefaultHandler {
     private final HashSet<String> uniqueValues = new HashSet<>();
     private final String targetColumn;
+    private final SharedStringsTable sharedStringsTable;
     private boolean isValueElement = false;
     private StringBuilder currentValue = new StringBuilder();
     private String currentCellReference;
     private String cellType;
 
-    public AllCellTypesHandler(String targetColumn) {
+    public AllCellTypesHandler(String targetColumn, SharedStringsTable sharedStringsTable) {
         this.targetColumn = targetColumn.toUpperCase();
+        this.sharedStringsTable = sharedStringsTable;
     }
 
     public HashSet<String> getUniqueValues() {
@@ -113,14 +117,14 @@ class AllCellTypesHandler extends org.xml.sax.helpers.DefaultHandler {
             String value = currentValue.toString().trim();
             if (currentCellReference != null && currentCellReference.startsWith(targetColumn)) {
                 if ("s".equals(cellType)) {
-                    // Handle string cell type (shared string)
-                    value = handleSharedString(value);
+                    // Handle shared string cell type
+                    int index = Integer.parseInt(value);
+                    value = sharedStringsTable.getItemAt(index).getString();
                 } else if ("b".equals(cellType)) {
                     // Handle boolean cell type
                     value = "1".equals(value) ? "TRUE" : "FALSE";
                 } else if (cellType == null || "n".equals(cellType)) {
-                    // Handle numeric or formula cell type
-                    // No conversion needed for numeric types
+                    // Numeric or formula type: Value is already in the correct format
                 }
 
                 if (!value.isEmpty()) {
@@ -128,11 +132,5 @@ class AllCellTypesHandler extends org.xml.sax.helpers.DefaultHandler {
                 }
             }
         }
-    }
-
-    private String handleSharedString(String index) {
-        // This method would resolve the shared string index if needed
-        // For simplicity, we'll assume the value is directly usable for this example.
-        return index;
     }
 }
