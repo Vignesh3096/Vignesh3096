@@ -76,13 +76,17 @@ public class ExcelUniqueValuesSAX {
     }
 
     // Method to parse shared strings from sharedStrings.xml
-    private static List<String> parseSharedStrings(XSSFReader reader) throws IOException {
+    private static List<String> parseSharedStrings(XSSFReader reader) {
         List<String> sharedStrings = new ArrayList<>();
         try (InputStream sharedStringsInputStream = reader.getSharedStringsData()) {
             SharedStringsParser sharedStringsParser = new SharedStringsParser(sharedStrings);
-            XMLReader xmlReader = XMLReaderFactory.createXMLReader();
+            XMLReader xmlReader = org.xml.sax.helpers.XMLReaderFactory.createXMLReader();
             xmlReader.setContentHandler(sharedStringsParser);
             xmlReader.parse(new InputSource(sharedStringsInputStream));
+        } catch (IOException e) {
+            System.err.println("IOException while reading shared strings: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Error while parsing shared strings: " + e.getMessage());
         }
         return sharedStrings;
     }
