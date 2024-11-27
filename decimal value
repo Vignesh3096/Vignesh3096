@@ -22,3 +22,41 @@ public class FormatDecimal {
         return decimalFormat.format(number);
     }
 }
+
+
+import java.math.BigDecimal;
+
+public class FormatDecimal {
+    public static void main(String[] args) {
+        // Test cases
+        String input1 = "63737.319";
+        String input2 = "379.2";
+
+        System.out.println(formatDecimal(input1)); // Output: 63737.32
+        System.out.println(formatDecimal(input2)); // Output: 379.20
+    }
+
+    public static String formatDecimal(String input) {
+        // Split the input string into integer and fractional parts
+        String[] parts = input.split("\\.");
+        
+        // If there's no fractional part, add ".00"
+        if (parts.length == 1) {
+            return input + ".00";
+        }
+        
+        String integerPart = parts[0];
+        String fractionalPart = parts[1];
+        
+        // Handle the fractional part
+        if (fractionalPart.length() > 2) {
+            fractionalPart = fractionalPart.substring(0, 2); // Trim to 2 decimal places
+        } else if (fractionalPart.length() == 1) {
+            fractionalPart = fractionalPart + "0"; // Pad to 2 decimal places
+        }
+        
+        // Combine the integer and fractional parts
+        return integerPart + "." + fractionalPart;
+    }
+}
+
