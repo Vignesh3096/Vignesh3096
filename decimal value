@@ -1,0 +1,24 @@
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+
+public class FormatDecimal {
+    public static void main(String[] args) {
+        // Test cases
+        String input1 = "63737.319";
+        String input2 = "379.2";
+
+        System.out.println(formatDecimal(input1)); // Output: 63737.32
+        System.out.println(formatDecimal(input2)); // Output: 379.20
+    }
+
+    public static String formatDecimal(String input) {
+        // Convert the string to BigDecimal
+        BigDecimal number = new BigDecimal(input);
+        // Round to 2 decimal places
+        number = number.setScale(2, BigDecimal.ROUND_DOWN);
+
+        // Format to ensure 2 decimal places
+        DecimalFormat decimalFormat = new DecimalFormat("0.00");
+        return decimalFormat.format(number);
+    }
+}
