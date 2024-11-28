@@ -1,0 +1,1 @@
+String excelFormula = "ROUND(SUM(INDIRECT(ADDRESS(1, COLUMN()) & \":\" & ADDRESS(ROW()-1, COLUMN()))), 2)";
