@@ -1,0 +1,54 @@
+import org.sikuli.script.Screen;
+import org.sikuli.script.Pattern;
+import org.sikuli.script.Match;
+
+public class DrillThroughHandler {
+    public static void main(String[] args) {
+        Screen screen = new Screen();
+        
+        // Define the images for Sheet1 and the empty results pop-up
+        Pattern sheet1Pattern = new Pattern("path_to_sheet1_image.png");
+        Pattern popUpPattern = new Pattern("path_to_popup_image.png");
+        Pattern okButtonPattern = new Pattern("path_to_ok_button_image.png");
+
+        try {
+            boolean sheetGenerated = false;
+            boolean popUpAppeared = false;
+
+            // Loop to check for either the sheet or the pop-up
+            for (int i = 0; i < 60; i++) { // Check every 10 seconds, up to 60 iterations (10 mins)
+                Match sheet1 = screen.exists(sheet1Pattern, 10); // Check for Sheet1
+                Match popUp = screen.exists(popUpPattern, 10); // Check for the pop-up
+
+                if (sheet1 != null) {
+                    sheetGenerated = true;
+                    break;
+                } else if (popUp != null) {
+                    popUpAppeared = true;
+                    break;
+                }
+
+                Thread.sleep(10000); // Wait for 10 seconds before the next check
+            }
+
+            if (sheetGenerated) {
+                // If Sheet1 is detected, rename it
+                screen.click(sheet1Pattern);
+                screen.type("n", org.sikuli.script.KeyModifier.CTRL); // Ctrl + N to rename
+                screen.type("NewSheetName"); // Enter the new sheet name
+                screen.type(org.sikuli.script.Key.ENTER); // Press Enter
+            } else if (popUpAppeared) {
+                // If the pop-up is detected, click the OK button and fail the script
+                screen.click(okButtonPattern);
+                System.out.println("Empty results pop-up appeared. Failing the script.");
+                System.exit(1); // Exit with a non-zero status to indicate failure
+            } else {
+                System.out.println("Neither Sheet1 nor the pop-up appeared within the time limit.");
+                System.exit(1); // Exit with failure if neither appeared
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1); // Exit with failure on exception
+        }
+    }
+}
