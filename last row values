@@ -1,0 +1,34 @@
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;  // For .xlsx files
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;  // For .xls files
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class ExcelReader {
+    public static void main(String[] args) {
+        String filePath = "example.xlsx";  // Replace with your file path
+        try (FileInputStream file = new FileInputStream(filePath)) {
+            Workbook workbook = new XSSFWorkbook(file);  // Use HSSFWorkbook for .xls files
+            Sheet sheet = workbook.getSheetAt(0);  // Get the first sheet, or use sheet name with getSheet("SheetName")
+
+            // Total number of rows
+            int totalRows = sheet.getLastRowNum() + 1;  // +1 because getLastRowNum() is zero-based
+            System.out.println("Total number of rows: " + totalRows);
+
+            // Fetch the last row
+            Row lastRow = sheet.getRow(sheet.getLastRowNum());
+
+            // Assuming the last row has data in the first column
+            if (lastRow != null) {
+                Cell lastCell = lastRow.getCell(0);  // Get the first cell (or adjust the index as needed)
+                String value = lastCell.toString();  // Convert the cell value to string
+                System.out.println("Value of the last row's first cell: " + value);
+            } else {
+                System.out.println("Last row is empty.");
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
