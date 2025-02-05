@@ -1,0 +1,39 @@
+import org.sikuli.script.*;
+
+public class SikuliCheckboxByName {
+    public static void main(String[] args) {
+        Screen screen = new Screen();
+
+        try {
+            // 1️⃣ Locate the name (text) beside the checkbox
+            Pattern namePattern = new Pattern("name_image.png").similar(0.9);  // Image of the name beside the checkbox
+            Pattern checkedCheckbox = new Pattern("checkbox_checked.png").similar(0.9);  // Checked state image
+            Pattern uncheckedCheckbox = new Pattern("checkbox_unchecked.png").similar(0.9);  // Unchecked state image
+
+            if (screen.exists(namePattern) != null) {
+                Match nameMatch = screen.find(namePattern);  // Find the name
+
+                // 2️⃣ Define the checkbox region relative to the name
+                int offsetX = -50;  // Adjust this based on checkbox position
+                Location checkboxLocation = nameMatch.getTarget().offset(offsetX, 0);
+
+                // 3️⃣ Check if the checkbox is checked or unchecked
+                Region checkboxRegion = new Region(checkboxLocation.x - 10, checkboxLocation.y - 10, 20, 20);  // Small region around checkbox
+
+                if (checkboxRegion.exists(checkedCheckbox) != null) {
+                    System.out.println("✅ Checkbox is already checked. No action needed.");
+                } else if (checkboxRegion.exists(uncheckedCheckbox) != null) {
+                    System.out.println("🔲 Checkbox is unchecked. Clicking it...");
+                    screen.click(checkboxLocation);  // Click to check the checkbox
+                } else {
+                    System.out.println("❌ Checkbox not found.");
+                }
+            } else {
+                System.out.println("❌ Name not found on screen.");
+            }
+
+        } catch (FindFailed e) {
+            System.out.println("❌ Error: " + e.getMessage());
+        }
+    }
+}
