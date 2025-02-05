@@ -1,0 +1,38 @@
+import org.sikuli.script.*;
+
+import java.awt.Color;
+import java.awt.image.BufferedImage;
+
+public class SikuliGreyedOutButton {
+    public static void main(String[] args) {
+        Screen screen = new Screen();
+
+        try {
+            Match match = screen.find("button.png");  // Locate the button
+            Location location = match.getCenter();    // Get the center of the button
+            ScreenImage img = screen.capture();       // Capture the screen
+
+            // Get the BufferedImage from the captured screen
+            BufferedImage bufferedImage = img.getImage();
+
+            // Get the RGB color at the button's location
+            int rgb = bufferedImage.getRGB(location.getX(), location.getY());
+            Color color = new Color(rgb);
+
+            // Extract RGB values
+            int red = color.getRed();
+            int green = color.getGreen();
+            int blue = color.getBlue();
+
+            // Check if the color matches the greyed-out RGB range
+            if (red >= 180 && green >= 180 && blue >= 180) {  // Example: Greyish colors
+                System.out.println("Button is disabled");
+            } else {
+                match.click();  // Click if not greyed-out
+                System.out.println("Button is enabled, clicked!");
+            }
+        } catch (FindFailed e) {
+            System.out.println("Button not found: " + e.getMessage());
+        }
+    }
+}
