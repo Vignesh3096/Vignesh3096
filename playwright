@@ -40,3 +40,11 @@ Final Verdict
 ✅ If you want faster, more reliable, and modern web automation, Playwright is the better choice.
 ✅ If you need legacy support or a well-established tool with a large ecosystem, Selenium is still relevant.
 
+Playwright is a modern, open-source automation tool for end-to-end testing of web applications. Developed by Microsoft, it provides a single API to automate multiple browsers—including Chromium, Firefox, and WebKit—making it ideal for cross-browser testing. Key features include:
+	•	Fast Execution: Uses WebSocket-based communication for quicker interactions.
+	•	Built-In Auto-Waiting: Automatically waits for elements to be ready, reducing flaky tests.
+	•	Advanced Debugging: Offers tools like a trace viewer and video recording to help diagnose issues.
+	•	Network Interception: Allows you to intercept, modify, and mock network requests.
+	•	Mobile Emulation & Parallel Execution: Simplifies testing on mobile devices and speeds up tests by running them in parallel.
+
+This makes Playwright a powerful alternative to traditional tools like Selenium, especially for testing modern web applications efficiently.
