@@ -150,6 +150,25 @@ Solution Implementation (Short & Crisp)
 We use XGBoost Regression to predict hourly cash availability and denominations (₹2000, ₹500, ₹100) for each ATM based on historical withdrawal, refill, and time-based patterns. The user’s location is used to identify nearby ATMs within a 1–50 km radius using the Haversine formula. A backend API runs predictions in real time using the trained model. The frontend displays ATM-level cash and denomination forecasts. The system refreshes every 10–15 minutes with the latest data for live updates.
 
 
+Pros
+	1.	High Accuracy: XGBoost is known for its excellent performance on tabular time-series data, giving accurate predictions.
+	2.	Handles Missing Data: It can automatically manage missing or sparse values from ATM logs or sensor delays.
+	3.	Fast Training & Inference: Efficient training and prediction make it suitable for near real-time updates.
+	4.	Feature Importance: Provides insight into which features (e.g., time, last refill) affect predictions most.
+	5.	Scalable: Can be deployed at scale across thousands of ATMs with consistent performance.
+
+⸻
+
+Cons
+	1.	Not Real-Time Learning: It doesn’t learn from new data continuously; retraining is needed periodically.
+	2.	Needs Historical Data: Accuracy depends on the quality and volume of past transaction/refill data.
+	3.	Model Complexity: Slightly harder to interpret than linear regression or rule-based systems.
+	4.	No Sequence Awareness: It doesn’t understand temporal sequences like LSTM (for long-term dependencies).
+
+
+
+Yes, XGBoost is completely free and open-source.
+	•	It’s licensed under the Apache 2.0 License, which means you can use it for personal, academic, or commercial purposes without paying any fees.
 
 
 
