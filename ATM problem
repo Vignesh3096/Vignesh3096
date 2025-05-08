@@ -1,0 +1,156 @@
+End-to-End Real-Time ATM Cash Availability Prediction System
+
+⸻
+
+Introduction
+
+The goal is to build a real-time ATM cash availability prediction system that allows users to check the denominations (Rs. 2000, Rs. 500, Rs. 100) available at nearby ATMs based on their location. The system predicts how much cash is available in each denomination at any given time (hourly predictions), using historical transaction data and ATM refill data.
+
+Key Objectives:
+	1.	Predict total cash available at nearby ATMs.
+	2.	Predict denomination breakdown (Rs. 2000, Rs. 500, Rs. 100).
+	3.	Predict the probability of cash availability (i.e., the ATM might be empty).
+	4.	Provide real-time predictions based on user location.
+
+Why Real-Time?
+	•	Users want to know if they can withdraw money from an ATM and if the denominations they need (like Rs. 500 or Rs. 2000) are available at the ATM they plan to visit. By providing live updates, the system can guide users to the nearest ATMs with the cash they need.
+
+⸻
+
+Phases of Development
+
+⸻
+
+1. Data Collection
+
+To train a machine learning model to predict ATM cash availability, we need a rich dataset containing historical ATM transaction and refill data.
+
+Data Required:
+	•	ATM transaction logs: Withdrawals, amounts withdrawn, time of transactions.
+	•	ATM refill data: Amount and denominations of cash refilled.
+	•	ATM geographical data: Latitude, longitude, and location.
+	•	ATM operational data: Information on when each ATM was last refilled and when it is expected to be refilled.
+
+
+
+⸻
+
+2. Feature Engineering
+
+Feature engineering is the process of transforming raw data into meaningful features that can be fed into a machine learning model. The goal is to create features that help the model understand patterns and predict the ATM cash status.
+
+Time-based features:
+	•	hour: Hour of the day (e.g., 10:00 AM, 4:00 PM).
+	•	day_of_week: Day of the week (e.g., Monday, Tuesday).
+	•	month: Month of the year (e.g., January, February).
+
+Lag Features:
+	•	withdrawal_last_1hr: Total cash withdrawn from the ATM in the last 1 hour.
+	•	withdrawal_last_3hr_sum: Total cash withdrawn from the ATM in the last 3 hours.
+	•	cash_loaded_last_24hr: Cash refilled in the last 24 hours.
+
+Denomination Features:
+	•	denom_2000_last_1hr: Total Rs. 2000 notes withdrawn in the last 1 hour.
+	•	denom_500_last_1hr: Total Rs. 500 notes withdrawn in the last 1 hour.
+	•	denom_100_last_1hr: Total Rs. 100 notes withdrawn in the last 1 hour.
+
+Geospatial Features:
+	•	distance_from_user: Distance from the user’s current location to the ATM (calculated using the Haversine formula).
+
+Time Since Last Refill:
+	•	time_since_last_refill: How long ago the ATM was last refilled (in hours).
+
+⸻
+
+3. Geospatial Filtering (Haversine)
+
+To find nearby ATMs, we need to calculate the distance between the user’s location and each ATM. This is done using the Haversine formula, which calculates the great-circle distance between two points (latitude, longitude).
+
+Haversine Formula:
+
+a = \sin^2\left(\frac{lat_2 - lat_1}{2}\right) + \cos(lat_1) \cdot \cos(lat_2) \cdot \sin^2\left(\frac{lon_2 - lon_1}{2}\right)
+c = 2 \cdot \text{atan2}\left(\sqrt{a}, \sqrt{1 - a}\right)
+distance = R \cdot c
+
+Where:
+	•	lat_1, lon_1 = User’s location.
+	•	lat_2, lon_2 = ATM location.
+	•	R = Earth’s radius (mean = 6371 km).
+
+We can filter ATMs within a 1 to 50 km radius based on the distance calculated using the Haversine formula.
+
+⸻
+
+4. AI Model Selection
+
+For this task, XGBoost (eXtreme Gradient Boosting) is selected as the best model because it works well with structured/tabular data, can handle both regression (predicting cash amounts) and classification (probability of availability), and is highly efficient.
+	•	XGBoost Regressor: Predicts cash amounts in each denomination (Rs. 2000, Rs. 500, Rs. 100).
+	•	XGBoost Classifier (optional): Predicts the probability that an ATM will have cash available (binary classification).
+
+Why XGBoost?
+	•	Performance: Efficient handling of large datasets.
+	•	Accuracy: Captures non-linear relationships between features.
+	•	Interpretability: Provides feature importance scores.
+
+Model Training:
+
+We will train separate models for each denomination (Rs. 2000, Rs. 500, Rs. 100). The models will be trained on historical data using features like time of day, withdrawal patterns, denomination breakdowns, and ATM refill data.
+
+⸻
+
+5. Backend API (Flask)
+
+The Backend will be built using Flask (a lightweight web framework in Python) to handle API requests and serve real-time predictions.
+
+Steps:
+	1.	The user provides their latitude and longitude via an HTTP request.
+	2.	The backend filters nearby ATMs using the Haversine formula (geospatial filtering).
+	3.	The backend fetches the most recent ATM data (withdrawals, refills) and uses the trained XGBoost models to predict the available cash in each denomination.
+	4.	The predictions are sent back to the user.
+
+
+
+⸻
+
+6. Frontend (User Interface)
+
+To display live data, we can build a web interface (using React.js or Vue.js) or a mobile app (using React Native or Flutter). The frontend will interact with the backend to fetch ATM predictions.
+
+Live Data Flow:
+	1.	User Inputs Location: The user enters their location (latitude, longitude).
+	2.	API Request: The frontend sends a request to the backend API.
+	3.	API Response: The backend returns predictions of cash availability at nearby ATMs.
+	4.	Real-Time Updates: The frontend periodically checks for new updates (e.g., every 5 minutes) to keep data current.
+
+⸻
+
+7. Deployment & Real-Time Updates
+
+To ensure live updates:
+	•	Use WebSocket or Polling for real-time communication between frontend and backend.
+	•	Deploy your backend API on cloud platforms like AWS or Heroku.
+	•	Use cloud databases (e.g., AWS RDS) for storing ATM data and ensuring live data fetching.
+
+⸻
+
+Conclusion
+
+The ATM Cash Availability Prediction System provides real-time predictions about cash availability in ATMs based on location and historical data. It uses machine learning (XGBoost) to predict
+
+
+
+Problem Statement
+
+Users often visit ATMs that are out of cash or don’t have the desired denominations, causing frustration and time loss. There is a need for a smart system that predicts cash availability and denomination breakdown at nearby ATMs in real time to help users make informed decisions.
+
+⸻
+
+Solution Implementation (Short & Crisp)
+
+We use XGBoost Regression to predict hourly cash availability and denominations (₹2000, ₹500, ₹100) for each ATM based on historical withdrawal, refill, and time-based patterns. The user’s location is used to identify nearby ATMs within a 1–50 km radius using the Haversine formula. A backend API runs predictions in real time using the trained model. The frontend displays ATM-level cash and denomination forecasts. The system refreshes every 10–15 minutes with the latest data for live updates.
+
+
+
+
+
+
