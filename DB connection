@@ -1,0 +1,18 @@
+Hi [Team],
+
+I’m working on automating drill-through validation from EPM using backend DB queries. Could you please share the following information:
+	1.	Database connection details:
+	•	DB type (e.g., SQL Server/HANA)
+	•	Host/IP
+	•	Port
+	•	DB name
+	•	Read-only credentials (if available)
+	2.	Cube/Table Details:
+	•	Technical name of InfoProvider/model
+	•	Underlying DB table/view storing the data
+	•	List of key fields: ACCOUNT, FISCAL_PERIOD, AMOUNT, etc.
+	3.	Access:
+	•	Can I get read-only access to query it?
+	•	Or can you provide a SQL view or query for this data?
+
+Thanks in advance!
