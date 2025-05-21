@@ -330,7 +330,9 @@ This system uses a combination of XGBoost regression and Ball Tree spatial searc
 Would you like this represented in a diagram format as well?
 
 
+Users currently have no way of knowing the probability of cash and denomination availability in nearby ATMs within a given time frame. Without predictive insights, they are unable to determine whether an ATM will still have their required amount and denominations (e.g., ₹100, ₹500) by the time they arrive — leading to uncertainty, wasted travel, and poor user experience.
 
+While some existing systems may indicate whether an ATM has money or is operational, they do not provide predictive forecasting of how likely it is that the required amount and denominations will remain available at the user’s expected arrival time.
 
 
 
