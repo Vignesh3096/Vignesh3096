@@ -376,3 +376,16 @@ This invention aims to predict the probability of cash and specific denomination
 User Input: The user provides the required amount, preferred denominations, and their current location (via GPS).
 	2.	Request Sent to Server: The user’s input — amount, denominations, and location — is sent to the server for processing.
 	3.	Nearby ATM Identification: The Ball Tree algorithm uses the user’s location to identify nearby ATMs within a specified radius (e.g., 1–50 km).
+
+
+Users currently have no way of knowing the probability of cash and specific denomination availability in nearby ATMs within a given time frame. While some existing systems may show the current status of an ATM, they do not offer predictive insights. As a result, users are unable to determine whether an ATM will still have their required amount and denominations (e.g., ₹100, ₹500) at their expected arrival time—leading to uncertainty, wasted travel, and a poor user experience.
+
+
+
+
+
+
+
+
+
+
