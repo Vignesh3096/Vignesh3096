@@ -363,3 +363,9 @@ Data Fetching: The system queries the server and ATM database to retrieve curren
 	5.	Probability Calculation: A probability score is generated for each ATM, showing how likely it is to fulfill the user’s request within the next 30–45 minutes.
 	6.	User Output: The system displays a ranked list of nearby ATMs with predicted availability and confidence levels.
 
+Data Extraction: ATM details (such as current amount, denomination levels, and historical trends) for those nearby locations are retrieved from the database.
+	4.	ML Prediction: These details are fed into an XGBoost regression model, which predicts the expected amount and available denominations in each ATM over the next time frame (e.g., 30–45 minutes).
+	5.	Probability Calculation: A probability score is calculated to estimate the likelihood that the user’s requested amount and denominations will be available upon arrival.
+	6.	Response Output: The predicted amount, denomination availability, ATM location, traffic conditions, and probability score are presented to the user, helping them choose the best ATM.
+
+
