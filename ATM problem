@@ -369,3 +369,6 @@ Data Extraction: ATM details (such as current amount, denomination levels, and h
 	6.	Response Output: The predicted amount, denomination availability, ATM location, traffic conditions, and probability score are presented to the user, helping them choose the best ATM.
 
 
+User Input: The user provides the required amount, preferred denominations, and their current location (via GPS).
+	2.	Request Sent to Server: The user’s input — amount, denominations, and location — is sent to the server for processing.
+	3.	Nearby ATM Identification: The Ball Tree algorithm uses the user’s location to identify nearby ATMs within a specified radius (e.g., 1–50 km).
