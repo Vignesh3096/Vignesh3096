@@ -370,6 +370,9 @@ Data Extraction: ATM details (such as current amount, denomination levels, and h
 
 ML Prediction: The extracted data is fed into an XGBoost regression model, which predicts cash and denomination availability in 15-minute intervals for the next 1 hour (e.g., at 15, 30, 45, and 60 minutes from current time).
 
+This invention aims to predict the probability of cash and specific denomination availability in nearby ATMs at 15-minute intervals over the next hour (i.e., at 15, 30, 45, and 60 minutes from the current time). It uniquely integrates real-time geolocation, AI-based regression models (such as XGBoost and LightGBM), and spatial search algorithms (Ball Tree) to deliver time-sensitive and location-aware forecasts.
+
+
 User Input: The user provides the required amount, preferred denominations, and their current location (via GPS).
 	2.	Request Sent to Server: The user’s input — amount, denominations, and location — is sent to the server for processing.
 	3.	Nearby ATM Identification: The Ball Tree algorithm uses the user’s location to identify nearby ATMs within a specified radius (e.g., 1–50 km).
