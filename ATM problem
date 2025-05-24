@@ -368,6 +368,7 @@ Data Extraction: ATM details (such as current amount, denomination levels, and h
 	5.	Probability Calculation: A probability score is calculated to estimate the likelihood that the user’s requested amount and denominations will be available upon arrival.
 	6.	Response Output: The predicted amount, denomination availability, ATM location, traffic conditions, and probability score are presented to the user, helping them choose the best ATM.
 
+ML Prediction: The extracted data is fed into an XGBoost regression model, which predicts cash and denomination availability in 15-minute intervals for the next 1 hour (e.g., at 15, 30, 45, and 60 minutes from current time).
 
 User Input: The user provides the required amount, preferred denominations, and their current location (via GPS).
 	2.	Request Sent to Server: The user’s input — amount, denominations, and location — is sent to the server for processing.
