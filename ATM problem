@@ -352,7 +352,11 @@ The design intelligently integrates real-time data (from servers or ATM feeds) w
 
 
 
-
+Non-Obvious Aspects of the Invention (Shortened)
+	•	Predicts future cash and denomination availability using AI (e.g., XGBoost).
+	•	Calculates time-based probability of ATM fulfilling the user’s request.
+	•	Uses Ball Tree algorithm for fast, location-based ATM filtering.
+	•	Supports denomination-specific user queries, unlike typical ATM locators.
 
 
 
