@@ -358,5 +358,8 @@ Non-Obvious Aspects of the Invention (Shortened)
 	•	Uses Ball Tree algorithm for fast, location-based ATM filtering.
 	•	Supports denomination-specific user queries, unlike typical ATM locators.
 
-
+Data Fetching: The system queries the server and ATM database to retrieve current and historical data on cash and denominations.
+	4.	AI Prediction: An XGBoost regression model predicts the likelihood of the required amount and denomination being available at each nearby ATM.
+	5.	Probability Calculation: A probability score is generated for each ATM, showing how likely it is to fulfill the user’s request within the next 30–45 minutes.
+	6.	User Output: The system displays a ranked list of nearby ATMs with predicted availability and confidence levels.
 
