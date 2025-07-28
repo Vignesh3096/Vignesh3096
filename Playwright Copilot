@@ -1,0 +1,37 @@
+As of now (mid-2025), Playwright itself is open-source and free under the Apache License 2.0, and Microsoft has not announced any plans to charge for the core tool.
+
+However, here’s what you should understand going forward:
+
+⸻
+
+🔍 1. Current Situation: Free & Open Source
+	•	Playwright is free for all use cases (personal, commercial, enterprise).
+	•	Maintained by Microsoft and the community.
+	•	No registration or license fee required.
+
+⸻
+
+📌 2. What Microsoft could monetize in the future (but hasn’t yet):
+
+While the core Playwright tool is open-source, companies often introduce paid services or add-ons:
+
+If Microsoft or another provider introduces a Playwright Cloud Service, hosted grid, or enterprise support, they might charge for those — but not the base tool unless they change the license (which would be a major shift and likely announced well in advance).
+
+⸻
+
+📘 3. Can They Start Charging for Playwright?
+
+Only if they:
+	•	Change the license in future releases (which won’t affect existing versions)
+	•	Or, create a new commercial edition, separate from the open-source one
+
+But the existing versions under Apache 2.0 will remain free forever.
+
+⸻
+
+✅ Recommendation for IT Companies:
+	•	You can safely use Playwright now without worrying about sudden costs.
+	•	If your company is risk-averse, you may:
+	•	Document the current version you’re using.
+	•	Watch Microsoft’s GitHub and blog for licensing changes.
+	•	Consider mirroring the version you use, in case future ones change license.
