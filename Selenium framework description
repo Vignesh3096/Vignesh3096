@@ -1,12 +1,6 @@
-The hybrid automation framework is designed to seamlessly integrate Selenium and Sikuli, enabling automated testing of both web and desktop applications within a single environment. Selenium is used to automate web-based interfaces, while Sikuli handles scenarios that involve non-web elements such as desktop windows or image-based interactions. This integration ensures a more comprehensive coverage for applications that span multiple platforms.
+The hybrid automation framework integrates Selenium and Sikuli to support both web and desktop application testing within a single setup. Selenium handles web-based elements, while Sikuli takes care of image-based or desktop interactions, ensuring broader test coverage. It supports parallel and distributed execution to reduce test cycle time, which is especially useful in CI/CD environments. The framework also includes self-healing scripts that automatically adjust to UI changes, improving test stability and reducing maintenance.
 
-The framework supports parallel and distributed test execution, which significantly reduces the overall test cycle time by running multiple tests simultaneously across different machines or environments. This is particularly useful in large-scale CI/CD pipelines where time efficiency is critical.
-
-One of the key strengths of the framework is its implementation of self-healing scripts. These scripts are designed to intelligently recover from changes in the application’s UI, such as modified element locators or layout adjustments. This minimizes test maintenance efforts and enhances the reliability and resilience of test cases over time.
-
-For enhanced test analysis and reporting, the framework incorporates Allure Reporting, which provides a visually rich, interactive dashboard of test results. It includes detailed test logs, execution timelines, failure screenshots, environment metadata, and links between test cases and defects or stories. This makes it easier for QA teams and stakeholders to track test progress, identify failures quickly, and make data-driven decisions.
-
-Overall, this hybrid framework offers a powerful, flexible, and scalable solution for modern test automation needs.
+For reporting, Allure is integrated to provide visually rich, interactive dashboards with detailed logs, screenshots, and execution timelines. This helps teams identify issues quickly, track progress efficiently, and gain better visibility into overall software quality. The framework is reliable, scalable, and tailored to meet the demands of modern test automation.
 
 
 ✅ “Next-Gen Automation Framework: Reliable, Scalable, and Insight-Driven”
