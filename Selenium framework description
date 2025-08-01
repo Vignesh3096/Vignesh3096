@@ -1,0 +1,17 @@
+The hybrid automation framework is designed to seamlessly integrate Selenium and Sikuli, enabling automated testing of both web and desktop applications within a single environment. Selenium is used to automate web-based interfaces, while Sikuli handles scenarios that involve non-web elements such as desktop windows or image-based interactions. This integration ensures a more comprehensive coverage for applications that span multiple platforms.
+
+The framework supports parallel and distributed test execution, which significantly reduces the overall test cycle time by running multiple tests simultaneously across different machines or environments. This is particularly useful in large-scale CI/CD pipelines where time efficiency is critical.
+
+One of the key strengths of the framework is its implementation of self-healing scripts. These scripts are designed to intelligently recover from changes in the application’s UI, such as modified element locators or layout adjustments. This minimizes test maintenance efforts and enhances the reliability and resilience of test cases over time.
+
+For enhanced test analysis and reporting, the framework incorporates Allure Reporting, which provides a visually rich, interactive dashboard of test results. It includes detailed test logs, execution timelines, failure screenshots, environment metadata, and links between test cases and defects or stories. This makes it easier for QA teams and stakeholders to track test progress, identify failures quickly, and make data-driven decisions.
+
+Overall, this hybrid framework offers a powerful, flexible, and scalable solution for modern test automation needs.
+
+
+✅ “Next-Gen Automation Framework: Reliable, Scalable, and Insight-Driven”
+
+Why this title?
+	•	It’s catchy and modern (“Next-Gen” grabs attention).
+	•	It emphasizes key benefits — reliability (self-healing), scalability (parallel execution), and insights (Allure reporting).
+	•	It avoids tool overload in the title, keeping it clean and executive-friendly, while you can explain tools like Selenium, Sikuli, and Allure in the content.
