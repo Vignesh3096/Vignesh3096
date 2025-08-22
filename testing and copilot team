@@ -1,0 +1,35 @@
+1. Agenda
+	•	Discuss current testing practices and future improvements
+	•	Explore Copilot usage in testing workflows
+	•	Identify cross-functional opportunities for testers
+	•	Evaluate DB testing tools for the team
+	•	Plan for an adaptable end-to-end testing framework
+	•	Consider utilities for auto-generating feature files in Cucumber
+
+⸻
+
+2. Discussion Points
+	•	Testing Practices & Copilot
+	•	How the team is currently performing testing
+	•	Ways to utilize Copilot for automation, script generation, and faster test design
+	•	Need to make Copilot usage simple and accessible to all testers
+	•	Cross-Functional Knowledge Sharing
+	•	Encourage testers to learn about each other’s tools and areas (functional, automation, DB testing, etc.)
+	•	Build a culture of knowledge-sharing across teams
+	•	DB Testing Tools
+	•	Requirement for easy-to-use Database testing tools for validation and query execution
+	•	Suggestion to evaluate tools (like DbVisualizer, DBeaver, or in-house utility)
+	•	End-to-End Testing Framework
+	•	Need for a framework that is simple, scalable, and adaptable across teams
+	•	Should support functional, API, DB, and automation testing
+	•	Feature File Generation (Cucumber)
+	•	Discussion on utilities or tools that can auto-generate feature files
+	•	Potential to integrate with Copilot or custom utility for faster BDD adoption
+
+⸻
+
+3. Decisions Taken
+	•	Copilot will be explored as a common assistant for test design and scripting.
+	•	Team will identify 1–2 DB testing tools for pilot usage.
+	•	Plan to design an E2E adaptable testing framework (functional + automation + DB).
+	•	Look into utilities for Cucumber feature file generation.
