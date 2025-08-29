@@ -49,6 +49,28 @@ Agenda: Next-Gen Automation Framework – Reliable, Scalable, and Insight-Driven
 
 ⸻
 
+Limitations with Tosca:
+	•	Faced browser extension issues which broke regression cycles
+	•	Required workarounds from support, but those were not reliable across all machines
+	•	Execution was slower compared to Selenium
+	•	Need for speed and reliability: Selenium provides faster execution and stable cross-browser support
+	•	Flexibility: Open-source ecosystem allows integration with multiple tools (Sikuli, Allure, Extent, Litmus, Octane) which Tosca limits
+	•	Scalability: Framework can handle Web + Desktop apps seamlessly, which was harder in Tosca
+	•	Future-readiness: Easier to adopt new technologies and plugins without vendor dependency
+
+⸻
+
+❌ Drawbacks of Tosca compared with Selenium
+	1.	Performance – Tosca execution is slower, especially for large regression suites
+	2.	Browser Dependency – Relies heavily on Tosca extensions, prone to breaking when browsers update
+	3.	Flexibility Limitations – Difficult to integrate with open-source tools (like Allure, Extent, Healenium, etc.)
+	4.	Cost – Tosca is a licensed tool, adds significant cost compared to Selenium which is open-source
+	5.	Customization – Tosca has limited customization; Selenium allows deep framework tailoring with Java/TestNG
+	6.	Cross-Platform Testing – Handling desktop + web apps in one framework is not straightforward in Tosca, but Selenium + Sikuli achieves this
+	7.	Vendor Dependency – Need to rely on Tosca support for fixes and updates, whereas Selenium community provides faster solutions
+
+
+
 👉 This agenda flows naturally from What → Why → Who → How → Benefits, keeping it leadership-friendly while showing value, efficiency, and scalability.
 
 Do you want me to also make a 1-slide version of this agenda (visually catchy for leadership), so it’s easy to present without too many words?
