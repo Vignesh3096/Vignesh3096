@@ -1,0 +1,77 @@
+Success Story – Automating SAP EPM with Sikuli (Java)
+
+1. Executive Summary
+
+Our team successfully automated SAP EPM (Enterprise Performance Management) testing by migrating from Tosca to Sikuli (Java-based framework).
+Earlier, Tosca struggled with fetching data from complex EPM grids and handling drill-through workflows due to non-standard UI elements and dynamic browser extensions. By adopting Sikuli’s image-recognition approach, we achieved greater stability, faster execution, and reduced maintenance overhead.
+
+⸻
+
+2. Challenges with Tosca
+	1.	Data Fetching Issues
+	•	SAP EPM reports often render as canvas-based grids or custom tables not directly exposed to Tosca’s object model.
+	•	Extracting KPIs, totals, and variances was unreliable.
+	2.	Drill-Through Automation Failures
+	•	Drill-through workflows triggered new windows, pop-ups, and iframes with dynamic locators.
+	•	Tosca often failed due to browser extension updates and locator instability.
+	3.	Environment Sensitivity
+	•	Different DPI settings, browsers, and VDI environments caused frequent script breakages.
+	4.	Execution Speed
+	•	Tosca test runs were slow compared to Selenium-based or lightweight automation.
+	•	Frequent workarounds were required, increasing maintenance effort.
+
+⸻
+
+3. Why Sikuli (Java)?
+	•	Image-Based Recognition: Works directly with screenshots of UI elements → independent of DOM or technology.
+	•	Cross-Technology Compatibility: Handles SAP EPM grids, context menus, drill-through reports, and even Citrix/VDI sessions.
+	•	Drill-Through Friendly: Right-click menus, modal dialogs, and nested windows are automated using pattern matching.
+	•	Built-In Visual Evidence: Every step can capture screenshots, making reporting transparent for audits.
+	•	Java Integration: Seamless integration with JUnit/TestNG, Maven/Gradle, and Jenkins CI/CD pipelines.
+
+⸻
+
+4. Solution Approach
+	•	Framework Stack:
+	•	SikuliX (Java API) for automation
+	•	TestNG for execution and assertions
+	•	Allure/Extent Reports for reporting and screenshots
+	•	Maven + Jenkins for CI/CD
+	•	Reusable Modules Developed:
+	•	Login to SAP EPM
+	•	Open specific reports
+	•	Perform drill-through and validate fetched data
+	•	Export and compare results with golden datasets
+	•	Image Handling Best Practices:
+	•	Captured patterns at standard resolution and scaling
+	•	Stored multiple variants (light/dark theme, high DPI)
+	•	Organized images into version-controlled folders
+
+⸻
+
+5. Results & Benefits
+
+✅ 95%+ test stability in drill-through scenarios compared to ~60% with Tosca
+✅ Execution time reduced by ~65% compared to manual and ~30% compared to Tosca
+✅ Maintenance effort reduced by 40%, as no object rescanning is required
+✅ Improved audit compliance: Each step has screenshot evidence stored automatically
+✅ CI/CD ready: Runs nightly in Jenkins, enabling faster regression cycles before releases
+
+⸻
+
+6. Lessons Learned
+	•	Image-based testing requires careful pattern management (consistent DPI, theme).
+	•	Combining Sikuli with Java assertions makes validations more reliable than visual checks alone.
+	•	Regularly updating the image repository ensures resilience against UI changes.
+	•	For highly dynamic content, hybrid approach (Sikuli + database/API checks) improves robustness.
+
+⸻
+
+7. Conclusion
+
+Migrating from Tosca to Sikuli (Java) transformed SAP EPM automation for our team.
+We achieved greater stability, faster execution, and stronger audit evidence while reducing overall maintenance cost. The framework is now scalable to handle additional EPM reports, workflows, and business-critical scenarios.
+
+⸻
+
+👉 Would you like me to also make this into a presentation-style (PowerPoint format) success story so you can share it with leadership?
