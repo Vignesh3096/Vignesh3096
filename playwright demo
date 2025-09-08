@@ -1,0 +1,33 @@
+🔹 Usage of Playwright over Selenium
+	1.	Cross-browser automation – Supports Chromium, Firefox, WebKit (Safari engine) with a single API.
+	2.	Auto-waiting – No need for explicit waits in most cases; Playwright automatically waits for elements to be ready.
+	3.	Modern language support – Works with JavaScript, TypeScript, Python, Java, and .NET.
+	4.	Parallel execution – Built-in test runner (@playwright/test) supports sharding, retries, parallel execution.
+	5.	Network interception – Can mock, modify, or block network requests easily.
+	6.	API testing – In addition to UI, Playwright can perform REST/GraphQL API testing.
+	7.	Mobile and device emulation – Provides native device emulation (geolocation, permissions, viewport).
+	8.	Headless & headed execution – Runs fast in headless but allows debugging in headed mode.
+	9.	Browser context isolation – Supports multiple isolated sessions within a single browser instance (great for multi-user testing).
+	10.	Visual & screenshot testing – Built-in screenshot and video recording for debugging.
+
+⸻
+
+🔹 Benefits of Playwright over Selenium
+	1.	Faster execution – Optimized for speed; avoids heavy Selenium Grid setup.
+	2.	Less flaky tests – Auto-waiting and event-driven model reduce test failures due to timing issues.
+	3.	Simpler setup – No need to manage browser drivers; Playwright installs browsers automatically.
+	4.	All-in-one tool – Handles UI + API + visual testing in one framework.
+	5.	Better debugging – Trace viewer and detailed error reporting make troubleshooting easy.
+	6.	Future-ready – Actively developed by Microsoft; built for modern web apps (SPA, React, Angular, Vue).
+	7.	Cross-platform CI/CD friendly – Works well with GitHub Actions, Jenkins, Azure DevOps without extra config.
+	8.	Supports modern web features – Shadow DOM, iframes, file uploads, downloads, and WebSockets are easier to handle.
+	9.	Scalable testing – Built-in parallelization means faster regression runs compared to Selenium.
+	10.	Lower maintenance cost – Stable APIs and reduced flakiness mean less time fixing broken tests.
+
+⸻
+
+👉 In short:
+	•	Selenium = Mature, widely adopted, good for legacy systems.
+	•	Playwright = Faster, modern, less flaky, and better suited for today’s dynamic web apps.
+
+Would you like me to create a side-by-side comparison table (Selenium vs Playwright) so you can directly drop it into a presentation?
