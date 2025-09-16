@@ -359,6 +359,265 @@ Slides:
 
 
 
+Section 1 – Fundamentals (Q1–10)
+Q1. GitHub Copilot is primarily:
+(A) A source code versioning tool
+(B) An AI-powered code completion assistant
+(C) A CI/CD orchestration tool
+(D) A bug-tracking system
+Q2. Copilot uses models trained by:
+(A) TensorFlow Hub
+(B) OpenAI
+(C) Meta AI
+(D) Hugging Face
+Q3. Which IDE does not natively support Copilot?
+(A) VS Code
+(B) JetBrains IDEs
+(C) Eclipse
+(D) Visual Studio
+Q4. Which shortcut in VS Code accepts Copilot suggestions?
+(A) Ctrl + Enter
+(B) Tab
+(C) Shift + Space
+(D) Alt + Enter
+Q5. Copilot for Individuals offers:
+(A) Unlimited suggestions for a subscription
+(B) Free enterprise dashboards
+(C) GitHub Advanced Security
+(D) Copilot in Codespaces only
+Q6. Copilot generates code based on:
+(A) Private repos automatically
+(B) Public repos and licensed data
+(C) Only Stack Overflow
+(D) User local files only
+Q7. Copilot Chat differs from inline suggestions because it:
+(A) Only suggests emojis
+(B) Allows natural language Q&A about code
+(C) Runs GitHub Actions automatically
+(D) Replaces version control
+Q8. Verified students can access Copilot for free via:
+(A) GitHub Free
+(B) GitHub Pro Student Pack
+(C) GitHub Advanced Security
+(D) GitHub Actions
+Q9. Copilot can generate:
+(A) Unit tests
+(B) CI/CD runs
+(C) GitHub Issues automatically
+(D) Deployment scripts only
+Q10. Copilot was first released in preview in:
+(A) 2018
+(B) 2019
+(C) 2021
+(D) 2023
+Section 2 – Usage & Features (Q11–20)
+Q11. Ghost text for Copilot suggestions appears in:
+(A) Grey
+(B) Blue
+(C) Red
+(D) Green
+Q12. Shortcut to trigger a new suggestion in VS Code:
+(A) Ctrl + Enter
+(B) Ctrl + Shift + P
+(C) Alt + S
+(D) Shift + Space
+Q13. Copilot works best when:
+(A) You give descriptive comments/prompts
+(B) You leave code blank
+(C) You rely only on autocomplete
+(D) You disable syntax highlighting
+Q14. Which subscription allows policy controls for organizations?
+(A) Copilot Individual
+(B) Copilot Business
+(C) GitHub Free
+(D) GitHub Pages
+Q15. Copilot can suggest docstrings if you:
+(A) Type a comment above a function
+(B) Use git push
+(C) Run a build job
+(D) Enable Codespaces
+Q16. Which file is helpful for Copilot to give better project-wide context?
+(A) README.md
+(B) .gitignore
+(C) LICENSE
+(D) .gitconfig
+Q17. Copilot requires:
+(A) Offline mode only
+(B) Internet access for real-time suggestions
+(C) GitHub Enterprise Server only
+(D) Local GPU
+Q18. A Copilot suggestion is incorrect. Best step:
+(A) Reject and re-prompt
+(B) Accept anyway
+(C) Disable Copilot
+(D) Restart IDE
+Q19. Copilot Chat /tests command can:
+(A) Generate unit tests
+(B) Deploy apps
+(C) Review pull requests
+(D) Create release notes
+Q20. Inline suggestions adapt based on:
+(A) File context and surrounding code
+(B) Random generator
+(C) Only your last commit
+(D) System date
+Section 3 – Advanced Features & Agents (Q21–35)
+Q21. To generate inline explanations, use:
+(A) /doc
+(B) /explain
+(C) # explain this function
+(D) Enable Docs Agent
+Q22. Reviewing insecure API keys, best way:
+(A) Ask inline chat to secure code
+(B) Use /fix without context
+(C) Enable secret scanning only
+(D) Run /optimize
+Q23. Adding unit tests for a function:
+(A) Use /tests in inline chat
+(B) Comment # write tests
+(C) Use /fix
+(D) Ask Agent to optimize
+Q24. Difference between Inline Chat & Side Panel Chat:
+(A) Inline edits directly in code
+(B) Side panel explains only
+(C) Inline requires enterprise
+(D) Side panel auto-commits
+Q25. Optimize SQL joins using Copilot:
+(A) Rewrite query for best practices
+(B) Run benchmarks automatically
+(C) Suggest unrelated refactoring
+(D) Push changes to repo
+Q26. Command to summarize code block:
+(A) /doc
+(B) /comment
+(C) /explain
+(D) /analyze
+Q27. Refactor code for readability:
+(A) Rename variables, split functions
+(B) Optimize performance only
+(C) Rewrite comments
+(D) Create GitHub Actions
+Q28. /fix vs /optimize:
+(A) /fix fixes errors, /optimize improves performance
+(B) /fix applies formatting, /optimize adds comments
+(C) /fix inline only, /optimize side panel only
+(D) /fix needs enterprise
+Q29. Convert JS function to TS:
+(A) Add type annotations
+(B) Generate test cases
+(C) Migrate build system
+(D) Commit changes automatically
+Q30. Effective prompt engineering example:
+(A) “Make this better”
+(B) “Rewrite Python function using list comprehension”
+(C) “Fix”
+(D) “Change code”
+Q31. Generate REST API client code:
+(A) Write natural language comment
+(B) Use /tests
+(C) GitHub Actions
+(D) Codespaces prebuilds
+Q32. NOT a limitation of Copilot:
+(A) Can generate insecure code
+(B) Can propose code with licensing risks
+(C) Cannot work offline
+(D) Guarantees bug-free code
+Q33. Add pagination support in API endpoint:
+(A) Suggest limit/offset logic
+(B) Create DB automatically
+(C) Run load tests
+(D) Deploy endpoint
+Q34. Cycle through alternative completions:
+(A) Inline suggestion cycling
+(B) Side panel only
+(C) /doc
+(D) GitHub Actions auto-select
+Q35. Agent for generating docstrings:
+(A) Tests Agent
+(B) Docs Agent
+(C) Security Agent
+(D) CI/CD Agent
+Section 4 – Prompt Engineering & Advanced Usage (Q36–50)
+Q36. Apply code edits from natural language:
+(A) Copilot Agents
+(B) Copilot Inline Chat
+(C) Side Panel Chat
+(D) Codespaces
+Q37. Generate pytest tests for Python function:
+(A) Ask inline chat
+(B) Use /fix
+(C) Comment # generate tests
+(D) GitHub Actions
+Q38. VS Code shortcut to accept Copilot suggestion:
+(A) Tab
+(B) Ctrl + Enter
+(C) Shift + Space
+(D) Alt + Tab
+Q39. Refactor into smaller functions:
+(A) Split code modularly
+(B) Optimize performance
+(C) Rewrite comments
+(D) Create GitHub Actions
+Q40. Least effective prompt:
+(A) Add comments for each line
+(B) Optimize SQL query
+(C) “Do something with this code”
+(D) Rewrite in async Python
+Q41. Responsibility in pair programming:
+(A) Accept suggestions immediately
+(B) Review and test code
+(C) Assume production-ready
+(D) Let Copilot debug
+Q42. Fix compilation errors:
+(A) /fix
+(B) /doc
+(C) /tests
+(D) /comment
+Q43. Copilot Agents describe:
+(A) Specialized assistants for tasks
+(B) Workflows deploying code
+(C) Browser extensions
+(D) Codespaces scripts
+
+
+Section 4 – Prompt Engineering & Advanced Usage (Q44–Q50)
+Q44. You ask Copilot Chat: “Explain this error message in simple terms”, it will:
+(A) Provide a plain-language explanation ✅
+(B) Fix the error automatically
+(C) Add comments without explanation
+(D) Commit code to GitHub
+Q45. Which setting lets an organization control Copilot usage across teams?
+(A) GitHub Enterprise Admin Dashboard ✅
+(B) GitHub Codespaces Settings
+(C) GitHub Actions Runner
+(D) GitHub Pages Configuration
+Q46. When working on sensitive codebases, which is recommended?
+(A) Never review suggestions
+(B) Validate for security and compliance ✅
+(C) Use Copilot without restrictions
+(D) Share API keys in prompts
+Q47. Better prompt for Copilot prompt engineering:
+(A) “Fix this.”
+(B) “Rewrite this Java function to use streams instead of loops.” ✅
+(C) “Improve it.”
+(D) “Make it cleaner.”
+Q48. Which is NOT supported by Copilot inline chat?
+(A) Converting JS to TS
+(B) Adding missing error handling
+(C) Explaining regex
+(D) Running automated test pipelines ✅
+Q49. Command to generate docstrings for Python functions:
+(A) /doc ✅
+(B) /fix
+(C) /tests
+(D) /optimize
+Q50. Ask Copilot: “Summarize changes in this pull request”. Supported by:
+(A) Copilot PR Summaries ✅
+(B) GitHub Codespaces
+(C) Inline Suggestions
+(D) GitHub Pages
+
+
 
 
 
