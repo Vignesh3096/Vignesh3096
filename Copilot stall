@@ -61,4 +61,304 @@ Focus: Boilerplate code, automation, tests, time-savers.
 	12.	Write a function that takes a list of student names and randomly assigns them to project groups.
 	13.	Create test cases for a login page with username, password, and submit button.
 	14.	Write code to scrape all links from a given webpage.
-	15.	Generate sample test data with 10 fake user profiles (name, email, phone).
+	15.	Generate sample test 
+
+data with 10 fake user profiles (name, email, phone).
+
+
+
+
+
+
+Ah 👍 got it now. You don’t want to give prompt + expected answer directly — instead you want questions to ask participants, and they must come up with the correct Copilot prompt to solve it.
+
+Here’s how we’ll set it:
+	•	You ask the challenge question (scenario).
+	•	Participant must write the best possible prompt for Copilot.
+	•	You evaluate based on how clear, complete, and effective their prompt is.
+
+⸻
+
+🔹 Copilot Prompt Challenge – 20+ Questions for Participants
+
+📌 A. Documentation & Project Management
+	1.	You are asked to create a README file for a Hospital Management System project. What prompt would you give Copilot?
+	2.	Your manager wants an onboarding document for a new QA engineer joining the project. What prompt will you use?
+	3.	You need 5 user stories with acceptance criteria for an Online Grocery Shopping App. How will you ask Copilot?
+	4.	Your team is releasing Banking App v3.1. You must prepare release notes. What prompt will you provide?
+	5.	Your client wants a one-page proposal for building a chatbot for customer support. What prompt will you give?
+
+⸻
+
+📌 B. Testing & QA
+	6.	Your lead asks you to prepare 10 manual test cases for an ATM machine. How would you ask Copilot?
+	7.	You need to create a regression test plan for an e-commerce site automation using Playwright. What’s your prompt?
+	8.	You must raise a JIRA bug ticket for: “Password reset link not working on Safari.” What prompt do you write?
+	9.	Your release manager asks for an API testing checklist before go-live. How would you prompt Copilot?
+	10.	You need to generate sample employee test data (10 records) in JSON for QA testing. What’s your prompt?
+
+⸻
+
+📌 C. DevOps & Cloud
+	11.	You need a CI/CD pipeline (GitHub Actions YAML) to build and test a Maven project. What prompt will you provide?
+	12.	Your project requires a Dockerfile for a Spring Boot app on Java 17. How will you ask Copilot?
+	13.	You must write a Kubernetes deployment YAML for a Node.js service on port 4000. What’s your prompt?
+	14.	Your DevOps lead wants a Grafana dashboard JSON for CPU, Memory, and Response Time monitoring. How would you prompt?
+	15.	You are planning migration from on-prem to AWS. You must prepare a cloud migration checklist. What’s your prompt?
+
+⸻
+
+📌 D. Security & Compliance
+	16.	You need to list 10 secure coding practices for a financial application. What prompt will you give?
+	17.	Your compliance officer asks you to prepare a HIPAA audit checklist for a healthcare app. What’s your prompt?
+	18.	You are training freshers. You must explain OWASP Top 10 vulnerabilities in simple language. How will you ask Copilot?
+
+⸻
+
+📌 E. Communication & Soft Skills
+	19.	You must email a client about a 3-day release delay due to QA environment issues. What prompt would you write?
+	20.	Your manager wants a weekly status report template (progress, blockers, risks, next steps). What’s your prompt?
+	21.	You need to prepare 10 interview questions with answers for a DevOps Engineer role. How will you ask Copilot?
+	22.	You are facilitating a sprint retrospective meeting. You must prepare an agenda. What’s your prompt?
+	23.	You are preparing a 5-slide presentation on benefits of Test Automation in Agile. What prompt will you give?
+
+⸻
+
+✅ Here, the challenge is on the participant to come up with the best prompt that makes Copilot generate the correct content.
+
+👉 Do you want me to also prepare a scoring guide (e.g., 5 points for clarity, 5 points for completeness, 5 points for effectiveness) so judges can evaluate how good their prompts are?
+
+
+
+Perfect 👍 you want a full competition kit with all 23 Copilot challenge questions along with sample prompts and expected answers so you can directly use them in your event. I’ll lay them out in a structured format:
+
+⸻
+
+🚀 Copilot Prompt Challenge – 23 Questions with Prompts & Expected Answers
+
+⸻
+
+📌 A. Documentation & Project Management
+
+1. README Generation
+	•	Prompt:
+“Generate a README.md for a Hospital Management System project with overview, features, setup, and usage.”
+	•	Expected Answer:
+A structured Markdown README with sections: Introduction, Features (Patient Management, Appointment Booking, Billing), Tech Stack, Installation steps, and Usage examples.
+
+⸻
+
+2. Onboarding Guide
+	•	Prompt:
+“Write an onboarding document for a new QA joining the project, including tools, test processes, and contacts.”
+	•	Expected Answer:
+A step-by-step guide with tools setup (Jira, Selenium, TestNG), processes (test planning, execution, reporting), and escalation contacts.
+
+⸻
+
+3. User Stories
+	•	Prompt:
+“Write 5 user stories with acceptance criteria for an online grocery shopping app.”
+	•	Expected Answer:
+	•	As a customer, I want to search for groceries by category, so that I can find items quickly.
+	•	Acceptance Criteria: Search returns results within 2 seconds, supports filters.
+
+⸻
+
+4. Release Notes
+	•	Prompt:
+“Generate release notes for v3.1 of a Banking App with new features, enhancements, and bug fixes.”
+	•	Expected Answer:
+	•	New Features: Biometric login.
+	•	Enhancements: Faster transaction processing.
+	•	Bug Fixes: Fixed logout issue in iOS app.
+
+⸻
+
+5. Project Proposal
+	•	Prompt:
+“Draft a one-page project proposal for building a chatbot for customer support.”
+	•	Expected Answer:
+Proposal with Executive Summary, Objective, Benefits, Timeline, Cost Estimate.
+
+⸻
+
+📌 B. Testing & QA
+
+6. Manual Test Cases
+	•	Prompt:
+“Write 10 sample test cases for an ATM machine.”
+	•	Expected Answer:
+Table with Test ID, Test Scenario, Steps, Expected Result (e.g., Insert valid card → PIN → Withdraw → Cash dispensed).
+
+⸻
+
+7. Automation Test Plan
+	•	Prompt:
+“Generate a test plan for automating regression tests of an e-commerce application using Playwright.”
+	•	Expected Answer:
+Test Plan with Scope, Objectives, Test Cases, Tools, Execution Strategy, Reporting Method.
+
+⸻
+
+8. Bug Reporting
+	•	Prompt:
+“Create a JIRA bug description for: Password reset link not working on Safari browser.”
+	•	Expected Answer:
+	•	Summary: Password reset fails in Safari.
+	•	Steps: Open login page → click “Forgot Password” → Enter email → No link received.
+	•	Expected: Password reset email received.
+	•	Priority: High.
+
+⸻
+
+9. Checklist
+	•	Prompt:
+“Write a checklist for testing an API endpoint before production release.”
+	•	Expected Answer:
+Checklist with: Auth validation, Response codes, Performance, Error handling, Security headers.
+
+⸻
+
+10. Test Data Generation
+	•	Prompt:
+“Generate 10 sample employee records with ID, Name, Email, Department, and Salary in JSON format.”
+	•	Expected Answer:
+JSON dataset with objects:
+
+
+
+
+⸻
+
+📌 C. DevOps & Cloud
+
+11. CI/CD Pipeline
+	•	Prompt:
+“Generate a GitHub Actions YAML pipeline for building and testing a Java Maven project.”
+	•	Expected Answer:
+YAML workflow with steps: checkout → setup JDK → run mvn install → run tests.
+
+⸻
+
+12. Dockerfile
+	•	Prompt:
+“Write a Dockerfile for a Spring Boot application running on Java 17 with Maven build.”
+	•	Expected Answer:
+Multi-stage Dockerfile with:
+
+
+
+⸻
+
+13. Kubernetes Deployment
+	•	Prompt:
+“Generate a Kubernetes deployment YAML for a Node.js service on port 4000.”
+	•	Expected Answer:
+YAML with Deployment (replicas: 3) and Service (type: ClusterIP, port 4000).
+
+⸻
+
+14. Monitoring Dashboard
+	•	Prompt:
+“Create Grafana dashboard JSON template for monitoring CPU, memory, and response time.”
+	•	Expected Answer:
+JSON with 3 panels: CPU %, Memory Usage, API Response Time.
+
+⸻
+
+15. Cloud Migration Checklist
+	•	Prompt:
+“Write a checklist for migrating an on-premises app to AWS cloud.”
+	•	Expected Answer:
+Steps: Assessment, Backup, IAM setup, Database migration, Security config, Testing, Monitoring.
+
+⸻
+
+📌 D. Security & Compliance
+
+16. Secure Coding Guidelines
+	•	Prompt:
+“List 10 secure coding practices for developers working on a financial app.”
+	•	Expected Answer:
+Input validation, parameterized queries, encryption, password hashing, logging without sensitive data, principle of least privilege.
+
+⸻
+
+17. Audit Checklist
+	•	Prompt:
+“Generate a compliance audit checklist for a healthcare application (HIPAA).”
+	•	Expected Answer:
+Checklist: Access controls, Data encryption, Audit logging, User consent, Data backup & recovery.
+
+⸻
+
+18. OWASP Top 10
+	•	Prompt:
+“Explain OWASP Top 10 vulnerabilities in simple language with examples.”
+	•	Expected Answer:
+SQL Injection → Example: OR 1=1.
+Cross-Site Scripting → Inserting <script> into input field.
+CSRF → Unauthorized fund transfer request.
+
+⸻
+
+📌 E. Communication & Soft Skills
+
+19. Client Email
+	•	Prompt:
+“Draft a professional email to the client informing about a 3-day delay in release due to QA environment issues.”
+	•	Expected Answer:
+Polite email: Apology → Reason (QA env issues) → Assurance → New delivery date.
+
+⸻
+
+20. Status Report
+	•	Prompt:
+“Generate a weekly project status report template with sections for progress, blockers, risks, and next steps.”
+	•	Expected Answer:
+Report with: Completed tasks, Ongoing tasks, Risks (e.g., vendor delays), Next week’s plan.
+
+⸻
+
+21. Interview Questions
+	•	Prompt:
+“Generate 10 interview questions with answers for a DevOps Engineer role.”
+	•	Expected Answer:
+Q: Difference between Docker and VM?
+A: Docker uses containers, lightweight; VMs emulate full OS.
+Q: CI/CD benefits? A: Faster release cycles, automation.
+
+⸻
+
+22. Meeting Agenda
+	•	Prompt:
+“Create a meeting agenda for a sprint retrospective session.”
+	•	Expected Answer:
+Agenda: Icebreaker → What went well → What didn’t → Improvements → Action Items.
+
+⸻
+
+23. Presentation Draft
+	•	Prompt:
+“Write an outline for a 5-slide presentation on benefits of Test Automation in Agile.”
+	•	Expected Answer:
+Slides:
+
+	1.	Intro to Test Automation
+	2.	Why Agile needs automation
+	3.	Benefits (speed, coverage, quality)
+	4.	Tools & Practices
+	5.	Conclusion & Q&A
+
+⸻
+
+✅ That’s the full set of 23 questions with prompt + expected answer — ready to use for your Copilot challenge.
+
+👉 Do you also want me to design a scoring system (like clarity of prompt, usefulness of answer, creativity) and timing rules so you can run this as a proper competition?
+
+
+
+
+
+
