@@ -1,0 +1,64 @@
+Copilot Challenge Question Bank (Stall Edition)
+
+⸻
+
+1️⃣ Accuracy Challenges (15 Qs)
+
+Focus: Logic, algorithms, correctness.
+	1.	Write a function that checks whether a given word is a palindrome, ignoring spaces and case.
+	2.	Create a function that returns the second largest number in a list of integers.
+	3.	Write a program that counts the number of vowels in a given string.
+	4.	Write a function that finds the most frequently occurring element in a list.
+	5.	Create a program that reverses the words in a sentence but keeps the word order intact.
+	6.	Write a function that returns the factorial of a number using recursion.
+	7.	Create a program that checks if two strings are anagrams of each other.
+	8.	Write a function that finds the longest word in a sentence.
+	9.	Write a program that generates the Fibonacci sequence up to N numbers.
+	10.	Write a function that returns all prime numbers less than N.
+	11.	Create a program that removes duplicate numbers from a list and keeps the order intact.
+	12.	Write a function that counts the frequency of each character in a string.
+	13.	Create a function that finds the smallest missing positive number in a list.
+	14.	Write a function that rotates a list by K positions.
+	15.	Create a function that checks if a Sudoku board is valid.
+
+⸻
+
+2️⃣ Creativity Challenges (15 Qs)
+
+Focus: Fun, imagination, playful coding.
+	1.	Create a program that generates a random superhero name using adjectives and animals.
+	2.	Write a program that generates a random short story with characters, places, and actions.
+	3.	Create a function that turns any sentence into Pig Latin.
+	4.	Write a program that converts a given sentence into Morse code.
+	5.	Create a program that generates a random motivational quote.
+	6.	Write a program that generates a random joke every time it runs.
+	7.	Create a program that prints ASCII art of a smiley face.
+	8.	Write a function that generates random funny passwords (like “Banana_Ninja_42”).
+	9.	Create a program that prints today’s date in words (e.g., “Sixteenth September Two Thousand Twenty-Five”).
+	10.	Write a program that generates random startup names by combining tech buzzwords.
+	11.	Create a program that generates a random meal suggestion with starter, main course, and dessert.
+	12.	Write a program that generates random team names for a hackathon.
+	13.	Create a program that turns any sentence into an emoji translation (e.g., “happy” → 😀).
+	14.	Write a program that generates a random haiku or short poem.
+	15.	Create a program that simulates rolling two dice and prints the result with a fun message.
+
+⸻
+
+3️⃣ Productivity Challenges (15 Qs)
+
+Focus: Boilerplate code, automation, tests, time-savers.
+	1.	Create a class Employee with id, name, and salary fields, along with getters, setters, and a toString method.
+	2.	Write unit tests for a function that calculates the factorial of a number.
+	3.	Create a REST API endpoint for user login with username and password.
+	4.	Write SQL queries to create a table Students with id, name, and grade fields.
+	5.	Generate sample JSON data for a library system with books and authors.
+	6.	Write a Dockerfile to run a Python application.
+	7.	Create unit tests for a calculator with add, subtract, multiply, and divide functions.
+	8.	Generate a Python script that reads a CSV file and prints the content in a table format.
+	9.	Write code to connect to a database and fetch all rows from a table.
+	10.	Create a function that logs errors to a file with timestamps.
+	11.	Generate sample API documentation in Markdown format for a weather API.
+	12.	Write a function that takes a list of student names and randomly assigns them to project groups.
+	13.	Create test cases for a login page with username, password, and submit button.
+	14.	Write code to scrape all links from a given webpage.
+	15.	Generate sample test data with 10 fake user profiles (name, email, phone).
