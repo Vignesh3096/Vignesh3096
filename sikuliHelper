@@ -41,3 +41,54 @@ public class SikuliRunner {
         }
     }
 }
+
+
+
+
+package com.example.sikuli;
+
+import org.sikuli.script.*;
+
+public class SikuliHelper {
+    private static Screen screen = new Screen();
+
+    public static void clickImage(String imagePath) throws FindFailed {
+        screen.click(imagePath);
+        System.out.println("OK: clicked " + imagePath);
+    }
+
+    public static void typeText(String imagePath, String text) throws FindFailed {
+        if (imagePath != null && !imagePath.isEmpty()) {
+            screen.click(imagePath);
+        }
+        screen.type(text);
+        System.out.println("OK: typed text");
+    }
+
+    public static void pressKey(String key) {
+        screen.type(key);
+        System.out.println("OK: pressed key " + key);
+    }
+
+    public static boolean waitForImage(String imagePath, int timeoutSeconds) {
+        try {
+            return screen.exists(imagePath, timeoutSeconds) != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static void hoverImage(String imagePath) throws FindFailed {
+        screen.hover(imagePath);
+        System.out.println("OK: hovered " + imagePath);
+    }
+
+    // Optional helper to open a file via the OS default app
+    public static void openFile(String filePath) throws Exception {
+        java.awt.Desktop.getDesktop().open(new java.io.File(filePath));
+        System.out.println("OK: opened file " + filePath);
+    }
+}
+
+
