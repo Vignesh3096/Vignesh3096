@@ -1,0 +1,43 @@
+package com.example.sikuli;
+
+public class SikuliRunner {
+    public static void main(String[] args) {
+        try {
+            if (args.length == 0) {
+                System.out.println("No method provided");
+                System.exit(2);
+            }
+
+            String method = args[0];
+
+            switch (method) {
+                case "clickImage":
+                    SikuliHelper.clickImage(args[1]);
+                    break;
+                case "typeText":
+                    SikuliHelper.typeText(args[1], args[2]);
+                    break;
+                case "pressKey":
+                    SikuliHelper.pressKey(args[1]);
+                    break;
+                case "waitForImage":
+                    boolean found = SikuliHelper.waitForImage(args[1], Integer.parseInt(args[2]));
+                    System.out.println(found ? "FOUND" : "NOT_FOUND");
+                    break;
+                case "hoverImage":
+                    SikuliHelper.hoverImage(args[1]);
+                    break;
+                case "openFile":
+                    SikuliHelper.openFile(args[1]);
+                    break;
+                default:
+                    System.out.println("Unknown method: " + method);
+                    System.exit(3);
+            }
+            System.exit(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+}
