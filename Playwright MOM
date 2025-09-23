@@ -29,3 +29,11 @@ Priority 2
 	•	DB vs Tool comparison
 	•	DB vs DB comparison
 	•	DB vs Excel comparison
+
+Next Steps
+	•	Confirm testing approach with Test Team.
+	•	Dev Team to provide access and required data.
+	•	Start POC for Selenium → Playwright migration.
+	•	Identify gaps in validation and testing coverage.
+
+
