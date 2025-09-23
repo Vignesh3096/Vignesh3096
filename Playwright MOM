@@ -1,0 +1,31 @@
+Discussion Points
+	1.	Testing Approach
+	•	Need to check with the Test Team on the current testing process for the application.
+	•	Evaluate how the current test cases can be migrated to Playwright.
+	2.	Dev Team Support
+	•	Need to check with the Dev Team for required access.
+	•	Collect additional inputs such as credentials, test data, and environment details to support testing.
+
+⸻
+
+Action Items
+
+Priority 1
+	1.	POC for Migration
+	•	Conduct a Proof of Concept (POC) to migrate Selenium test scripts to Playwright.
+	2.	Application Inputs & Validation
+	•	Gather all inputs and validation steps required for each application.
+	3.	Automation ID Assignment (AIT)
+	•	Assign Automation IDs (AIT) once for all applications.
+	4.	SPOCs from Development Team
+	•	Cloud BIP: Shabber
+	•	ESSBASE: Nikhil
+	•	EBIR (OAS/OBIEE): Pradeepa
+
+Priority 2
+	1.	DB Testing – CFO Reporting/COMMIT
+	•	Perform database validation for CFO Reporting and COMMIT modules.
+	2.	Validation Types
+	•	DB vs Tool comparison
+	•	DB vs DB comparison
+	•	DB vs Excel comparison
