@@ -163,12 +163,18 @@ export default async function globalTeardown(config: FullConfig) {
   }
 }
 
+
+
 import { FullResult, Reporter } from '@playwright/test/reporter';
 import { convertJUnitToCustomXML } from './convert-report';
-import path from 'path';
 import fs from 'fs';
+import path from 'path';
 
 export default class JUnitConverterReporter implements Reporter {
+  onBegin?(config, suite) {} // optional
+  onTestBegin?(test) {}      // optional
+  onTestEnd?(test, result) {} // optional
+
   async onEnd(result: FullResult) {
     const inputFile = path.resolve('junit-results/junit-results.xml');
     const outputFolder = path.resolve('Results');
@@ -183,5 +189,3 @@ export default class JUnitConverterReporter implements Reporter {
     convertJUnitToCustomXML(inputFile, outputFile);
   }
 }
-
-
