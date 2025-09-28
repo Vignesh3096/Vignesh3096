@@ -126,64 +126,15 @@ import { convertJUnitToCustomXML } from "./convert-report";
 import path from "path";
 import fs from "fs";
 
-// Helper: generate timestamp YYYYMMDD_HHMMSS
-function getTimestamp() {
-  const now = new Date();
-  const pad = (n: number) => n.toString().padStart(2, "0");
-  return (
-    now.getFullYear().toString() +
-    pad(now.getMonth() + 1) +
-    pad(now.getDate()) +
-    "_" +
-    pad(now.getHours()) +
-    pad(now.getMinutes()) +
-    pad(now.getSeconds())
-  );
-}
-
-// Helper: get the latest file in a folder
-function getLatestFile(folder: string): string | null {
-  const files = fs.readdirSync(folder)
-    .map(f => ({ name: f, time: fs.statSync(path.join(folder, f)).mtime.getTime() }))
-    .sort((a, b) => b.time - a.time);
-  return files.length ? path.join(folder, files[0].name) : null;
-}
-
-// Default export required by Playwright
-export default async function globalTeardown(config: FullConfig) {
-  const timestamp = getTimestamp();
-  const resultsFolder = path.resolve(process.cwd(), "results");
-
-  // Automatically pick latest JUnit XML file
-  const inputFile = getLatestFile(resultsFolder);
-  if (!inputFile) {
-    console.warn("⚠️ No JUnit XML files found in results folder. Skipping conversion.");
-    return;
-  }
-
-  const outputFile = path.resolve(resultsFolder, `custom-results_${timestamp}.xml`);
-
-  console.log(`📝 Converting latest JUnit file ${inputFile} → ${outputFile}`);
-  convertJUnitToCustomXML(inputFile, outputFile);
-}
-
-
-import { FullConfig } from "@playwright/test";
-import { convertJUnitToCustomXML } from "./convert-report";
-import path from "path";
-import fs from "fs";
-
-// Default export required by Playwright
 export default async function globalTeardown(config: FullConfig) {
 
-  // Input JUnit XML file in 'junit-results' folder
-  const inputFile = path.resolve(process.cwd(), "junit-results/junit-results.xml");
+  // Resolve input file relative to this file (utils/global-teardown.ts)
+  const inputFile = path.resolve(__dirname, "../junit-results/junit-results.xml");
 
-  // Output folder 'Results' (created if doesn't exist)
-  const outputFolder = path.resolve(process.cwd(), "Results");
+  // Output folder 'Results' relative to project root
+  const outputFolder = path.resolve(__dirname, "../Results");
   if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder, { recursive: true });
 
-  // Output file fixed name: results.xml
   const outputFile = path.join(outputFolder, "results.xml");
 
   if (!fs.existsSync(inputFile)) {
