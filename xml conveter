@@ -168,3 +168,30 @@ export default async function globalTeardown(config: FullConfig) {
 }
 
 
+import { FullConfig } from "@playwright/test";
+import { convertJUnitToCustomXML } from "./convert-report";
+import path from "path";
+import fs from "fs";
+
+// Default export required by Playwright
+export default async function globalTeardown(config: FullConfig) {
+
+  // Input JUnit XML file in 'junit-results' folder
+  const inputFile = path.resolve(process.cwd(), "junit-results/junit-results.xml");
+
+  // Output folder 'Results' (created if doesn't exist)
+  const outputFolder = path.resolve(process.cwd(), "Results");
+  if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder, { recursive: true });
+
+  // Output file fixed name: results.xml
+  const outputFile = path.join(outputFolder, "results.xml");
+
+  if (!fs.existsSync(inputFile)) {
+    console.warn(`⚠️ Input file not found: ${inputFile}`);
+    return;
+  }
+
+  console.log(`📝 Converting ${inputFile} → ${outputFile}`);
+  convertJUnitToCustomXML(inputFile, outputFile);
+}
+
