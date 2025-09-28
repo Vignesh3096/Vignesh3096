@@ -1,0 +1,68 @@
+import * as fs from "fs";
+import { XMLParser } from "fast-xml-parser";
+
+export function convertJUnitToCustomXML(inputFile: string, outputFile: string) {
+  const xmlData = fs.readFileSync(inputFile, "utf-8");
+
+  const parser = new XMLParser({ ignoreAttributes: false });
+  const jsonObj = parser.parse(xmlData);
+
+  const testSuites = jsonObj.testsuites.testsuite;
+  let passed: any[] = [];
+  let failed: any[] = [];
+  let skipped: any[] = [];
+
+  for (const suite of Array.isArray(testSuites) ? testSuites : [testSuites]) {
+    const testCases = suite.testcase;
+    for (const tc of Array.isArray(testCases) ? testCases : [testCases]) {
+      const name = tc["@_name"];
+      const script = { "@_id": "", "@_name": name };
+
+      if (tc.failure) {
+        failed.push(script);
+      } else if (tc.skipped !== undefined) {
+        skipped.push(script);
+      } else {
+        passed.push(script);
+      }
+    }
+  }
+
+  let resultXml = `<resultsData>\n`;
+
+  if (failed.length > 0) {
+    resultXml += `  <failed>\n`;
+    failed.forEach(tc => {
+      resultXml += `    <testScript id="${tc['@_id']}" name="${tc['@_name']}"/>\n`;
+    });
+    resultXml += `  </failed>\n`;
+  }
+
+  if (passed.length > 0) {
+    resultXml += `  <passed>\n`;
+    passed.forEach(tc => {
+      resultXml += `    <testScript id="${tc['@_id']}" name="${tc['@_name']}"/>\n`;
+    });
+    resultXml += `  </passed>\n`;
+  }
+
+  if (skipped.length > 0) {
+    resultXml += `  <skipped>\n`;
+    skipped.forEach(tc => {
+      resultXml += `    <testScript id="${tc['@_id']}" name="${tc['@_name']}"/>\n`;
+    });
+    resultXml += `  </skipped>\n`;
+  }
+
+  // executing placeholder (always present)
+  resultXml += `  <executing/>\n`;
+
+  // total count
+  resultXml += `  <numberOfScripts>${passed.length + failed.length + skipped.length}</numberOfScripts>\n`;
+
+  resultXml += `</resultsData>\n`;
+
+  fs.writeFileSync(outputFile, resultXml, "utf-8");
+
+  console.log(`✅ Custom XML report created at: ${outputFile}`);
+}
