@@ -163,3 +163,28 @@ export default async function globalTeardown(config: FullConfig) {
   }
 }
 
+import { FullResult, Reporter } from '@playwright/test/reporter';
+import { convertJUnitToCustomXML } from './convert-report';
+import path from 'path';
+import fs from 'fs';
+
+export default class JUnitConverterReporter implements Reporter {
+  async onEnd(result: FullResult) {
+    const inputFile = path.resolve('junit-results/junit-results.xml');
+    const outputFolder = path.resolve('Results');
+
+    if (!fs.existsSync(inputFile)) {
+      console.warn(`⚠️ Input file not found: ${inputFile}`);
+      return;
+    }
+
+    if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder, { recursive: true });
+
+    const outputFile = path.join(outputFolder, 'results.xml');
+
+    console.log(`📝 Converting ${inputFile} → ${outputFile}`);
+    convertJUnitToCustomXML(inputFile, outputFile);
+  }
+}
+
+
