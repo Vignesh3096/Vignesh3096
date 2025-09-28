@@ -1,0 +1,22 @@
+@echo off
+REM Stop batch if any command fails
+setlocal enabledelayedexpansion
+
+REM Step 1: Install dependencies
+echo Installing dependencies...
+call npm install
+IF %ERRORLEVEL% NEQ 0 (
+    echo npm install failed! Exiting...
+    exit /b %ERRORLEVEL%
+)
+
+REM Step 2: Run Playwright tests
+echo Running Playwright tests...
+call npx playwright test
+IF %ERRORLEVEL% NEQ 0 (
+    echo Playwright tests failed!
+    exit /b %ERRORLEVEL%
+)
+
+echo ✅ All done.
+pause
