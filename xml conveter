@@ -120,29 +120,46 @@ const config: PlaywrightTestConfig = {
 
 export default config;
 
-
+import fs from "fs";
+import path from "path";
 import { FullConfig } from "@playwright/test";
 import { convertJUnitToCustomXML } from "./convert-report";
-import path from "path";
-import fs from "fs";
+
+function waitForFile(filePath: string, timeout = 10000, interval = 500) {
+  return new Promise<void>((resolve, reject) => {
+    const start = Date.now();
+    let lastSize = -1;
+
+    const check = () => {
+      if (fs.existsSync(filePath)) {
+        const stats = fs.statSync(filePath);
+        if (stats.size > 0 && stats.size === lastSize) {
+          return resolve(); // file exists and stable
+        }
+        lastSize = stats.size;
+      }
+      if (Date.now() - start > timeout) {
+        return reject(new Error(`File ${filePath} not ready after ${timeout}ms`));
+      }
+      setTimeout(check, interval);
+    };
+    check();
+  });
+}
 
 export default async function globalTeardown(config: FullConfig) {
-
-  // Resolve input file relative to this file (utils/global-teardown.ts)
   const inputFile = path.resolve(__dirname, "../junit-results/junit-results.xml");
-
-  // Output folder 'Results' relative to project root
   const outputFolder = path.resolve(__dirname, "../Results");
   if (!fs.existsSync(outputFolder)) fs.mkdirSync(outputFolder, { recursive: true });
-
   const outputFile = path.join(outputFolder, "results.xml");
 
-  if (!fs.existsSync(inputFile)) {
-    console.warn(`⚠️ Input file not found: ${inputFile}`);
-    return;
+  try {
+    console.log(`⏳ Waiting for JUnit XML to be fully written: ${inputFile}`);
+    await waitForFile(inputFile, 15000, 500); // wait max 15s
+    console.log(`📝 Converting ${inputFile} → ${outputFile}`);
+    convertJUnitToCustomXML(inputFile, outputFile);
+  } catch (err) {
+    console.error(`⚠️ Could not find or stabilize input file: ${err.message}`);
   }
-
-  console.log(`📝 Converting ${inputFile} → ${outputFile}`);
-  convertJUnitToCustomXML(inputFile, outputFile);
 }
 
