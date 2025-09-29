@@ -1,0 +1,43 @@
+Generate a complete end-to-end project that helps a team select the best test automation tool based on multiple criteria. The project should include:
+
+1. Folder and file structure:
+   - project-root/
+     - index.html
+     - style.css
+     - script.js
+     - data/
+         - tools.xlsx
+     - utils/
+         - excelReader.js
+
+2. index.html:
+   - Responsive HTML page
+   - Multiple questions with options (like a quiz form)
+   - A submit button that calculates the best test automation tool based on selected options
+   - Area to display the result
+
+3. style.css:
+   - Clean and modern UI
+   - Highlight selected options
+
+4. script.js:
+   - Load data from Excel (via excelReader.js)
+   - Generate questions dynamically from Excel
+   - Handle user selections
+   - Calculate the best tool based on permutations and combinations
+   - Display the result dynamically
+
+5. utils/excelReader.js:
+   - Read Excel file (tools.xlsx) using JavaScript (preferably using SheetJS or similar library)
+   - Provide data in JSON format for script.js
+
+6. Excel structure (tools.xlsx):
+   - Columns: Question, Option, Mapping Tool(s), Condition(s)
+   - Each row represents one option and which tools it maps to
+
+7. Bonus:
+   - Include error handling if no tool matches
+   - Highlight top 2 tools if there are multiple matches
+   - Make it easy to extend questions or tools by updating Excel only
+
+Provide **all the code** for each file and explain where to place them. Make it fully ready to run in a browser locally. Use modern JavaScript (ES6+) and minimal dependencies.
