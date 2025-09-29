@@ -1,0 +1,136 @@
+Got it 👍
+You want the MoM with points 1–9, but with each topic split into Major Challenges/Observations and Minor Challenges/Observations so the meeting notes clearly highlight impact.
+
+Here’s a structured draft:
+
+⸻
+
+Minutes of Meeting (MoM)
+
+Date: [Insert Date]
+Attendees: [List attendees]
+Project: Playwright Framework Evaluation and Enhancements
+
+⸻
+
+Discussion Points & Observations
+
+1. Why TypeScript is chosen for Playwright
+
+Major Challenges/Observations:
+	•	Strong typing reduces runtime errors but adds a learning curve for non-TypeScript developers.
+	•	Requires additional build step (tsc) compared to JavaScript.
+
+Minor Challenges/Observations:
+	•	IDE support (intellisense, autocomplete) improves productivity.
+	•	Aligns with Playwright documentation and community standards.
+
+⸻
+
+2. Script execution on Cloud or Containers
+
+Major Challenges/Observations:
+	•	Need Docker setup with correct browsers and dependencies.
+	•	Cloud cost and execution time monitoring required.
+
+Minor Challenges/Observations:
+	•	Compatible with BrowserStack, SauceLabs, AWS, Azure.
+	•	Containerization helps parallel execution in CI/CD.
+
+⸻
+
+3. Why Cucumber is not chosen
+
+Major Challenges/Observations:
+	•	Additional complexity with Gherkin → step definitions mapping.
+	•	Maintenance overhead when application grows.
+
+Minor Challenges/Observations:
+	•	Playwright test runner already covers reporting, tagging, and structuring.
+	•	Cucumber provides readability but at cost of speed.
+
+⸻
+
+4. Converting TDD to BDD for larger audience
+
+Major Challenges/Observations:
+	•	Converting existing TDD tests to BDD requires significant rework.
+	•	Non-technical stakeholders prefer business-readable format.
+
+Minor Challenges/Observations:
+	•	Can follow hybrid model: TDD internally + BDD-style reporting for managers/business users.
+
+⸻
+
+5. Logger and Tracing Options
+
+Major Challenges/Observations:
+	•	Need to decide on logger framework (e.g., Winston, pino).
+	•	Storage and retrieval of logs across CI/CD runs.
+
+Minor Challenges/Observations:
+	•	Playwright built-in tracing and video recording help debugging.
+	•	Logs can be extended for error-only or debug mode.
+
+⸻
+
+6. Global Test Data Variables
+
+Major Challenges/Observations:
+	•	Synchronizing data across multiple environments (dev, QA, prod).
+	•	Risk of test failures if environment variables not updated properly.
+
+Minor Challenges/Observations:
+	•	Can maintain .env or globalSetup.ts.
+	•	Centralizing data reduces duplication.
+
+⸻
+
+7. Parameterization from Excel (Test Data)
+
+Major Challenges/Observations:
+	•	Need library (exceljs, xlsx) to parse Excel during runtime.
+	•	Data validation and formatting in Excel required.
+
+Minor Challenges/Observations:
+	•	Enables non-technical users to update test data easily.
+	•	Good fit for data-driven testing.
+
+⸻
+
+8. Parameterization of Test Case Names from Excel
+
+Major Challenges/Observations:
+	•	Mapping Excel test names to Playwright test definitions dynamically is non-trivial.
+	•	Incorrect mapping may skip tests unintentionally.
+
+Minor Challenges/Observations:
+	•	Helps business team decide which tests to execute.
+	•	Similar to how TestNG allows selective execution.
+
+⸻
+
+9. TestNG XML equivalent for Playwright
+
+Major Challenges/Observations:
+	•	Playwright does not have a native XML suite runner.
+	•	Need to build custom configuration utility to mimic TestNG XML (grouping, including/excluding).
+
+Minor Challenges/Observations:
+	•	JSON/YAML-based config can be an alternative.
+	•	Custom tags (like --grep) in Playwright can partially replace TestNG XML groups.
+
+⸻
+
+Action Items
+	•	[Owner] Finalize documentation for TypeScript justification.
+	•	[Owner] Build Docker/Cloud POC for Playwright execution.
+	•	[Owner] Confirm logger framework and integrate with Playwright.
+	•	[Owner] Implement global variable management approach.
+	•	[Owner] Create Excel utility for test data + test case name parameterization.
+	•	[Owner] Explore feasibility of TestNG-XML-like configuration for Playwright.
+	•	[Owner] Evaluate hybrid TDD + BDD-style reporting.
+
+⸻
+
+👉 Do you want me to also add recommendations/next steps for each point (like solution proposals), or should the MoM stay strictly at challenges/observations level?
