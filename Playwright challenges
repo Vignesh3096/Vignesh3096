@@ -133,4 +133,129 @@ Action Items
 
 ⸻
 
+
+
+
+
 👉 Do you want me to also add recommendations/next steps for each point (like solution proposals), or should the MoM stay strictly at challenges/observations level?
+
+
+
+
+
+Topic
+Major Challenges/Observations
+Minor Challenges/Observations
+Action Items
+TypeScript for Playwright
+Strong typing reduces runtime errors; learning curve for non-TS devs
+Good IDE support; aligns with community
+Finalize TS choice & doc
+Cloud / Container Execution
+Docker/browser setup needed; cost monitoring
+Works with BrowserStack, AWS, Azure; good for CI/CD
+POC for Docker/Cloud run
+Cucumber not chosen
+Extra complexity, high maintenance
+Playwright runner already sufficient
+Document decision
+TDD → BDD
+Rework needed; BDD helps non-tech audience
+Hybrid model possible
+Evaluate hybrid reporting
+Logger & Tracing
+Choose logger framework; log storage/retrieval
+Playwright tracing/videos available
+Logger integration
+Global Test Data Variables
+Sync across environments; risk if outdated
+Centralized .env/config reduces duplication
+Setup global variable mgmt
+Excel Data Parameterization
+Needs Excel parser (xlsx, exceljs); validation overhead
+Easy for non-tech users; supports DDT
+Build Excel utility
+Parameterize Test Case Names from Excel
+Mapping Excel → Playwright test names tricky
+Enables selective execution
+Extend Excel utility
+TestNG XML Equivalent
+No native support; custom utility/config needed
+JSON/YAML or --grep tags can be workaround
+Explore XML-like config
+
+
+Perfect 👍 Here’s a short & crisp MoM version with major/minor points compacted:
+
+⸻
+
+Minutes of Meeting (MoM)
+
+Date: [Insert Date]
+Attendees: [List attendees]
+Project: Playwright Framework Evaluation
+
+⸻
+
+Discussion Points
+	1.	TypeScript for Playwright
+
+	•	Major: Strong typing reduces runtime errors; learning curve for non-TS devs.
+	•	Minor: Good IDE support; aligns with community.
+
+	2.	Cloud / Container Execution
+
+	•	Major: Docker/browser setup needed; cost monitoring.
+	•	Minor: Works with BrowserStack, AWS, Azure; good for CI/CD.
+
+	3.	Cucumber not chosen
+
+	•	Major: Extra complexity, high maintenance.
+	•	Minor: Playwright runner already sufficient.
+
+	4.	TDD → BDD
+
+	•	Major: Rework needed; BDD helps non-tech audience.
+	•	Minor: Hybrid model possible.
+
+	5.	Logger & Tracing
+
+	•	Major: Choose logger framework; log storage/retrieval.
+	•	Minor: Playwright tracing/videos available.
+
+	6.	Global Test Data Variables
+
+	•	Major: Sync across environments; risk if outdated.
+	•	Minor: Centralized .env/config reduces duplication.
+
+	7.	Excel Data Parameterization
+
+	•	Major: Needs Excel parser (xlsx, exceljs); validation overhead.
+	•	Minor: Easy for non-tech users; supports DDT.
+
+	8.	Parameterize Test Case Names from Excel
+
+	•	Major: Mapping Excel → Playwright dynamic test names tricky.
+	•	Minor: Enables selective execution.
+
+	9.	TestNG XML Equivalent
+
+	•	Major: No native support; custom utility/config needed.
+	•	Minor: JSON/YAML or --grep tags can be workaround.
+
+⸻
+
+Action Items
+	•	Finalize TS choice & doc.
+	•	POC for Docker/Cloud run.
+	•	Logger integration.
+	•	Global variable setup.
+	•	Excel utilities for data + test case names.
+	•	Explore TestNG XML-like config.
+	•	Check hybrid TDD/BDD reporting.
+
+⸻
+
+Do you want me to make this in a tabular format (Topic | Major | Minor | Action) for even quicker readability?
+
+
