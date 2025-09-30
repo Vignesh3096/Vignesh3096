@@ -40,4 +40,87 @@ Generate a complete end-to-end project that helps a team select the best test au
    - Highlight top 2 tools if there are multiple matches
    - Make it easy to extend questions or tools by updating Excel only
 
+
+
+Question: Team has strong programming skills?
+Option: Yes
+Recommended Tool(s): Selenium, Playwright, RA Framework
+Recommended Language / Framework: 
+  - Selenium: Java / Python / C#
+  - Playwright: TypeScript / JavaScript
+  - RA Framework: Java + Cucumber
+Notes: Ideal for dev-heavy teams
+-----------------------------------------------------
+
+Question: Team has strong programming skills?
+Option: No
+Recommended Tool(s): Tosca, TestComplete, UFT, UI PATH, RA Framework
+Recommended Language / Framework: 
+  - Tosca: No code
+  - TestComplete: VBScript / JS
+  - UFT: VBScript
+  - UI PATH: No code
+  - RA Framework: Manual-friendly, Cucumber features
+Notes: RA Framework also works for less coding teams
+-----------------------------------------------------
+
+Question: Team prefers no-code automation?
+Option: Yes
+Recommended Tool(s): Tosca, UI PATH, RA Framework
+Recommended Language / Framework:
+  - Tosca: Model-based
+  - UI PATH: RPA
+  - RA Framework: Cucumber features
+Notes: Good for manual testers
+-----------------------------------------------------
+
+Question: Team prefers web automation?
+Option: Yes
+Recommended Tool(s): Selenium, Playwright, TestComplete, RA Framework
+Recommended Language / Framework:
+  - Selenium: Web
+  - Playwright: Web
+  - TestComplete: Web
+  - RA Framework: Web
+Notes: Select based on language comfort
+-----------------------------------------------------
+
+Question: Team prefers desktop automation?
+Option: Yes
+Recommended Tool(s): TestComplete, UFT, UI PATH
+Recommended Language / Framework:
+  - TestComplete: Desktop apps
+  - UFT: Desktop apps
+  - UI PATH: Desktop RPA
+Notes:
+-----------------------------------------------------
+
+Question: Team prefers cloud/browser automation?
+Option: Yes
+Recommended Tool(s): Selenium, Playwright, TestComplete
+Recommended Language / Framework:
+  - Selenium: Cross-browser
+  - Playwright: Cross-browser
+  - TestComplete: Limited cloud support
+Notes:
+-----------------------------------------------------
+
+Question: Team wants BDD-style test management?
+Option: Yes
+Recommended Tool(s): RA Framework, Selenium + Cucumber
+Recommended Language / Framework:
+  - Java + Cucumber
+Notes: RA Framework simplifies code hiding
+-----------------------------------------------------
+
+Question: Team wants quick learning curve?
+Option: Yes
+Recommended Tool(s): Tosca, UI PATH, TestComplete
+Recommended Language / Framework:
+  - No-code or scripting light
+Notes: Manual testers can pick easily
+-----------------------------------------------------
+
+
+
 Provide **all the code** for each file and explain where to place them. Make it fully ready to run in a browser locally. Use modern JavaScript (ES6+) and minimal dependencies.
