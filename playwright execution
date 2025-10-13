@@ -1,0 +1,134 @@
+import path from 'path';
+import fs from 'fs';
+import { getExcelTests } from '../utils/excelReader';
+import { getRunList } from '../utils/runListReader';
+import { getSuiteList } from '../utils/suiteReader';
+
+const execType = process.env.EXEC_TYPE || 'auto'; // auto = detect best
+const suiteName = process.env.SUITE || 'smoke';
+const sheetName = process.env.SHEET || 'App1_Login';
+
+console.log(`🚀 Execution Mode: ${execType}`);
+
+let finalTests: any[] = [];
+
+try {
+  if (execType === 'excel' || execType === 'auto') {
+    console.log(`📗 Reading Excel Sheet: ${sheetName}`);
+    finalTests = getExcelTests(sheetName);
+    if (finalTests.length > 0) console.log(`✅ ${finalTests.length} test(s) loaded from Excel`);
+  }
+
+  if (finalTests.length === 0 && (execType === 'runlist' || execType === 'auto')) {
+    console.log(`📘 Reading runList.json`);
+    const runList = getRunList();
+    const fileList: any[] = runList.filesToRun || [];
+    const testList: any[] = runList.testsToRun || [];
+    finalTests = [
+      ...fileList.map(file => ({ file })),
+      ...testList.flatMap(t => t.tests.map((test: string) => ({ file: t.file, testName: test })))
+    ];
+    if (finalTests.length > 0) console.log(`✅ ${finalTests.length} test(s) loaded from runList.json`);
+  }
+
+  if (finalTests.length === 0 && (execType === 'suite' || execType === 'auto')) {
+    console.log(`📙 Reading suite.json for suite: ${suiteName}`);
+    const suiteTests = getSuiteList(suiteName);
+    finalTests = suiteTests.map(file => ({ file }));
+    console.log(`✅ ${finalTests.length} test(s) loaded from suite.json`);
+  }
+
+  if (finalTests.length === 0) {
+    console.error('❌ No test cases found to execute!');
+    process.exit(1);
+  }
+
+  console.log(`🎯 Final Tests to Run:`);
+  finalTests.forEach(t => console.log(` - ${t.file}${t.testName ? ' :: ' + t.testName : ''}`));
+
+  // Execute dynamically
+  for (const t of finalTests) {
+    const absPath = path.resolve(t.file);
+    if (!fs.existsSync(absPath)) {
+      console.warn(`⚠️ File not found: ${absPath}`);
+      continue;
+    }
+    require(absPath);
+  }
+
+} catch (err: any) {
+  console.error('❌ Error during test selection:', err.message);
+  process.exit(1);
+}
+
+
+
+import fs from 'fs';
+import path from 'path';
+
+export function getSuiteList(suiteName: string) {
+  const filePath = path.resolve(__dirname, '../config/suite.json');
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  if (!data[suiteName]) throw new Error(`❌ Suite '${suiteName}' not found in suite.json`);
+  return data[suiteName];
+}
+
+
+
+import fs from 'fs';
+import path from 'path';
+
+export function getRunList() {
+  const filePath = path.resolve(__dirname, '../config/runList.json');
+  const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  return data;
+}
+
+
+
+import * as XLSX from 'xlsx';
+import path from 'path';
+
+export function getExcelTests(sheetName: string) {
+  const filePath = path.resolve(__dirname, '../data/testCases.xlsx');
+  const workbook = XLSX.readFile(filePath);
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) throw new Error(`❌ Sheet '${sheetName}' not found in Excel`);
+  
+  const data = XLSX.utils.sheet_to_json(sheet);
+  return data
+    .filter((row: any) => row.Execute?.toString().toLowerCase() === 'yes')
+    .map((row: any) => ({
+      appName: row.AppName,
+      testCase: row.TestCase,
+      file: row.FilePath
+    }));
+}
+
+
+{
+  "smoke": [
+    "tests/app1/login.spec.ts"
+  ],
+  "regression": [
+    "tests/app1/login.spec.ts",
+    "tests/app2/report.spec.ts"
+  ]
+}
+
+
+
+{
+  "filesToRun": [
+    "tests/app1/login.spec.ts"
+  ],
+  "testsToRun": [
+    { "file": "tests/app2/report.spec.ts", "tests": ["Verify Report Generation"] }
+  ]
+}
+
+
+
+
+
+
