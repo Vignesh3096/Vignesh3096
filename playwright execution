@@ -349,3 +349,164 @@ export { testsToRun };
 
 
 
+// new
+
+import * as XLSX from 'xlsx';
+import path from 'path';
+
+export interface ExcelTest {
+  file: string;
+  name?: string;
+}
+
+// Reads Excel sheet for selected tests
+export function getExcelTests(appName: string, sheetName: string): ExcelTest[] {
+  const filePath = path.resolve(__dirname, `../data/${appName}.xlsx`);
+  const workbook = XLSX.readFile(filePath);
+
+  // Step 1: FileMap sheet
+  const fileMapSheet = workbook.Sheets['FileMap'];
+  if (!fileMapSheet) throw new Error(`Missing 'FileMap' sheet in ${appName}.xlsx`);
+  const fileMapData = XLSX.utils.sheet_to_json(fileMapSheet);
+  const fileMap: Record<string, string> = {};
+  for (const row of fileMapData) {
+    fileMap[(row as any).SheetName] = (row as any).FilePath;
+  }
+
+  // Step 2: Module sheet
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) throw new Error(`Sheet '${sheetName}' not found in ${appName}.xlsx`);
+
+  const data = XLSX.utils.sheet_to_json(sheet);
+  const moduleFilePath = fileMap[sheetName];
+  if (!moduleFilePath) throw new Error(`No FilePath mapping for sheet '${sheetName}'`);
+
+  return data
+    .filter((row: any) => row.Execute?.toString().toLowerCase() === 'yes')
+    .map((row: any) => ({
+      file: moduleFilePath,
+      name: row.TestName
+    }));
+}
+
+
+
+import fs from 'fs';
+import path from 'path';
+
+export interface RunListItem {
+  file: string;
+  tests?: string[];
+}
+
+export function getRunListTests(): RunListItem[] {
+  const filePath = path.resolve(__dirname, '../data/runList.json');
+  if (!fs.existsSync(filePath)) {
+    console.warn(`runList.json not found at ${filePath}`);
+    return [];
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    if (!Array.isArray(data)) throw new Error('runList.json must be an array');
+    return data.map((item: any) => ({
+      file: item.file,
+      tests: Array.isArray(item.tests) ? item.tests : []
+    }));
+  } catch (err) {
+    console.error(`Failed to read runList.json:`, err);
+    return [];
+  }
+}
+
+
+[
+  {
+    "file": "tests/app1/login.spec.ts",
+    "tests": ["should login with valid credentials"]
+  },
+  {
+    "file": "tests/app2/order.spec.ts",
+    "tests": ["should create a new order", "should validate order summary"]
+  }
+]
+
+
+
+import path from 'path';
+
+const suites: Record<string, string[]> = {
+  smoke: [
+    'tests/app1/login.spec.ts',
+    'tests/app2/dashboard.spec.ts'
+  ],
+  regression: [
+    'tests/app1/login.spec.ts',
+    'tests/app1/orders.spec.ts',
+    'tests/app2/dashboard.spec.ts'
+  ],
+  sanity: [
+    'tests/app2/dashboard.spec.ts'
+  ]
+};
+
+export function getSuiteTests(): string[] {
+  const suiteName = process.env.SUITE?.toLowerCase() || 'smoke';
+  if (!suites[suiteName]) {
+    console.warn(`Suite '${suiteName}' not found. Defaulting to smoke.`);
+    return suites['smoke'];
+  }
+  return suites[suiteName].map(f => path.normalize(f));
+}
+
+
+
+import { test as base } from '@playwright/test';
+import { getExcelTests } from './excelReader';
+import { getRunListTests, RunListItem } from './runListReader';
+import { getSuiteTests } from './suiteConfig';
+
+const EXEC_TYPE = process.env.EXEC_TYPE || 'excel';
+const APP = process.env.APP || 'app1';
+const SHEET = process.env.SHEET || 'login';
+const SUITE = process.env.SUITE || 'smoke';
+
+let testsToRun: string[] = [];
+let testNames: string[] = [];
+
+if (EXEC_TYPE === 'excel') {
+  const excelTests = getExcelTests(APP, SHEET);
+  testsToRun = [...new Set(excelTests.map(t => t.file))];
+  testNames = excelTests.map(t => t.name).filter((n): n is string => !!n && n.trim() !== '');
+} 
+else if (EXEC_TYPE === 'runList') {
+  const runList: RunListItem[] = getRunListTests();
+  testsToRun = runList.map(item => item.file);
+  testNames = runList.flatMap(item => item.tests || []);
+} 
+else if (EXEC_TYPE === 'suite') {
+  testsToRun = getSuiteTests();
+}
+
+console.log('🎯 Final Spec Files:', testsToRun);
+if (testNames.length > 0) console.log('🧩 Filtered Test Names:', testNames);
+
+export const test = base.extend({});
+
+// Filter individual test cases (Excel & runList)
+export const testFilter = (title: string) => {
+  if ((EXEC_TYPE === 'excel' || EXEC_TYPE === 'runList') && testNames.length > 0) {
+    return testNames.includes(title);
+  }
+  return true; // Suite mode runs all tests in the spec file
+};
+
+export { testsToRun };
+
+
+
+
+
+
+
+
