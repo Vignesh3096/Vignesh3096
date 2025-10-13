@@ -274,3 +274,78 @@ export const testFilter = (title: string): boolean => {
 
 export { testsToRun };
 
+
+import fs from 'fs';
+import path from 'path';
+
+interface RunListItem {
+  file: string;
+  tests?: string[];
+}
+
+export function getRunListTests(): RunListItem[] {
+  const filePath = path.resolve(__dirname, '../data/runList.json');
+
+  if (!fs.existsSync(filePath)) {
+    console.warn(`⚠️ runList.json not found at ${filePath}`);
+    return [];
+  }
+
+  try {
+    const data = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    if (!Array.isArray(data)) throw new Error('runList.json should be an array');
+
+    return data.map((item: any) => ({
+      file: item.file,
+      tests: Array.isArray(item.tests) ? item.tests : []
+    }));
+  } catch (err) {
+    console.error(`❌ Failed to read runList.json:`, err);
+    return [];
+  }
+}
+
+
+import { test as base } from '@playwright/test';
+import { getRunListTests } from '../utils/runListReader';
+import { getExcelTests } from '../utils/excelReader';
+import { getSuiteTests } from '../utils/suiteConfig';
+
+const EXEC_TYPE = process.env.EXEC_TYPE || 'excel';
+const APP = process.env.APP || 'app1';
+const SHEET = process.env.SHEET || 'login';
+const SUITE = process.env.SUITE || 'smoke';
+
+let testsToRun: string[] = [];
+let testNames: string[] = [];
+
+if (EXEC_TYPE === 'excel') {
+  const excelTests = getExcelTests(APP, SHEET);
+  testsToRun = [...new Set(excelTests.map(t => t.file))];
+  testNames = excelTests.map(t => t.name).filter((n): n is string => !!n && n.trim() !== '');
+} 
+else if (EXEC_TYPE === 'runList') {
+  const runList = getRunListTests(); // array of {file, tests}
+  testsToRun = runList.map(item => item.file);
+  testNames = runList.flatMap(item => item.tests || []);
+} 
+else if (EXEC_TYPE === 'suite') {
+  testsToRun = getSuiteTests();
+}
+
+console.log('🎯 Final Spec Files:', testsToRun);
+if (testNames.length > 0) console.log('🧩 Filtered Test Names:', testNames);
+
+export const test = base.extend({});
+
+export const testFilter = (title: string) => {
+  if (EXEC_TYPE === 'excel' || EXEC_TYPE === 'runList') {
+    return testNames.length === 0 || testNames.includes(title);
+  }
+  return true;
+};
+
+export { testsToRun };
+
+
+
