@@ -130,5 +130,98 @@ export function getExcelTests(sheetName: string) {
 
 
 
+// utils/excelReader.ts
+import * as XLSX from 'xlsx';
+import path from 'path';
+
+export interface ExcelTest {
+  file: string;
+  name?: string;
+}
+
+export function getExcelTests(appName: string, sheetName: string): ExcelTest[] {
+  const filePath = path.resolve(__dirname, `../data/${appName}.xlsx`);
+  const workbook = XLSX.readFile(filePath);
+
+  // Step 1️⃣: Read the FileMap sheet
+  const fileMapSheet = workbook.Sheets['FileMap'];
+  if (!fileMapSheet) {
+    throw new Error(`❌ Missing 'FileMap' sheet in ${appName}.xlsx`);
+  }
+  const fileMapData = XLSX.utils.sheet_to_json(fileMapSheet);
+  const fileMap: Record<string, string> = {};
+  for (const row of fileMapData) {
+    fileMap[(row as any).SheetName] = (row as any).FilePath;
+  }
+
+  // Step 2️⃣: Read the specific module sheet (like 'orders')
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) {
+    throw new Error(`❌ Sheet '${sheetName}' not found in ${appName}.xlsx`);
+  }
+
+  const data = XLSX.utils.sheet_to_json(sheet);
+  const moduleFilePath = fileMap[sheetName];
+
+  if (!moduleFilePath) {
+    throw new Error(`❌ No FilePath mapping found for sheet '${sheetName}' in FileMap`);
+  }
+
+  // Step 3️⃣: Filter and map
+  return data
+    .filter((row: any) => row.Execute?.toString().toLowerCase() === 'yes')
+    .map((row: any) => ({
+      file: moduleFilePath,
+      name: row.TestName
+    }));
+}
+
+
+// customTest.ts
+import { test as base } from '@playwright/test';
+import { getExcelTests } from '../utils/excelReader';
+import { getRunListTests } from '../utils/runListReader';
+import { getSuiteTests } from '../utils/suiteConfig';
+
+const EXEC_TYPE = process.env.EXEC_TYPE || 'excel';  // excel | runList | suite
+const APP = process.env.APP || 'app1';               // workbook name (e.g. app1)
+const SHEET = process.env.SHEET || 'login';          // sheet name inside workbook
+const SUITE = process.env.SUITE || 'smoke';          // optional (for suite mode)
+
+// Arrays that we’ll populate dynamically
+let testsToRun: string[] = [];     // spec file paths
+let testNames: string[] = [];      // individual test titles (for Excel filtering)
+
+if (EXEC_TYPE === 'excel') {
+  console.log(`📗 Excel Mode → App: ${APP}, Sheet: ${SHEET}`);
+  const excelTests = getExcelTests(APP, SHEET);
+  testsToRun = [...new Set(excelTests.map(t => t.file))];
+  testNames = excelTests.map(t => t.name).filter(Boolean);
+} 
+else if (EXEC_TYPE === 'runList') {
+  console.log(`📘 RunList Mode`);
+  testsToRun = getRunListTests();
+} 
+else if (EXEC_TYPE === 'suite') {
+  console.log(`📙 Suite Mode → Suite: ${SUITE}`);
+  testsToRun = getSuiteTests();
+}
+
+console.log('🎯 Final Spec Files:', testsToRun);
+if (testNames.length > 0) console.log('🧩 Filtered Test Names:', testNames);
+
+// ✅ Export Playwright’s “test” as usual
+export const test = base.extend({});
+
+// ✅ Utility function to skip non-selected tests
+export const testFilter = (title: string): boolean => {
+  if (EXEC_TYPE === 'excel' && testNames.length > 0) {
+    return testNames.includes(title);
+  }
+  return true;
+};
+
+// ✅ Optionally export this array if you want custom CLI filtering later
+export { testsToRun };
 
 
