@@ -225,3 +225,52 @@ export const testFilter = (title: string): boolean => {
 export { testsToRun };
 
 
+
+// customTest.ts
+import { test as base } from '@playwright/test';
+import { getExcelTests } from '../utils/excelReader';
+import { getRunListTests } from '../utils/runListReader';
+import { getSuiteTests } from '../utils/suiteConfig';
+
+const EXEC_TYPE = process.env.EXEC_TYPE || 'excel';  // excel | runList | suite
+const APP = process.env.APP || 'app1';
+const SHEET = process.env.SHEET || 'login';
+const SUITE = process.env.SUITE || 'smoke';
+
+let testsToRun: string[] = [];
+let testNames: string[] = [];
+
+if (EXEC_TYPE === 'excel') {
+  console.log(`📗 Excel Mode → App: ${APP}, Sheet: ${SHEET}`);
+  const excelTests = getExcelTests(APP, SHEET);
+
+  testsToRun = [...new Set(excelTests.map(t => t.file))];
+
+  // ✅ FIXED TYPE ISSUE
+  testNames = excelTests
+    .map(t => t.name)
+    .filter((n): n is string => !!n && n.trim().length > 0);
+}
+else if (EXEC_TYPE === 'runList') {
+  console.log(`📘 RunList Mode`);
+  testsToRun = getRunListTests();
+}
+else if (EXEC_TYPE === 'suite') {
+  console.log(`📙 Suite Mode → Suite: ${SUITE}`);
+  testsToRun = getSuiteTests();
+}
+
+console.log('🎯 Final Spec Files:', testsToRun);
+if (testNames.length > 0) console.log('🧩 Filtered Test Names:', testNames);
+
+export const test = base.extend({});
+
+export const testFilter = (title: string): boolean => {
+  if (EXEC_TYPE === 'excel' && testNames.length > 0) {
+    return testNames.includes(title);
+  }
+  return true;
+};
+
+export { testsToRun };
+
