@@ -1,0 +1,112 @@
+import * as XLSX from 'xlsx';
+import path from 'path';
+
+export interface TestRow {
+  testCaseName: string;
+  execute: string;
+  [key: string]: any;
+}
+
+/**
+ * Fetch only a single test case from a sheet in an Excel file
+ */
+export function readSingleTestData(excelFileName: string, sheetName: string, testCaseName: string): TestRow | null {
+  const workbookPath = path.resolve(`data/testdata/${excelFileName}`);
+  const workbook = XLSX.readFile(workbookPath);
+
+  if (!workbook.SheetNames.includes(sheetName)) return null;
+
+  const sheetData = XLSX.utils.sheet_to_json<TestRow>(workbook.Sheets[sheetName]);
+  const row = sheetData.find(r => r.testCaseName === testCaseName);
+
+  return row || null;
+}
+
+
+
+import fs from 'fs';
+import path from 'path';
+
+export function getRunList() {
+  const filePath = path.resolve('config/runList.json');
+  if (!fs.existsSync(filePath)) return null;
+  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+}
+
+
+{
+  "login": ["Valid Login"],
+  "order": ["Place Order"]
+}
+
+
+import fs from 'fs';
+import path from 'path';
+
+export function getSuiteList(suiteName: string) {
+  const filePath = path.resolve('config/suiteList.json');
+  if (!fs.existsSync(filePath)) return null;
+  const suites = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  return suites[suiteName] || [];
+}
+
+
+{
+  "smoke": ["Valid Login", "Place Order"],
+  "regression": ["Invalid Login", "Bulk Order"]
+}
+
+export type Mode = 'excel' | 'runlist' | 'suite';
+
+export function getExecutionMode(): Mode {
+  return (process.env.EXEC_MODE as Mode) || 'excel';
+}
+
+export function getSuiteName(): string | null {
+  return process.env.SUITE_NAME || null;
+}
+
+
+import { readSingleTestData, TestRow } from './excelReader';
+import { getRunList } from './runListReader';
+import { getSuiteList } from './suiteReader';
+import { getExecutionMode, getSuiteName } from './configManager';
+
+const mode = getExecutionMode();
+const suiteName = getSuiteName();
+
+/**
+ * Decide if this test should run
+ */
+export function shouldRunTest(excelFile: string, sheetName: string, testName: string): boolean {
+  if (mode === 'runlist') {
+    const runList = getRunList();
+    return runList?.[sheetName]?.includes(testName) ?? false;
+  }
+
+  if (mode === 'suite') {
+    const suiteTests = getSuiteList(suiteName!);
+    return suiteTests.includes(testName);
+  }
+
+  if (mode === 'excel') {
+    const row = readSingleTestData(excelFile, sheetName, testName);
+    return row?.execute?.toLowerCase() === 'yes';
+  }
+
+  return false;
+}
+
+/**
+ * Fetch test data **on-demand**
+ */
+export function getTestData(excelFile: string, sheetName: string, testName: string): TestRow | null {
+  return readSingleTestData(excelFile, sheetName, testName);
+}
+
+
+
+
+
+
+
