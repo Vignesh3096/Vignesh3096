@@ -124,3 +124,48 @@ test('Invalid Login', async ({ page }) => {
   await expect(page.locator('#error')).toBeVisible();
 });
 
+
+
+import { test, expect } from '@playwright/test';
+import { getExecutableTests, getTestData } from '../../utils/testHelper';
+import { getRunList } from '../../utils/runListReader';
+
+const excelFile = 'TestData_App1.xlsx';
+const sheetName = 'login';
+
+const mode = process.env.RUN_MODE || 'excel';
+
+let executableTests: string[] = [];
+
+// 1️⃣ Determine which tests to execute
+if (mode === 'excel') {
+  executableTests = getExecutableTests(excelFile, sheetName);
+} else if (mode === 'runlist') {
+  executableTests = getRunList()[sheetName] || [];
+}
+
+// 2️⃣ Define normal test methods only if they are executable
+if (executableTests.includes('Valid Login')) {
+  test('Valid Login', async ({ page }) => {
+    const data = getTestData(excelFile, sheetName, 'Valid Login');
+    await page.goto(data.url);
+    await page.fill('#username', data.username);
+    await page.fill('#password', data.password);
+    await page.click('#loginBtn');
+    await expect(page).toHaveURL(/dashboard/);
+  });
+}
+
+if (executableTests.includes('Invalid Login')) {
+  test('Invalid Login', async ({ page }) => {
+    const data = getTestData(excelFile, sheetName, 'Invalid Login');
+    await page.goto(data.url);
+    await page.fill('#username', data.username);
+    await page.fill('#password', data.password);
+    await page.click('#loginBtn');
+    await expect(page.locator('#error')).toBeVisible();
+  });
+}
+
+
+
