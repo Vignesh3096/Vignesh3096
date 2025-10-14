@@ -1,150 +1,64 @@
-import * as XLSX from 'xlsx';
+import XLSX from 'xlsx';
 import path from 'path';
-
-export interface TestRow {
-  testCaseName: string;
-  execute: string;
-  [key: string]: any;
-}
-
-/**
- * Read all rows from a sheet
- */
-export function readSheet(excelFile: string, sheetName: string): TestRow[] {
-  const workbookPath = path.resolve(`data/testdata/${excelFile}`);
-  const workbook = XLSX.readFile(workbookPath);
-
-  if (!workbook.SheetNames.includes(sheetName)) return [];
-
-  return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
-}
-
-
-import { TestRow, readSheet } from './excelReader';
 import { getRunList } from './runListReader';
-import { getSuiteList } from './suiteReader';
-import { getExecutionMode, getSuiteName } from './configManager';
 
-const mode = getExecutionMode();
-const suiteName = getSuiteName();
-
-// Cache for each sheet
-const sheetCache: Record<string, TestRow[]> = {};
-
-/**
- * Get all executable test names for a sheet
- */
 export function getExecutableTests(excelFile: string, sheetName: string): string[] {
-  const sheetData = getSheetData(excelFile, sheetName);
+  const filePath = path.resolve('data/testdata', excelFile);
+  const workbook = XLSX.readFile(filePath);
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) throw new Error(`Sheet "${sheetName}" not found in ${excelFile}`);
+  const rows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-  if (mode === 'excel') {
-    return sheetData.filter(row => row.execute?.toLowerCase() === 'yes')
-                    .map(row => row.testCaseName);
-  }
+  // Only return testCaseName where execute = Yes
+  return rows
+    .filter(r => String(r.execute).trim().toLowerCase() === 'yes')
+    .map(r => String(r.testCaseName).trim());
+}
 
-  if (mode === 'runlist') {
-    const runList = getRunList();
-    return runList?.[sheetName] || [];
-  }
+export function getTestData(excelFile: string, sheetName: string, testCaseName: string): any {
+  const filePath = path.resolve('data/testdata', excelFile);
+  const workbook = XLSX.readFile(filePath);
+  const sheet = workbook.Sheets[sheetName];
+  if (!sheet) throw new Error(`Sheet "${sheetName}" not found in ${excelFile}`);
+  const rows: any[] = XLSX.utils.sheet_to_json(sheet, { defval: '' });
 
-  if (mode === 'suite') {
-    const suiteTests = getSuiteList(suiteName!);
-    return suiteTests;
-  }
+  const row = rows.find(r => String(r.testCaseName).trim() === testCaseName);
+  if (!row) throw new Error(`Test case "${testCaseName}" not found in sheet "${sheetName}"`);
+  return row;
+}
 
+export function getExecutableTestsForMode(
+  excelFile: string,
+  sheetName: string,
+  mode: string
+): string[] {
+  if (mode === 'excel') return getExecutableTests(excelFile, sheetName);
+  if (mode === 'runlist') return getRunList()[sheetName] || [];
   return [];
 }
 
-/**
- * Fetch a single test case's data from cached sheet
- */
-export function getTestData(excelFile: string, sheetName: string, testCaseName: string): TestRow | null {
-  const sheetData = getSheetData(excelFile, sheetName);
-  return sheetData.find(row => row.testCaseName === testCaseName) || null;
+import fs from 'fs';
+import path from 'path';
+
+export function getRunList(): Record<string, string[]> {
+  const filePath = path.resolve('config/runList.json');
+  if (!fs.existsSync(filePath)) throw new Error('runList.json not found at ' + filePath);
+  const jsonData = fs.readFileSync(filePath, 'utf-8');
+  return JSON.parse(jsonData);
 }
-
-/**
- * Read sheet once and cache it
- */
-function getSheetData(excelFile: string, sheetName: string): TestRow[] {
-  const cacheKey = `${excelFile}_${sheetName}`;
-  if (!sheetCache[cacheKey]) {
-    sheetCache[cacheKey] = readSheet(excelFile, sheetName);
-  }
-  return sheetCache[cacheKey];
-}
-
-
-export type Mode = 'excel' | 'runlist' | 'suite';
-
-export function getExecutionMode(): Mode {
-  return (process.env.EXEC_MODE as Mode) || 'excel';
-}
-
-export function getSuiteName(): string | null {
-  return process.env.SUITE_NAME || null;
-}
-
 
 
 import { test, expect } from '@playwright/test';
-import { getExecutableTests, getTestData } from '../../utils/testHelper';
+import { getTestData, getExecutableTestsForMode } from '../../utils/testHelper';
 
-const excelFile = 'testdata_app1.xlsx';
+const excelFile = 'TestData_Login.xlsx';
 const sheetName = 'login';
-
-// Pre-fetch all executable test names once
-const executableTests = getExecutableTests(excelFile, sheetName);
-
-test('Valid Login', async ({ page }) => {
-  if (!executableTests.includes('Valid Login')) test.skip();
-
-  const data = getTestData(excelFile, sheetName, 'Valid Login');
-  if (!data) throw new Error('Test data not found!');
-
-  await page.goto(data.url);
-  await page.fill('#username', data.username);
-  await page.fill('#password', data.password);
-  await page.click('#loginBtn');
-
-  await expect(page).toHaveURL(/dashboard/);
-});
-
-test('Invalid Login', async ({ page }) => {
-  if (!executableTests.includes('Invalid Login')) test.skip();
-
-  const data = getTestData(excelFile, sheetName, 'Invalid Login');
-  if (!data) throw new Error('Test data not found!');
-
-  await page.goto(data.url);
-  await page.fill('#username', data.username);
-  await page.fill('#password', data.password);
-  await page.click('#loginBtn');
-
-  await expect(page.locator('#error')).toBeVisible();
-});
-
-
-
-import { test, expect } from '@playwright/test';
-import { getExecutableTests, getTestData } from '../../utils/testHelper';
-import { getRunList } from '../../utils/runListReader';
-
-const excelFile = 'TestData_App1.xlsx';
-const sheetName = 'login';
-
 const mode = process.env.RUN_MODE || 'excel';
 
-let executableTests: string[] = [];
+// Get all tests to execute based on mode
+const executableTests = getExecutableTestsForMode(excelFile, sheetName, mode);
 
-// 1️⃣ Determine which tests to execute
-if (mode === 'excel') {
-  executableTests = getExecutableTests(excelFile, sheetName);
-} else if (mode === 'runlist') {
-  executableTests = getRunList()[sheetName] || [];
-}
-
-// 2️⃣ Define normal test methods only if they are executable
+// Only define tests that are executable
 if (executableTests.includes('Valid Login')) {
   test('Valid Login', async ({ page }) => {
     const data = getTestData(excelFile, sheetName, 'Valid Login');
@@ -166,6 +80,8 @@ if (executableTests.includes('Invalid Login')) {
     await expect(page.locator('#error')).toBeVisible();
   });
 }
+
+
 
 
 
