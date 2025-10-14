@@ -8,53 +8,72 @@ export interface TestRow {
 }
 
 /**
- * Fetch only a single test case from a sheet in an Excel file
+ * Read all rows from a sheet
  */
-export function readSingleTestData(excelFileName: string, sheetName: string, testCaseName: string): TestRow | null {
-  const workbookPath = path.resolve(`data/testdata/${excelFileName}`);
+export function readSheet(excelFile: string, sheetName: string): TestRow[] {
+  const workbookPath = path.resolve(`data/testdata/${excelFile}`);
   const workbook = XLSX.readFile(workbookPath);
 
-  if (!workbook.SheetNames.includes(sheetName)) return null;
+  if (!workbook.SheetNames.includes(sheetName)) return [];
 
-  const sheetData = XLSX.utils.sheet_to_json<TestRow>(workbook.Sheets[sheetName]);
-  const row = sheetData.find(r => r.testCaseName === testCaseName);
-
-  return row || null;
+  return XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
 }
 
 
+import { TestRow, readSheet } from './excelReader';
+import { getRunList } from './runListReader';
+import { getSuiteList } from './suiteReader';
+import { getExecutionMode, getSuiteName } from './configManager';
 
-import fs from 'fs';
-import path from 'path';
+const mode = getExecutionMode();
+const suiteName = getSuiteName();
 
-export function getRunList() {
-  const filePath = path.resolve('config/runList.json');
-  if (!fs.existsSync(filePath)) return null;
-  return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+// Cache for each sheet
+const sheetCache: Record<string, TestRow[]> = {};
+
+/**
+ * Get all executable test names for a sheet
+ */
+export function getExecutableTests(excelFile: string, sheetName: string): string[] {
+  const sheetData = getSheetData(excelFile, sheetName);
+
+  if (mode === 'excel') {
+    return sheetData.filter(row => row.execute?.toLowerCase() === 'yes')
+                    .map(row => row.testCaseName);
+  }
+
+  if (mode === 'runlist') {
+    const runList = getRunList();
+    return runList?.[sheetName] || [];
+  }
+
+  if (mode === 'suite') {
+    const suiteTests = getSuiteList(suiteName!);
+    return suiteTests;
+  }
+
+  return [];
 }
 
-
-{
-  "login": ["Valid Login"],
-  "order": ["Place Order"]
+/**
+ * Fetch a single test case's data from cached sheet
+ */
+export function getTestData(excelFile: string, sheetName: string, testCaseName: string): TestRow | null {
+  const sheetData = getSheetData(excelFile, sheetName);
+  return sheetData.find(row => row.testCaseName === testCaseName) || null;
 }
 
-
-import fs from 'fs';
-import path from 'path';
-
-export function getSuiteList(suiteName: string) {
-  const filePath = path.resolve('config/suiteList.json');
-  if (!fs.existsSync(filePath)) return null;
-  const suites = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  return suites[suiteName] || [];
+/**
+ * Read sheet once and cache it
+ */
+function getSheetData(excelFile: string, sheetName: string): TestRow[] {
+  const cacheKey = `${excelFile}_${sheetName}`;
+  if (!sheetCache[cacheKey]) {
+    sheetCache[cacheKey] = readSheet(excelFile, sheetName);
+  }
+  return sheetCache[cacheKey];
 }
 
-
-{
-  "smoke": ["Valid Login", "Place Order"],
-  "regression": ["Invalid Login", "Bulk Order"]
-}
 
 export type Mode = 'excel' | 'runlist' | 'suite';
 
@@ -65,46 +84,6 @@ export function getExecutionMode(): Mode {
 export function getSuiteName(): string | null {
   return process.env.SUITE_NAME || null;
 }
-
-
-import { readSingleTestData, TestRow } from './excelReader';
-import { getRunList } from './runListReader';
-import { getSuiteList } from './suiteReader';
-import { getExecutionMode, getSuiteName } from './configManager';
-
-const mode = getExecutionMode();
-const suiteName = getSuiteName();
-
-/**
- * Decide if this test should run
- */
-export function shouldRunTest(excelFile: string, sheetName: string, testName: string): boolean {
-  if (mode === 'runlist') {
-    const runList = getRunList();
-    return runList?.[sheetName]?.includes(testName) ?? false;
-  }
-
-  if (mode === 'suite') {
-    const suiteTests = getSuiteList(suiteName!);
-    return suiteTests.includes(testName);
-  }
-
-  if (mode === 'excel') {
-    const row = readSingleTestData(excelFile, sheetName, testName);
-    return row?.execute?.toLowerCase() === 'yes';
-  }
-
-  return false;
-}
-
-/**
- * Fetch test data **on-demand**
- */
-export function getTestData(excelFile: string, sheetName: string, testName: string): TestRow | null {
-  return readSingleTestData(excelFile, sheetName, testName);
-}
-
-
 
 
 
