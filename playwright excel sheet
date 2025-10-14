@@ -87,5 +87,40 @@ export function getSuiteName(): string | null {
 
 
 
+import { test, expect } from '@playwright/test';
+import { getExecutableTests, getTestData } from '../../utils/testHelper';
 
+const excelFile = 'testdata_app1.xlsx';
+const sheetName = 'login';
+
+// Pre-fetch all executable test names once
+const executableTests = getExecutableTests(excelFile, sheetName);
+
+test('Valid Login', async ({ page }) => {
+  if (!executableTests.includes('Valid Login')) test.skip();
+
+  const data = getTestData(excelFile, sheetName, 'Valid Login');
+  if (!data) throw new Error('Test data not found!');
+
+  await page.goto(data.url);
+  await page.fill('#username', data.username);
+  await page.fill('#password', data.password);
+  await page.click('#loginBtn');
+
+  await expect(page).toHaveURL(/dashboard/);
+});
+
+test('Invalid Login', async ({ page }) => {
+  if (!executableTests.includes('Invalid Login')) test.skip();
+
+  const data = getTestData(excelFile, sheetName, 'Invalid Login');
+  if (!data) throw new Error('Test data not found!');
+
+  await page.goto(data.url);
+  await page.fill('#username', data.username);
+  await page.fill('#password', data.password);
+  await page.click('#loginBtn');
+
+  await expect(page.locator('#error')).toBeVisible();
+});
 
