@@ -4,19 +4,18 @@ import dotenv from 'dotenv';
 
 dotenv.config({ path: path.resolve(__dirname, './config/.env') });
 
-async function globalSetup() {
-  const allureResults = process.env.ALLURE_RESULTS || 'C:/PlaywrightReports/allure-results';
+export default async function globalSetup() {
+  const resultsFolder = process.env.ALLURE_RESULTS!;
+  console.log('🧹 Global Setup: Cleaning allure-results folder:', resultsFolder);
 
-  if (fs.existsSync(allureResults)) {
-    fs.rmSync(allureResults, { recursive: true, force: true });
-    console.log(`🧹 Cleaned old allure-results folder: ${allureResults}`);
+  if (fs.existsSync(resultsFolder)) {
+    fs.rmSync(resultsFolder, { recursive: true, force: true });
+    console.log('🗑️ Old allure-results deleted');
   }
 
-  fs.mkdirSync(allureResults, { recursive: true });
-  console.log(`📁 Created fresh allure-results folder: ${allureResults}`);
+  fs.mkdirSync(resultsFolder, { recursive: true });
+  console.log('📁 Fresh allure-results folder created');
 }
-
-export default globalSetup;
 
 
 import fs from 'fs';
@@ -27,54 +26,48 @@ import AdmZip from 'adm-zip';
 
 dotenv.config({ path: path.resolve(__dirname, './config/.env') });
 
-async function globalTeardown() {
-  const allureResults = process.env.ALLURE_RESULTS!;
-  const allureReport = process.env.ALLURE_REPORT!;
-  const allureBackup = process.env.ALLURE_BACKUP!;
-  const generateReport = process.env.ALLURE_GENERATE === 'true';
-  const openReport = process.env.ALLURE_OPEN === 'true';
+export default async function globalTeardown() {
+  const resultsFolder = process.env.ALLURE_RESULTS!;
+  const reportFolder = process.env.ALLURE_REPORT!;
+  const generate = process.env.ALLURE_GENERATE === 'true';
 
-  const ensureFolder = (folderPath: string) => {
-    if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
-  };
+  if (!fs.existsSync(resultsFolder)) {
+    console.warn('⚠️ allure-results folder does not exist. No report will be generated.');
+    return;
+  }
 
-  ensureFolder(allureReport);
-  ensureFolder(allureBackup);
+  const files = fs.readdirSync(resultsFolder);
+  if (files.length === 0) {
+    console.warn('⚠️ No test results found in allure-results.');
+    return;
+  }
 
-  if (generateReport) {
-    if (!fs.existsSync(allureResults) || fs.readdirSync(allureResults).length === 0) {
-      console.warn('⚠️ No test results found. Skipping Allure report generation.');
-      return;
+  if (generate) {
+    try {
+      console.log('📊 Generating Allure report...');
+      execSync(`npx allure generate "${resultsFolder}" -o "${reportFolder}" --clean`, { stdio: 'inherit' });
+      console.log('✅ Allure report generated at:', reportFolder);
+
+      // Zip the report for easy sharing
+      const zip = new AdmZip();
+      zip.addLocalFolder(reportFolder);
+      const zipPath = path.join(path.dirname(reportFolder), 'allure-report.zip');
+      zip.writeZip(zipPath);
+      console.log('📦 Allure report zipped at:', zipPath);
+
+      // Portable launcher for opening report
+      const launcherPath = path.join(path.dirname(reportFolder), 'open-allure-report.bat');
+      fs.writeFileSync(
+        launcherPath,
+        `@echo off\nstart chrome "${reportFolder}/index.html"`,
+        'utf-8'
+      );
+      console.log('🚀 Portable launcher created:', launcherPath);
+    } catch (err) {
+      console.error('❌ Failed to generate Allure report:', err);
     }
-
-    // Generate report
-    execSync(`npx allure generate "${allureResults}" -o "${allureReport}" --clean`, { stdio: 'inherit' });
-    console.log('✅ Allure report generated');
-
-    // Add start-server.bat
-    const batFilePath = path.join(allureReport, 'start-server.bat');
-    fs.writeFileSync(batFilePath, `
-@echo off
-cd /d "%~dp0"
-npx http-server -p 8080
-pause
-    `);
-
-    // Zip report
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const zipPath = path.join(allureBackup, `AllureReport_${timestamp}.zip`);
-    const zip = new AdmZip();
-    zip.addLocalFolder(allureReport);
-    zip.writeZip(zipPath);
-    console.log(`📦 Zipped report at: ${zipPath}`);
-
-    if (openReport) execSync(`npx allure open "${allureReport}"`, { stdio: 'inherit' });
-  } else {
-    console.log('⚙️ Skipped Allure report generation');
   }
 }
-
-export default globalTeardown;
 
 
 
