@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { execSync } from 'child_process';
 import dotenv from 'dotenv';
+import AdmZip from 'adm-zip';
 
 dotenv.config({ path: path.resolve(__dirname, './config/.env') });
 
@@ -9,10 +10,9 @@ async function globalTeardown() {
   const allureResults = process.env.ALLURE_RESULTS || 'C:/PlaywrightReports/allure-results';
   const allureReport = process.env.ALLURE_REPORT || 'C:/PlaywrightReports/allure-report';
   const allureBackup = process.env.ALLURE_BACKUP || 'C:/PlaywrightReports/allure-backup';
-  const generateReport = process.env.ALLURE_GENERATE === 'true'; // only generate if true
-  const openReport = process.env.ALLURE_OPEN === 'true'; // optional open toggle
+  const generateReport = process.env.ALLURE_GENERATE === 'true';
+  const openReport = process.env.ALLURE_OPEN === 'true';
 
-  // Helper: Ensure folder exists
   const ensureFolder = (folderPath: string) => {
     if (!fs.existsSync(folderPath)) {
       fs.mkdirSync(folderPath, { recursive: true });
@@ -31,29 +31,40 @@ async function globalTeardown() {
   ensureFolder(allureReport);
   ensureFolder(allureBackup);
 
-  // 🧾 Generate report (optional)
   if (generateReport) {
+    // Generate report
     console.log('\n📊 Generating Allure report...');
     try {
       execSync(`allure generate "${allureResults}" -o "${allureReport}" --clean`, { stdio: 'inherit' });
       console.log('✅ Allure report generated successfully.');
     } catch (err) {
       console.error('❌ Failed to generate Allure report:', err);
+      return;
     }
 
-    // 🗜️ Zip backup
+    // Add portable start-server.bat inside report folder
+    const batFilePath = path.join(allureReport, 'start-server.bat');
+    const batContent = `
+@echo off
+echo Launching Allure Report on local server...
+cd /d "%~dp0"
+npx http-server -p 8080
+pause
+    `;
+    fs.writeFileSync(batFilePath, batContent);
+    console.log('🖥️ Added start-server.bat to Allure report.');
+
+    // Zip the report including start-server.bat
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     const zipName = `AllureReport_${timestamp}.zip`;
     const zipPath = path.join(allureBackup, zipName);
 
-    try {
-      execSync(`powershell Compress-Archive -Path "${allureReport}\\*" -DestinationPath "${zipPath}"`, { stdio: 'inherit' });
-      console.log(`📦 Report archived at: ${zipPath}`);
-    } catch (err) {
-      console.error('❌ Failed to zip report:', err);
-    }
+    const zip = new AdmZip();
+    zip.addLocalFolder(allureReport);
+    zip.writeZip(zipPath);
+    console.log(`📦 Zipped report created at: ${zipPath}`);
 
-    // 🌐 Optionally open the report in a browser
+    // Optionally open report
     if (openReport) {
       try {
         execSync(`allure open "${allureReport}"`, { stdio: 'inherit' });
@@ -70,30 +81,3 @@ async function globalTeardown() {
 }
 
 export default globalTeardown;
-
-
-import { defineConfig } from '@playwright/test';
-import dotenv from 'dotenv';
-import path from 'path';
-
-dotenv.config({ path: path.resolve(__dirname, './config/.env') });
-
-export default defineConfig({
-  reporter: [
-    ['list'],
-    ['allure-playwright', { outputFolder: process.env.ALLURE_RESULTS }]
-  ],
-  globalTeardown: require.resolve('./globalTeardown'),
-});
-
-
-ALLURE_RESULTS=C:/PlaywrightReports/allure-results
-ALLURE_REPORT=C:/PlaywrightReports/allure-report
-ALLURE_BACKUP=C:/PlaywrightReports/allure-backup
-
-# Control generation behavior
-ALLURE_GENERATE=true
-ALLURE_OPEN=false
-
-
-
