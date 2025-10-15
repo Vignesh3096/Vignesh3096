@@ -25,30 +25,23 @@ export default async function globalTeardown() {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     });
 
-    console.log("📊 Generating Allure report...");
-    execSync(`npx allure generate "${resultsDir}" --clean -o "${reportDir}"`, {
-      stdio: "inherit",
-    });
-    console.log(`✅ Allure report generated at: ${reportDir}`);
-
-    // Optionally open report
-    if (openAllure) {
-      console.log("🌐 Opening Allure report in browser...");
-      execSync(`npx allure open "${reportDir}"`, { stdio: "inherit" });
+    // Check if allure-results exist
+    if (!fs.existsSync(resultsDir) || fs.readdirSync(resultsDir).length === 0) {
+      console.warn(`⚠️ No test results found in: ${resultsDir}. Skipping Allure generation.`);
+      return;
     }
 
-    // Create server file (for devs)
-    const serverScript = `
-      const express = require('express');
-      const app = express();
-      const path = require('path');
-      const PORT = 8080;
-      app.use(express.static(path.join(__dirname)));
-      app.listen(PORT, () => console.log('📊 Allure report running at http://localhost:' + PORT));
-    `;
-    fs.writeFileSync(path.join(reportDir, "start_server.js"), serverScript);
+    console.log("📊 Generating static Allure HTML report...");
+    execSync(`npx allure generate "${resultsDir}" --clean -o "${reportDir}"`, { stdio: "inherit" });
 
-    // 🪟 Create simple batch file for managers
+    // Verify report generated
+    if (!fs.existsSync(reportDir) || fs.readdirSync(reportDir).length === 0) {
+      console.error("❌ Allure report generation failed. No files found.");
+      return;
+    }
+    console.log(`✅ Allure report generated at: ${reportDir}`);
+
+    // Create batch file for manager (double-click to open report)
     const batScript = `
 @echo off
 echo Opening Allure Test Report...
@@ -57,20 +50,22 @@ exit
 `;
     fs.writeFileSync(path.join(reportDir, "View_Report.bat"), batScript);
 
-    // Zip everything
-    const timestamp = new Date()
-      .toISOString()
-      .replace(/[:.]/g, "-")
-      .replace("T", "_")
-      .split("Z")[0];
-
+    // Zip the report for sharing
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-").replace("T", "_").split("Z")[0];
     const zipPath = path.join(backupDir, `Allure_Report_${timestamp}.zip`);
     const zip = new AdmZip();
     zip.addLocalFolder(reportDir);
     zip.writeZip(zipPath);
-
     console.log(`📦 Report zipped successfully: ${zipPath}`);
-    console.log("✅ Share this zip with your manager. They can unzip and just double-click 'View_Report.bat'!");
+
+    // Optional: open report for local viewing (developers)
+    if (openAllure) {
+      console.log("🌐 Opening Allure report in browser...");
+      execSync(`npx allure open "${reportDir}"`, { stdio: "inherit" });
+    }
+
+    console.log("🎉 Allure teardown completed successfully.");
+
   } catch (error) {
     console.error("❌ Error in globalTeardown:", error);
   }
