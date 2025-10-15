@@ -1,91 +1,77 @@
 import fs from "fs";
 import path from "path";
-import dotenv from "dotenv";
-
-dotenv.config({ path: path.resolve(__dirname, "./config/.env") }); // change path if needed
-
-async function globalSetup() {
-  try {
-    console.log("🧹 Cleaning up old reports before test execution...");
-
-    const resultsDir = path.resolve(process.cwd(), process.env.ALLURE_RESULTS || "allure-results");
-    const htmlReportDir = path.resolve(process.cwd(), process.env.HTML_REPORT || "html-report");
-    const baseReportPath = process.env.BASE_REPORT_PATH || "C:\\playwrightReports";
-
-    // Ensure base folder exists
-    if (!fs.existsSync(baseReportPath)) {
-      fs.mkdirSync(baseReportPath, { recursive: true });
-    }
-
-    // Delete old allure-results
-    if (fs.existsSync(resultsDir)) {
-      fs.rmSync(resultsDir, { recursive: true, force: true });
-      console.log("✅ Old allure-results deleted");
-    }
-
-    // Delete old HTML report
-    if (fs.existsSync(htmlReportDir)) {
-      fs.rmSync(htmlReportDir, { recursive: true, force: true });
-      console.log("✅ Old HTML report deleted");
-    }
-
-    console.log("✨ Environment ready for new execution.");
-  } catch (error) {
-    console.error("❌ Error during global setup:", error);
-  }
-}
-
-export default globalSetup;
-
-
-import fs from "fs";
-import path from "path";
 import { execSync } from "child_process";
 import AdmZip from "adm-zip";
 import dotenv from "dotenv";
 
-dotenv.config({ path: path.resolve(__dirname, "./config/.env") }); // same as above
+dotenv.config({ path: path.resolve(__dirname, "./config/.env") });
 
 export default async function globalTeardown() {
   try {
+    const enableAllure = process.env.ENABLE_ALLURE === "true";
+    const openAllure = process.env.OPEN_ALLURE === "true";
     const baseReportPath = process.env.BASE_REPORT_PATH || "C:\\playwrightReports";
     const resultsDir = path.resolve(process.cwd(), process.env.ALLURE_RESULTS || "allure-results");
     const reportDir = path.join(baseReportPath, "allure-report");
     const backupDir = path.join(baseReportPath, "allure-backup");
 
-    // Create base folders if not exist
+    if (!enableAllure) {
+      console.log("🚫 Allure disabled. Skipping report generation.");
+      return;
+    }
+
+    // Ensure base dirs exist
     [baseReportPath, backupDir].forEach((dir) => {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     });
 
-    console.log("📊 Generating new Allure report...");
-
+    console.log("📊 Generating Allure report...");
     execSync(`npx allure generate "${resultsDir}" --clean -o "${reportDir}"`, {
       stdio: "inherit",
     });
+    console.log(`✅ Allure report generated at: ${reportDir}`);
 
-    console.log("✅ Allure report generated at:", reportDir);
+    // Optionally open report
+    if (openAllure) {
+      console.log("🌐 Opening Allure report in browser...");
+      execSync(`npx allure open "${reportDir}"`, { stdio: "inherit" });
+    }
 
+    // Create server file (for devs)
+    const serverScript = `
+      const express = require('express');
+      const app = express();
+      const path = require('path');
+      const PORT = 8080;
+      app.use(express.static(path.join(__dirname)));
+      app.listen(PORT, () => console.log('📊 Allure report running at http://localhost:' + PORT));
+    `;
+    fs.writeFileSync(path.join(reportDir, "start_server.js"), serverScript);
+
+    // 🪟 Create simple batch file for managers
+    const batScript = `
+@echo off
+echo Opening Allure Test Report...
+start "" "index.html"
+exit
+`;
+    fs.writeFileSync(path.join(reportDir, "View_Report.bat"), batScript);
+
+    // Zip everything
     const timestamp = new Date()
       .toISOString()
       .replace(/[:.]/g, "-")
       .replace("T", "_")
       .split("Z")[0];
 
-    const zipFilePath = path.join(backupDir, `Allure_Report_${timestamp}.zip`);
-
+    const zipPath = path.join(backupDir, `Allure_Report_${timestamp}.zip`);
     const zip = new AdmZip();
     zip.addLocalFolder(reportDir);
-    zip.writeZip(zipFilePath);
+    zip.writeZip(zipPath);
 
-    console.log(`📦 Report zipped successfully: ${zipFilePath}`);
+    console.log(`📦 Report zipped successfully: ${zipPath}`);
+    console.log("✅ Share this zip with your manager. They can unzip and just double-click 'View_Report.bat'!");
   } catch (error) {
-    console.error("❌ Error in global teardown:", error);
+    console.error("❌ Error in globalTeardown:", error);
   }
 }
-
-
-
-
-
-
