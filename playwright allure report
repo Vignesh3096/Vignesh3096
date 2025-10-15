@@ -305,7 +305,116 @@ pause
 }
 
 
+import * as dotenv from 'dotenv';
+import { execSync } from 'child_process';
+import fs from 'fs-extra';
+import path from 'path';
+import archiver from 'archiver';
 
+dotenv.config({ path: path.resolve(__dirname, '../config/.env') });
+
+export default async function globalTeardown() {
+  console.log('\n🚀 Global teardown started...');
+
+  const IS_ALLURE_ENABLED = process.env.ALLURE_ENABLED === 'yes';
+  const ALLURE_RESULTS = path.resolve(process.env.ALLURE_RESULTS || './allure-results');
+  const ALLURE_REPORT = path.resolve(process.env.ALLURE_REPORT || './allure-report');
+  const ALLURE_AUTOOPEN = process.env.ALLURE_AUTOOPEN === 'yes';
+  const ALLURE_ZIP = process.env.ALLURE_ZIP === 'yes';
+  const PORTABLE_SERVER_PATH = path.resolve('./utils/http-server.exe'); // optional portable server
+
+  try {
+    if (!IS_ALLURE_ENABLED) {
+      console.log('⚙️ Allure reporting is disabled (.env -> ALLURE_ENABLED=no)');
+      return;
+    }
+
+    console.log(`📊 Generating Allure report from: ${ALLURE_RESULTS}`);
+
+    if (!fs.existsSync(ALLURE_RESULTS)) {
+      console.warn(`⚠️ No allure-results found at ${ALLURE_RESULTS}`);
+      return;
+    }
+
+    // ----------------------
+    // 1️⃣ Backup existing report
+    // ----------------------
+    if (fs.existsSync(ALLURE_REPORT)) {
+      const backupParent = path.resolve(path.dirname(ALLURE_REPORT), 'Allure_Backup');
+      fs.ensureDirSync(backupParent);
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const backupReport = path.join(backupParent, `AllureReport_${timestamp}`);
+
+      fs.renameSync(ALLURE_REPORT, backupReport);
+      console.log(`🗂️ Old report backed up to: ${backupReport}`);
+    }
+
+    // ----------------------
+    // 2️⃣ Generate fresh report
+    // ----------------------
+    execSync(`npx allure generate "${ALLURE_RESULTS}" --clean -o "${ALLURE_REPORT}"`, { stdio: 'inherit' });
+    console.log(`✅ Allure report generated at: ${ALLURE_REPORT}`);
+
+    // ----------------------
+    // 3️⃣ Auto-open (optional)
+    // ----------------------
+    if (ALLURE_AUTOOPEN) {
+      console.log('🌐 Opening Allure report...');
+      execSync(`npx allure open "${ALLURE_REPORT}"`, { stdio: 'inherit' });
+    }
+
+    // ----------------------
+    // 4️⃣ Zip report (optional)
+    // ----------------------
+    if (ALLURE_ZIP) {
+      console.log('📦 Creating portable Allure ZIP...');
+
+      const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+      const zipFolder = ALLURE_REPORT; // store inside the same Allure folder
+      const zipName = `Allure_Report_Package_${timestamp}.zip`;
+      const zipOutput = path.join(zipFolder, zipName);
+      const tempPackage = path.resolve('./temp-allure-package');
+
+      // Prepare folder for packaging
+      fs.removeSync(tempPackage);
+      fs.ensureDirSync(tempPackage);
+
+      // Copy generated Allure report
+      fs.copySync(ALLURE_REPORT, path.join(tempPackage, 'allure-report'));
+
+      // Add portable server (optional)
+      if (fs.existsSync(PORTABLE_SERVER_PATH)) {
+        fs.copySync(PORTABLE_SERVER_PATH, path.join(tempPackage, 'http-server.exe'));
+        fs.writeFileSync(path.join(tempPackage, 'start-server.bat'), `
+@echo off
+echo Starting Allure report server on port 5000...
+start "" http://localhost:5000
+http-server.exe "allure-report" -p 5000
+pause
+        `.trim());
+      } else {
+        console.warn(`⚠️ No http-server.exe found at: ${PORTABLE_SERVER_PATH}. Report zipped without it.`);
+      }
+
+      // Create ZIP file
+      const output = fs.createWriteStream(zipOutput);
+      const archive = archiver('zip', { zlib: { level: 9 } });
+
+      archive.pipe(output);
+      archive.directory(tempPackage, false);
+      await archive.finalize();
+
+      console.log(`✅ Interactive Allure package created: ${zipOutput}`);
+
+      fs.removeSync(tempPackage);
+    }
+
+    console.log('🛠️ Global teardown completed successfully.');
+  } catch (error) {
+    console.error('❌ Error in global teardown:', error);
+  }
+}
 
 
 
