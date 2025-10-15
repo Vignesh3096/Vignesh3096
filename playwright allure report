@@ -1,73 +1,59 @@
-import fs from 'fs';
-import path from 'path';
-import dotenv from 'dotenv';
-
-dotenv.config({ path: path.resolve(__dirname, './config/.env') });
-
-export default async function globalSetup() {
-  const resultsFolder = process.env.ALLURE_RESULTS!;
-  console.log('🧹 Global Setup: Cleaning allure-results folder:', resultsFolder);
-
-  if (fs.existsSync(resultsFolder)) {
-    fs.rmSync(resultsFolder, { recursive: true, force: true });
-    console.log('🗑️ Old allure-results deleted');
-  }
-
-  fs.mkdirSync(resultsFolder, { recursive: true });
-  console.log('📁 Fresh allure-results folder created');
-}
-
-
-import fs from 'fs';
-import path from 'path';
 import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import archiver from 'archiver';
 import dotenv from 'dotenv';
-import AdmZip from 'adm-zip';
 
 dotenv.config({ path: path.resolve(__dirname, './config/.env') });
 
-export default async function globalTeardown() {
-  const resultsFolder = process.env.ALLURE_RESULTS!;
-  const reportFolder = process.env.ALLURE_REPORT!;
-  const generate = process.env.ALLURE_GENERATE === 'true';
+async function globalTeardown() {
+  const resultsDir = path.resolve(process.env.ALLURE_RESULTS!);
+  const reportDir = path.resolve(process.env.ALLURE_REPORT!);
+  const backupDir = path.resolve(process.env.ALLURE_BACKUP!);
 
-  if (!fs.existsSync(resultsFolder)) {
-    console.warn('⚠️ allure-results folder does not exist. No report will be generated.');
-    return;
-  }
-
-  const files = fs.readdirSync(resultsFolder);
-  if (files.length === 0) {
-    console.warn('⚠️ No test results found in allure-results.');
-    return;
-  }
-
-  if (generate) {
+  if (process.env.ALLURE_GENERATE === 'true') {
     try {
-      console.log('📊 Generating Allure report...');
-      execSync(`npx allure generate "${resultsFolder}" -o "${reportFolder}" --clean`, { stdio: 'inherit' });
-      console.log('✅ Allure report generated at:', reportFolder);
+      // ✅ Generate Allure HTML report
+      execSync(`allure generate "${resultsDir}" --clean -o "${reportDir}"`, { stdio: 'inherit' });
 
-      // Zip the report for easy sharing
-      const zip = new AdmZip();
-      zip.addLocalFolder(reportFolder);
-      const zipPath = path.join(path.dirname(reportFolder), 'allure-report.zip');
-      zip.writeZip(zipPath);
-      console.log('📦 Allure report zipped at:', zipPath);
+      // ✅ Create portable launcher scripts
+      const batFile = path.join(reportDir, 'start-report.bat');
+      const shFile = path.join(reportDir, 'start-report.sh');
+      const indexFile = path.join(reportDir, 'index.html');
 
-      // Portable launcher for opening report
-      const launcherPath = path.join(path.dirname(reportFolder), 'open-allure-report.bat');
-      fs.writeFileSync(
-        launcherPath,
-        `@echo off\nstart chrome "${reportFolder}/index.html"`,
-        'utf-8'
-      );
-      console.log('🚀 Portable launcher created:', launcherPath);
-    } catch (err) {
-      console.error('❌ Failed to generate Allure report:', err);
+      const batContent = `@echo off
+echo Starting Allure report server on http://localhost:8888 ...
+start "" "http://localhost:8888"
+python -m http.server 8888 --directory "%~dp0"
+pause`;
+
+      fs.writeFileSync(batFile, batContent, 'utf-8');
+
+      const shContent = `#!/bin/bash
+echo "Starting Allure report server on http://localhost:8888 ..."
+open "http://localhost:8888" 2>/dev/null || xdg-open "http://localhost:8888"
+python3 -m http.server 8888 --directory "$(dirname "$0")"`;
+
+      fs.writeFileSync(shFile, shContent, { mode: 0o755 });
+
+      // ✅ Zip the full report folder for sharing
+      fs.mkdirSync(backupDir, { recursive: true });
+      const zipFile = path.join(backupDir, `allure-report-${Date.now()}.zip`);
+      const output = fs.createWriteStream(zipFile);
+      const archive = archiver('zip', { zlib: { level: 9 } });
+      archive.pipe(output);
+      archive.directory(reportDir, false);
+      await archive.finalize();
+
+      console.log(`✅ Allure report generated and zipped: ${zipFile}`);
+
+      // ✅ Auto-open the local report on the tester’s machine
+      execSync(`start "" "${indexFile}"`, { stdio: 'ignore' });
+
+    } catch (error) {
+      console.error('❌ Error generating Allure report:', error);
     }
   }
 }
 
-
-
+export default globalTeardown;
