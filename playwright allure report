@@ -1,57 +1,91 @@
 import fs from "fs";
 import path from "path";
-import { execSync } from "child_process";
-import AdmZip from "adm-zip";
+import dotenv from "dotenv";
 
-export default async function globalTeardown() {
+dotenv.config({ path: path.resolve(__dirname, "./config/.env") }); // change path if needed
+
+async function globalSetup() {
   try {
-    // Base folder for reports (outside project)
-    const baseReportPath = "C:\\playwrightReports";
-    const resultsDir = path.join(process.cwd(), "allure-results");
-    const reportDir = path.join(baseReportPath, "allure-report");
-    const backupDir = path.join(baseReportPath, "allure-backup");
+    console.log("🧹 Cleaning up old reports before test execution...");
 
-    console.log("🧹 Cleaning up old Allure results...");
+    const resultsDir = path.resolve(process.cwd(), process.env.ALLURE_RESULTS || "allure-results");
+    const htmlReportDir = path.resolve(process.cwd(), process.env.HTML_REPORT || "html-report");
+    const baseReportPath = process.env.BASE_REPORT_PATH || "C:\\playwrightReports";
 
-    // Delete old allure-results folder if it exists
+    // Ensure base folder exists
+    if (!fs.existsSync(baseReportPath)) {
+      fs.mkdirSync(baseReportPath, { recursive: true });
+    }
+
+    // Delete old allure-results
     if (fs.existsSync(resultsDir)) {
       fs.rmSync(resultsDir, { recursive: true, force: true });
       console.log("✅ Old allure-results deleted");
     }
 
-    // Ensure base directories exist
+    // Delete old HTML report
+    if (fs.existsSync(htmlReportDir)) {
+      fs.rmSync(htmlReportDir, { recursive: true, force: true });
+      console.log("✅ Old HTML report deleted");
+    }
+
+    console.log("✨ Environment ready for new execution.");
+  } catch (error) {
+    console.error("❌ Error during global setup:", error);
+  }
+}
+
+export default globalSetup;
+
+
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+import AdmZip from "adm-zip";
+import dotenv from "dotenv";
+
+dotenv.config({ path: path.resolve(__dirname, "./config/.env") }); // same as above
+
+export default async function globalTeardown() {
+  try {
+    const baseReportPath = process.env.BASE_REPORT_PATH || "C:\\playwrightReports";
+    const resultsDir = path.resolve(process.cwd(), process.env.ALLURE_RESULTS || "allure-results");
+    const reportDir = path.join(baseReportPath, "allure-report");
+    const backupDir = path.join(baseReportPath, "allure-backup");
+
+    // Create base folders if not exist
     [baseReportPath, backupDir].forEach((dir) => {
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
     });
 
     console.log("📊 Generating new Allure report...");
 
-    // Generate allure report
     execSync(`npx allure generate "${resultsDir}" --clean -o "${reportDir}"`, {
       stdio: "inherit",
     });
 
-    console.log("✅ Allure report generated successfully at:", reportDir);
+    console.log("✅ Allure report generated at:", reportDir);
 
-    // Zip report folder into backup folder
     const timestamp = new Date()
       .toISOString()
       .replace(/[:.]/g, "-")
       .replace("T", "_")
       .split("Z")[0];
 
-    const zipFilePath = path.join(
-      backupDir,
-      `Allure_Report_${timestamp}.zip`
-    );
+    const zipFilePath = path.join(backupDir, `Allure_Report_${timestamp}.zip`);
 
     const zip = new AdmZip();
     zip.addLocalFolder(reportDir);
     zip.writeZip(zipFilePath);
 
     console.log(`📦 Report zipped successfully: ${zipFilePath}`);
-
   } catch (error) {
     console.error("❌ Error in global teardown:", error);
   }
 }
+
+
+
+
+
+
