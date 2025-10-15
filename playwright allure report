@@ -32,10 +32,10 @@ async function globalTeardown() {
   ensureFolder(allureBackup);
 
   if (generateReport) {
-    // Generate report
+    // Generate report using npx (no global install needed)
     console.log('\n📊 Generating Allure report...');
     try {
-      execSync(`allure generate "${allureResults}" -o "${allureReport}" --clean`, { stdio: 'inherit' });
+      execSync(`npx allure generate "${allureResults}" -o "${allureReport}" --clean`, { stdio: 'inherit' });
       console.log('✅ Allure report generated successfully.');
     } catch (err) {
       console.error('❌ Failed to generate Allure report:', err);
@@ -67,7 +67,7 @@ pause
     // Optionally open report
     if (openReport) {
       try {
-        execSync(`allure open "${allureReport}"`, { stdio: 'inherit' });
+        execSync(`npx allure open "${allureReport}"`, { stdio: 'inherit' });
         console.log('🌍 Allure report opened in browser.');
       } catch (err) {
         console.error('❌ Failed to open Allure report:', err);
