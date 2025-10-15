@@ -190,6 +190,125 @@ JUNIT_ENABLED=yes
 HTML_REPORT=yes
 
 
+import * as dotenv from 'dotenv';
+import { execSync } from 'child_process';
+import fs from 'fs-extra';
+import path from 'path';
+import archiver from 'archiver';
+
+dotenv.config({ path: path.resolve(__dirname, '../config/.env') });
+
+export default async function globalTeardown() {
+  console.log('\n🚀 Global teardown started...');
+
+  const IS_ALLURE_ENABLED = process.env.ALLURE_ENABLED === 'yes';
+  const ALLURE_RESULTS = path.resolve(process.env.ALLURE_RESULTS || './allure-results');
+  const ALLURE_REPORT = path.resolve(process.env.ALLURE_REPORT || './allure-report');
+  const ALLURE_AUTOOPEN = process.env.ALLURE_AUTOOPEN === 'yes';
+  const ALLURE_ZIP = process.env.ALLURE_ZIP === 'yes';
+  const PORTABLE_SERVER_PATH = path.resolve('./utils/http-server.exe'); // prebuilt portable server
+
+  try {
+    if (IS_ALLURE_ENABLED) {
+      console.log(`📊 Generating Allure Report from results at: ${ALLURE_RESULTS}`);
+
+      if (!fs.existsSync(ALLURE_RESULTS)) {
+        console.warn(`⚠️ Allure results folder not found: ${ALLURE_RESULTS}`);
+        return;
+      }
+
+      // ----------------------
+      // Backup old report
+      // ----------------------
+      if (fs.existsSync(ALLURE_REPORT)) {
+        const backupParent = path.resolve(path.dirname(ALLURE_REPORT), 'Allure_Backup');
+        fs.ensureDirSync(backupParent);
+
+        const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+        const backupReport = path.join(backupParent, `AllureReport_${timestamp}`);
+
+        fs.renameSync(ALLURE_REPORT, backupReport);
+        console.log(`🗂️ Backed up previous Allure report to: ${backupReport}`);
+      }
+
+      // ----------------------
+      // Temporary copy results
+      // ----------------------
+      const tempResults = path.join(path.dirname(ALLURE_REPORT), 'temp-allure-results');
+      fs.copySync(ALLURE_RESULTS, tempResults);
+
+      // ----------------------
+      // Generate report
+      // ----------------------
+      execSync(`npx allure generate "${tempResults}" --clean -o "${ALLURE_REPORT}"`, { stdio: 'inherit' });
+      console.log(`✅ Allure report generated at: ${ALLURE_REPORT}`);
+
+      // ----------------------
+      // Optional: auto-open
+      // ----------------------
+      if (ALLURE_AUTOOPEN) {
+        console.log('🌐 Opening Allure report in default browser...');
+        execSync(`npx allure open "${ALLURE_REPORT}"`, { stdio: 'inherit' });
+      }
+
+      // ----------------------
+      // Optional: ZIP with portable server
+      // ----------------------
+      if (ALLURE_ZIP) {
+        const zipOutput = path.resolve('Allure_Report_Package.zip');
+        const tempPackage = path.resolve('./temp-allure-package');
+
+        fs.removeSync(tempPackage);
+        fs.ensureDirSync(tempPackage);
+
+        // Copy Allure report
+        fs.copySync(ALLURE_REPORT, path.join(tempPackage, 'allure-report'));
+
+        // Copy portable server
+        if (!fs.existsSync(PORTABLE_SERVER_PATH)) {
+          console.warn(`⚠️ Portable server not found at ${PORTABLE_SERVER_PATH}. Skipping ZIP.`);
+        } else {
+          fs.copySync(PORTABLE_SERVER_PATH, path.join(tempPackage, 'http-server.exe'));
+
+          // Create start-server.bat
+          fs.writeFileSync(path.join(tempPackage, 'start-server.bat'), `
+@echo off
+echo Starting Allure report server...
+http-server.exe "allure-report" -p 5000
+pause
+          `.trim());
+        }
+
+        // Create ZIP
+        const output = fs.createWriteStream(zipOutput);
+        const archive = archiver('zip', { zlib: { level: 9 } });
+        archive.pipe(output);
+        archive.directory(tempPackage, false);
+        await archive.finalize();
+
+        console.log(`📦 Interactive Allure package created: ${zipOutput}`);
+
+        // Cleanup temporary package
+        fs.removeSync(tempPackage);
+      }
+
+      // ----------------------
+      // Clean temporary results
+      // ----------------------
+      fs.removeSync(tempResults);
+    }
+
+    console.log('🛠️ Global teardown completed!');
+  } catch (error) {
+    console.error('❌ Error in global teardown:', error);
+  }
+}
+
+
+
+
+
+
 
 
 
