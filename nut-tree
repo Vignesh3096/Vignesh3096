@@ -1,0 +1,119 @@
+// utils/DesktopActions.ts
+
+import {
+  mouse,
+  keyboard,
+  screen,
+  Button,
+  Key,
+  straightTo,
+  centerOf,
+  Point
+} from "@nut-tree-fork/nut-js";
+
+export class DesktopActions {
+
+  // ========== MOUSE ACTIONS ==========
+
+  static async moveTo(x: number, y: number) {
+    await mouse.move(straightTo(new Point(x, y)));
+  }
+
+  static async leftClick() {
+    await mouse.click(Button.LEFT);
+  }
+
+  static async rightClick() {
+    await mouse.click(Button.RIGHT);
+  }
+
+  static async doubleClick() {
+    await mouse.doubleClick(Button.LEFT);
+  }
+
+  static async leftClickAt(x: number, y: number) {
+    await this.moveTo(x, y);
+    await this.leftClick();
+  }
+
+  static async rightClickAt(x: number, y: number) {
+    await this.moveTo(x, y);
+    await this.rightClick();
+  }
+
+  static async dragAndDrop(fromX: number, fromY: number, toX: number, toY: number) {
+    await this.moveTo(fromX, fromY);
+    await mouse.pressButton(Button.LEFT);
+    await this.moveTo(toX, toY);
+    await mouse.releaseButton(Button.LEFT);
+  }
+
+  // ========== IMAGE BASED ACTIONS ==========
+
+  static async waitForImage(imagePath: string, timeoutMs: number = 5000) {
+    await screen.waitFor(imagePath, timeoutMs);
+  }
+
+  static async waitForVanish(imagePath: string, timeoutMs: number = 5000) {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      try {
+        await screen.find(imagePath);
+      } catch {
+        return; // Image gone → success
+      }
+      await new Promise(r => setTimeout(r, 500));
+    }
+    throw new Error(`Image did not vanish: ${imagePath}`);
+  }
+
+  static async clickOnImage(imagePath: string) {
+    const target = await screen.find(imagePath);
+    await mouse.move(straightTo(centerOf(target)));
+    await this.leftClick();
+  }
+
+  static async doubleClickOnImage(imagePath: string) {
+    const target = await screen.find(imagePath);
+    await mouse.move(straightTo(centerOf(target)));
+    await this.doubleClick();
+  }
+
+  // ========== KEYBOARD ACTIONS ==========
+
+  static async typeText(text: string) {
+    await keyboard.type(text);
+  }
+
+  static async press(key: Key) {
+    await keyboard.pressKey(key);
+    await keyboard.releaseKey(key);
+  }
+
+  // Common Keys
+  static async enter() { await this.press(Key.Enter); }
+  static async esc() { await this.press(Key.Escape); }
+  static async tab() { await this.press(Key.Tab); }
+  static async space() { await this.press(Key.Space); }
+  static async backspace() { await this.press(Key.Backspace); }
+
+  // Modifier + Hotkeys
+  static async copy() { await this.hotkey(Key.LeftControl, Key.C); }
+  static async paste() { await this.hotkey(Key.LeftControl, Key.V); }
+  static async cut() { await this.hotkey(Key.LeftControl, Key.X); }
+  static async selectAll() { await this.hotkey(Key.LeftControl, Key.A); }
+  static async find() { await this.hotkey(Key.LeftControl, Key.F); }
+  static async save() { await this.hotkey(Key.LeftControl, Key.S); }
+  static async refresh() { await this.hotkey(Key.LeftControl, Key.R); }
+
+  static async hotkey(...keys: Key[]) {
+    await keyboard.pressKey(...keys);
+    await keyboard.releaseKey(...keys);
+  }
+
+  // Shift Variants
+  static async shiftPress(key: Key) {
+    await this.hotkey(Key.LeftShift, key);
+  }
+
+}
