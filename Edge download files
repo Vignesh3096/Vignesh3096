@@ -1,0 +1,43 @@
+import org.openqa.selenium.By;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.Command;
+import org.openqa.selenium.edge.EdgeDriver;
+import org.openqa.selenium.edge.EdgeOptions;
+
+import java.util.Map;
+
+public class AutoDownloadEdge140 {
+    public static void main(String[] args) {
+
+        // Download folder
+        String downloadPath = "D:\\Downloads";
+
+        // Must disable W3C mode for CDP
+        EdgeOptions options = new EdgeOptions();
+        options.setExperimentalOption("w3c", false); // ✅ critical
+
+        EdgeDriver driver = new EdgeDriver(options);
+
+        // Start DevTools session
+        DevTools devTools = driver.getDevTools();
+        devTools.createSession();  // ✅ Now real CDP, not noop
+
+        // Send CDP (version-independent)
+        devTools.send(
+                new Command<>(
+                        "Page.setDownloadBehavior",
+                        Map.of(
+                                "behavior", "allow",
+                                "downloadPath", downloadPath
+                        )
+                )
+        );
+
+        driver.get("https://file-examples.com/index.php/sample-documents-download/sample-pdf-download/");
+        driver.findElement(By.xpath("//a[contains(text(),'Download sample pdf file')]")).click();
+
+        try { Thread.sleep(5000); } catch (Exception ignored) {}
+
+        driver.quit();
+    }
+}
