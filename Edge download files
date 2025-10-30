@@ -1,43 +1,62 @@
-import org.openqa.selenium.By;
-import org.openqa.selenium.devtools.DevTools;
-import org.openqa.selenium.devtools.Command;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.edge.EdgeDriver;
 import org.openqa.selenium.edge.EdgeOptions;
+import org.openqa.selenium.devtools.DevTools;
+import org.openqa.selenium.devtools.Command;
 
 import java.util.Map;
 
-public class AutoDownloadEdge140 {
-    public static void main(String[] args) {
+public class BaseClass {
 
-        // Download folder
-        String downloadPath = "D:\\Downloads";
+    // ThreadLocal WebDriver for parallel execution
+    protected static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
 
-        // Must disable W3C mode for CDP
+    // ThreadLocal DevTools for the current driver
+    protected static ThreadLocal<DevTools> devTools = new ThreadLocal<>();
+
+    // Initialize EdgeDriver + DevTools
+    public void initializeBrowser() {
+
         EdgeOptions options = new EdgeOptions();
-        options.setExperimentalOption("w3c", false); // ✅ critical
+        options.setExperimentalOption("w3c", false); // required for DevTools
 
-        EdgeDriver driver = new EdgeDriver(options);
+        // Create driver and store in ThreadLocal
+        EdgeDriver edgeDriver = new EdgeDriver(options);
+        driver.set(edgeDriver);
 
-        // Start DevTools session
-        DevTools devTools = driver.getDevTools();
-        devTools.createSession();  // ✅ Now real CDP, not noop
+        // Create DevTools session and store in ThreadLocal
+        DevTools dt = edgeDriver.getDevTools();
+        dt.createSession();
+        devTools.set(dt);
 
-        // Send CDP (version-independent)
-        devTools.send(
-                new Command<>(
-                        "Page.setDownloadBehavior",
-                        Map.of(
-                                "behavior", "allow",
-                                "downloadPath", downloadPath
-                        )
+        // Set auto-download folder for this thread
+        String downloadPath = System.getProperty("user.dir") + "\\downloads\\" + Thread.currentThread().getId();
+
+        dt.send(new Command<>(
+                "Page.setDownloadBehavior",
+                Map.of(
+                        "behavior", "allow",
+                        "downloadPath", downloadPath
                 )
-        );
+        ));
+    }
 
-        driver.get("https://file-examples.com/index.php/sample-documents-download/sample-pdf-download/");
-        driver.findElement(By.xpath("//a[contains(text(),'Download sample pdf file')]")).click();
+    // Get current thread WebDriver
+    public static WebDriver getDriver() {
+        return driver.get();
+    }
 
-        try { Thread.sleep(5000); } catch (Exception ignored) {}
+    // Get current thread DevTools
+    public static DevTools getDevTools() {
+        return devTools.get();
+    }
 
-        driver.quit();
+    // Quit driver and cleanup ThreadLocal
+    public static void quitBrowser() {
+        if(driver.get() != null) {
+            driver.get().quit();
+            driver.remove();
+            devTools.remove();
+        }
     }
 }
