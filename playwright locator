@@ -1,0 +1,157 @@
+Sure — here is the full content in plain text format so you can Select All → Copy → Paste anywhere (Notes, Word, Confluence, Teams, etc.).
+
+⸻
+
+Playwright Locator Cheat Sheet (Copy-Paste Text Version)
+
+Why use these locators?
+	•	They are stable, auto-waiting, and reduce flakiness.
+	•	They are better than XPath and CSS in most cases.
+
+⸻
+
+	1.	getByRole()  — Based on ARIA roles
+
+⸻
+
+Use when elements have semantic meaning (buttons, links, textboxes, headings, etc.)
+
+Examples:
+page.getByRole(‘button’, { name: ‘Login’ }).click();
+page.getByRole(‘textbox’, { name: ‘Email’ }).fill(‘user@test.com’);
+page.getByRole(‘link’, { name: ‘Home’ }).click();
+page.getByRole(‘heading’, { level: 1 }).isVisible();
+
+Example HTML:
+Submit
+
+Locator:
+page.getByRole(‘button’, { name: ‘Submit’ }).click();
+
+⸻
+
+	2.	getByLabel() — Input fields tied to a 
+
+⸻
+
+Examples:
+page.getByLabel(‘Username’).fill(‘john’);
+page.getByLabel(‘Password’).fill(‘Welcome@123’);
+page.getByLabel(‘Remember me’).check();
+
+Example HTML:
+Email Address
+
+
+Locator:
+page.getByLabel(‘Email Address’).fill(‘test@gmail.com’);
+
+⸻
+
+	3.	getByPlaceholder() — For placeholder-based inputs
+
+⸻
+
+Examples:
+page.getByPlaceholder(‘Search here…’).fill(‘Playwright’);
+page.getByPlaceholder(‘Enter email’).fill(‘user@test.com’);
+
+⸻
+
+	4.	getByText() — Match visible text on screen
+
+⸻
+
+Examples:
+page.getByText(‘Order Summary’).click();
+expect(page.getByText(‘Payment Successful’)).toBeVisible();
+
+Supports regex:
+page.getByText(/Success/i).isVisible();
+
+⸻
+
+	5.	getByTestId() — Best for stable tests (if app has test IDs)
+
+⸻
+
+HTML:
+Add
+
+Locator:
+page.getByTestId(‘add-to-cart’).click();
+
+Recommend: Ask developers to add test IDs in new UI screens.
+
+⸻
+
+	6.	locator() — Generic locator using CSS or XPath
+
+⸻
+
+Examples:
+const price = page.locator(’.price-value’);
+price.first().click();
+
+CSS examples:
+page.locator(’#login-btn’).click();
+page.locator(’[type=“submit”]’).click();
+
+XPath (use only if needed):
+page.locator(’//table//tr’).nth(2).click();
+
+⸻
+
+	7.	Locators with Filters
+
+⸻
+
+Examples:
+page.getByRole(‘button’).filter({ hasText: ‘Save’ }).click();
+page.locator(‘div’).filter({ has: page.getByText(‘Account’) }).click();
+page.getByRole(‘listitem’).nth(2).click(); // selects 3rd element
+
+⸻
+
+Handling Dropdown Without 
+
+page.getByPlaceholder(‘Search country’).fill(‘India’);
+page.getByRole(‘option’, { name: ‘India’ }).click();
+
+⸻
+
+Complete Login Example
+
+import { test, expect } from ‘@playwright/test’;
+
+test(‘Login Test’, async ({ page }) => {
+await page.goto(‘https://example.com/login’);
+
+await page.getByLabel(‘Email’).fill(‘test@gmail.com’);
+await page.getByLabel(‘Password’).fill(‘Test@123’);
+await page.getByRole(‘button’, { name: ‘Sign In’ }).click();
+
+await expect(page.getByText(‘Welcome’)).toBeVisible();
+});
+
+⸻
+
+Summary Locator Table
+
+getByRole()      → For buttons, textboxes, headings, links
+getByLabel()     → For inputs tied to labels
+getByPlaceholder() → For search bars or hint text fields
+getByText()      → To click or verify visible text
+getByTestId()    → Most stable, recommended for long-term UI testing
+locator()        → CSS / XPath fallback locator
+
+⸻
+
+If you want next:
+Type → Give POM structure
+
+I will send:
+	•	Base Page reusable class
+	•	Folder structure
+	•	Example LoginPage + Test
+	•	Utilities for waits and dropdown controls
