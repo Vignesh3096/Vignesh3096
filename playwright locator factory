@@ -1,0 +1,29 @@
+import { Page, Locator } from "@playwright/test";
+
+export class LocatorFactory {
+  constructor(private page: Page) {}
+
+  byRole(role: string, name: string): Locator {
+    return this.page.getByRole(role, { name });
+  }
+
+  byText(text: string): Locator {
+    return this.page.getByText(text);
+  }
+
+  byLabel(label: string): Locator {
+    return this.page.getByLabel(label);
+  }
+
+  byPlaceholder(placeholder: string): Locator {
+    return this.page.getByPlaceholder(placeholder);
+  }
+
+  byCss(selector: string): Locator {
+    return this.page.locator(selector);
+  }
+
+  byXpath(xpath: string): Locator {
+    return this.page.locator(`xpath=${xpath}`);
+  }
+}
