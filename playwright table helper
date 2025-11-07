@@ -1,0 +1,412 @@
+// core/TableHelperExtended.ts
+import { Page, Locator, expect } from "@playwright/test";
+
+/**
+ * TableHelperExtended
+ * All-in-one web table helper: simple + advanced reusable methods
+ * Copy -> Paste -> Use
+ */
+export class TableHelperExtended {
+  constructor(private page: Page) {}
+
+  // ------------------------- BASIC INFO & NAVIGATION ------------------------- //
+
+  async getRowCount(table: Locator): Promise<number> {
+    return await table.locator("tbody tr").count();
+  }
+
+  async getColumnCount(table: Locator): Promise<number> {
+    return await table.locator("thead tr th").count();
+  }
+
+  async getHeaders(table: Locator): Promise<string[]> {
+    return (await table.locator("thead th").allInnerTexts()).map(h => h.trim());
+  }
+
+  async getRowValues(table: Locator, rowIndex: number): Promise<string[]> {
+    return await table.locator(`tbody tr:nth-child(${rowIndex}) td`).allInnerTexts();
+  }
+
+  async getCellText(table: Locator, rowIndex: number, colIndex: number): Promise<string> {
+    return (await table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`).innerText()).trim();
+  }
+
+  async getCellByHeader(table: Locator, rowIndex: number, header: string): Promise<string> {
+    const col = await this.getColumnIndexByHeader(table, header);
+    return await this.getCellText(table, rowIndex, col);
+  }
+
+  async getColumnIndexByHeader(table: Locator, headerText: string): Promise<number> {
+    const headers = await this.getHeaders(table);
+    const idx = headers.findIndex(h => h === headerText);
+    if (idx === -1) throw new Error(`Header "${headerText}" not found`);
+    return idx + 1;
+  }
+
+  // ------------------------- SELECTION & CHECKBOXES ------------------------- //
+
+  async selectRowByIndex(table: Locator, rowIndex: number): Promise<void> {
+    const checkbox = table.locator(`tbody tr:nth-child(${rowIndex}) input[type="checkbox"]`);
+    await checkbox.check();
+  }
+
+  async selectRowByCellText(table: Locator, searchText: string): Promise<void> {
+    const rowIndex = await this.getRowIndexByText(table, searchText);
+    await this.selectRowByIndex(table, rowIndex);
+  }
+
+  async selectAllOnPage(table: Locator): Promise<void> {
+    const headerCheckbox = table.locator("thead tr input[type='checkbox']");
+    await headerCheckbox.check();
+  }
+
+  async deselectAllOnPage(table: Locator): Promise<void> {
+    const headerCheckbox = table.locator("thead tr input[type='checkbox']");
+    await headerCheckbox.uncheck();
+  }
+
+  async getSelectedRowCount(table: Locator): Promise<number> {
+    const checked = table.locator("tbody tr input[type='checkbox']:checked");
+    return await checked.count();
+  }
+
+  // ------------------------- SEARCH / FIND / INDEX ------------------------- //
+
+  async getRowIndexByText(table: Locator, searchText: string): Promise<number> {
+    const rows = table.locator("tbody tr");
+    const count = await rows.count();
+    for (let i = 0; i < count; i++) {
+      const txt = (await rows.nth(i).innerText()).trim();
+      if (txt.includes(searchText)) return i + 1;
+    }
+    throw new Error(`Row containing '${searchText}' not found`);
+  }
+
+  async findRowsMatchingPredicate(table: Locator, predicate: (rowLocator: Locator) => Promise<boolean>): Promise<number[]> {
+    const rows = table.locator("tbody tr");
+    const count = await rows.count();
+    const matched: number[] = [];
+    for (let i = 0; i < count; i++) {
+      const row = rows.nth(i);
+      if (await predicate(row)) matched.push(i + 1);
+    }
+    return matched;
+  }
+
+  // ------------------------- CLICK / ACTIONS INSIDE ROW ------------------------- //
+
+  async clickButtonInRow(table: Locator, rowIndex: number, buttonSelector: string): Promise<void> {
+    await table.locator(`tbody tr:nth-child(${rowIndex}) ${buttonSelector}`).click();
+  }
+
+  async clickCellByHeaderAndRowText(table: Locator, header: string, rowText: string): Promise<void> {
+    const row = await this.getRowIndexByText(table, rowText);
+    const col = await this.getColumnIndexByHeader(table, header);
+    await this.clickCell(table, row, col);
+  }
+
+  async clickCell(table: Locator, rowIndex: number, colIndex: number): Promise<void> {
+    await table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`).click();
+  }
+
+  // ------------------------- EDIT / INLINE EDIT ------------------------- //
+
+  async waitForCellToBeEditable(table: Locator, rowIndex: number, colIndex: number, timeout = 5000): Promise<void> {
+    const cell = table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`);
+    await cell.waitFor({ state: "visible", timeout });
+    // optionally wait for specific editable child (input/textarea)
+    await this.page.waitForTimeout(100); // small debounce
+  }
+
+  async editCellInline(table: Locator, rowIndex: number, colIndex: number, newValue: string, saveWithEnter = true): Promise<void> {
+    const cell = table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`);
+    await cell.dblclick();
+    // assume input appears inside cell
+    const input = cell.locator('input, textarea, [contenteditable="true"]');
+    await input.fill('');
+    await input.type(newValue);
+    if (saveWithEnter) await input.press('Enter');
+    else {
+      // click outside to save
+      await this.page.mouse.click(0, 0);
+    }
+  }
+
+  async editCellAndClickSave(table: Locator, rowIndex: number, colIndex: number, newValue: string, saveButtonSelector: string): Promise<void> {
+    await this.editCellInline(table, rowIndex, colIndex, newValue, false);
+    await this.page.locator(saveButtonSelector).click();
+  }
+
+  // ------------------------- DOUBLE/RIGHT CLICK / CONTEXT MENU ------------------------- //
+
+  async doubleClickCell(table: Locator, rowIndex: number, colIndex: number): Promise<void> {
+    const cell = table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`);
+    await cell.dblclick();
+  }
+
+  async rightClickCell(table: Locator, rowIndex: number, colIndex: number): Promise<void> {
+    const cell = table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`);
+    await cell.click({ button: 'right' });
+  }
+
+  async performContextMenuAction(menuText: string): Promise<void> {
+    // after right click, click option
+    const option = this.page.locator(`text="${menuText}"`);
+    await option.click();
+  }
+
+  // ------------------------- DRAG / DROP / REORDER ROWS & COLUMNS ------------------------- //
+
+  async dragDropRow(table: Locator, fromRow: number, toRow: number): Promise<void> {
+    const source = await table.locator(`tbody tr:nth-child(${fromRow})`).elementHandle();
+    const target = await table.locator(`tbody tr:nth-child(${toRow})`).elementHandle();
+    if (!source || !target) throw new Error('Source or Target row not found for drag-drop');
+    const sourceBox = await source.boundingBox();
+    const targetBox = await target.boundingBox();
+    if (!sourceBox || !targetBox) throw new Error('Unable to get bounding boxes for drag-drop');
+
+    await this.page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 10 });
+    await this.page.mouse.up();
+  }
+
+  async moveColumn(table: Locator, headerFrom: string, headerTo: string): Promise<void> {
+    // assumes draggable header handle exists inside th; adapt selector as needed
+    const fromIdx = await this.getColumnIndexByHeader(table, headerFrom);
+    const toIdx = await this.getColumnIndexByHeader(table, headerTo);
+    const fromHandle = await table.locator(`thead tr th:nth-child(${fromIdx})`).elementHandle();
+    const toHandle = await table.locator(`thead tr th:nth-child(${toIdx})`).elementHandle();
+    if (!fromHandle || !toHandle) throw new Error('Header handles not found');
+
+    const boxFrom = await fromHandle.boundingBox();
+    const boxTo = await toHandle.boundingBox();
+    if (!boxFrom || !boxTo) throw new Error('Header boxes missing');
+
+    await this.page.mouse.move(boxFrom.x + boxFrom.width / 2, boxFrom.y + boxFrom.height / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(boxTo.x + boxTo.width / 2, boxTo.y + boxTo.height / 2, { steps: 8 });
+    await this.page.mouse.up();
+  }
+
+  async resizeColumn(table: Locator, header: string, offsetX: number): Promise<void> {
+    const colIndex = await this.getColumnIndexByHeader(table, header);
+    // assume resizer handle exists e.g. .resizer inside th
+    const handle = await table.locator(`thead tr th:nth-child(${colIndex}) .resizer`).elementHandle();
+    if (!handle) throw new Error('Resizer handle not found');
+    const box = await handle.boundingBox();
+    if (!box) throw new Error('Resizer box missing');
+    await this.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await this.page.mouse.down();
+    await this.page.mouse.move(box.x + box.width / 2 + offsetX, box.y + box.height / 2, { steps: 6 });
+    await this.page.mouse.up();
+  }
+
+  // ------------------------- FILTERS & SEARCH (COLUMN FILTERS) ------------------------- //
+
+  async filterByColumnInput(table: Locator, header: string, inputValue: string): Promise<void> {
+    const colIndex = await this.getColumnIndexByHeader(table, header);
+    const input = table.locator(`thead tr th:nth-child(${colIndex}) input[type="text"], thead tr th:nth-child(${colIndex}) input.filter`);
+    await input.fill(inputValue);
+    // wait table to react
+    await this.page.waitForTimeout(300);
+  }
+
+  async clearColumnFilter(table: Locator, header: string): Promise<void> {
+    const colIndex = await this.getColumnIndexByHeader(table, header);
+    const input = table.locator(`thead tr th:nth-child(${colIndex}) input[type="text"], thead tr th:nth-child(${colIndex}) input.filter`);
+    await input.fill('');
+    await this.page.waitForTimeout(200);
+  }
+
+  async applyColumnDropdownFilter(table: Locator, header: string, optionText: string): Promise<void> {
+    const colIndex = await this.getColumnIndexByHeader(table, header);
+    const dropdownTrigger = table.locator(`thead tr th:nth-child(${colIndex}) button.filter-open`);
+    await dropdownTrigger.click();
+    await this.page.getByRole('option', { name: optionText }).click();
+  }
+
+  // ------------------------- SORTING ------------------------- //
+
+  async sortByHeader(table: Locator, header: string): Promise<void> {
+    const colIndex = await this.getColumnIndexByHeader(table, header);
+    await table.locator(`thead tr th:nth-child(${colIndex})`).click();
+  }
+
+  async ensureSorted(table: Locator, header: string, order: 'asc'|'desc' = 'asc'): Promise<void> {
+    await this.verifySorting(table, header, order);
+  }
+
+  // ------------------------- PAGINATION ------------------------- //
+
+  async getPaginationInfo(paginatorLocator: Locator): Promise<{ current: number; total: number; }> {
+    const text = (await paginatorLocator.innerText()).trim(); // e.g. "Page 1 of 12"
+    const match = text.match(/(\d+)\D+(\d+)/);
+    if (!match) return { current: 1, total: 1 };
+    return { current: parseInt(match[1], 10), total: parseInt(match[2], 10) };
+  }
+
+  async goToPage(paginatorNext: Locator, paginatorPrev: Locator, targetPage: number): Promise<void> {
+    // naive: click next/prev until we reach page. Better: direct page number click if available.
+    for (let i = 0; i < 200; i++) {
+      const info = await this.getPaginationInfo(this.page.locator('.paginator')); // adapt selector
+      if (info.current === targetPage) return;
+      if (info.current < targetPage) {
+        if (await paginatorNext.isEnabled()) await paginatorNext.click();
+        else break;
+      } else {
+        if (await paginatorPrev.isEnabled()) await paginatorPrev.click();
+        else break;
+      }
+      await this.page.waitForLoadState('networkidle');
+    }
+  }
+
+  async setPageSize(sizeDropdown: Locator, pageSizeValue: string): Promise<void> {
+    await sizeDropdown.selectOption({ value: pageSizeValue });
+    await this.page.waitForLoadState('networkidle');
+  }
+
+  // ------------------------- EXPORT / IMPORT / DOWNLOAD ------------------------- //
+
+  async clickExportButton(exportButton: Locator): Promise<void> {
+    await exportButton.click();
+  }
+
+  async downloadExport(clickExportLocator: Locator, saveAsPath: string): Promise<void> {
+    const [download] = await Promise.all([
+      this.page.waitForEvent('download'),
+      clickExportLocator.click()
+    ]);
+    await download.saveAs(saveAsPath);
+  }
+
+  // ------------------------- TABLE TO JSON & VALIDATIONS ------------------------- //
+
+  async tableToJSON(table: Locator): Promise<any[]> {
+    const headers = (await table.locator("thead th").allInnerTexts()).map(h => h.trim());
+    const rows = table.locator('tbody tr');
+    const count = await rows.count();
+    const data: any[] = [];
+    for (let i = 0; i < count; i++) {
+      const cells = await rows.nth(i).locator('td').allInnerTexts();
+      const rowObj: any = {};
+      headers.forEach((h, idx) => rowObj[h] = (cells[idx] || '').trim());
+      data.push(rowObj);
+    }
+    return data;
+  }
+
+  async compareTableWithApi(table: Locator, apiData: any[]): Promise<void> {
+    const ui = await this.tableToJSON(table);
+    if (JSON.stringify(ui) !== JSON.stringify(apiData)) {
+      throw new Error('Table data mismatch with API');
+    }
+  }
+
+  // ------------------------- NESTED TABLES & EXPANDABLE ROWS ------------------------- //
+
+  async expandRow(table: Locator, rowText: string, expandSelector = '.expand-toggle'): Promise<void> {
+    const rowIdx = await this.getRowIndexByText(table, rowText);
+    await table.locator(`tbody tr:nth-child(${rowIdx}) ${expandSelector}`).click();
+  }
+
+  async getNestedTable(table: Locator, rowText: string, nestedSelector: string): Promise<Locator> {
+    const rowIdx = await this.getRowIndexByText(table, rowText);
+    return table.locator(`tbody tr:nth-child(${rowIdx})`).locator(nestedSelector);
+  }
+
+  // ------------------------- SHADOW DOM / CUSTOM COMPONENTS ------------------------- //
+
+  async getTextFromShadow(selector: string): Promise<string | null> {
+    return await this.page.evaluate((sel) => {
+      const el = document.querySelector(sel);
+      return el?.shadowRoot ? el.shadowRoot.innerText : null;
+    }, selector);
+  }
+
+  // ------------------------- STABILITY / WAIT HELPERS ------------------------- //
+
+  async waitUntilTableStable(table: Locator, timeout = 6000): Promise<void> {
+    const start = Date.now();
+    let prev = await table.innerText();
+    while (Date.now() - start < timeout) {
+      await this.page.waitForTimeout(300);
+      const now = await table.innerText();
+      if (now === prev) return;
+      prev = now;
+    }
+    throw new Error('Table did not stabilize within timeout');
+  }
+
+  async waitForRowCountChange(table: Locator, previousCount: number, timeout = 5000): Promise<void> {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      const now = await this.getRowCount(table);
+      if (now !== previousCount) return;
+      await this.page.waitForTimeout(200);
+    }
+    throw new Error('Row count did not change within timeout');
+  }
+
+  // ------------------------- SCREENSHOTS & DEBUGGING ------------------------- //
+
+  async captureRowScreenshot(table: Locator, rowIndex: number, path: string): Promise<void> {
+    const row = table.locator(`tbody tr:nth-child(${rowIndex})`);
+    await row.screenshot({ path });
+  }
+
+  async highlightRow(table: Locator, rowIndex: number): Promise<void> {
+    await this.page.evaluate(({ sel }) => {
+      const el = document.querySelector(sel);
+      if (el) (el as HTMLElement).style.outline = '3px solid red';
+    }, { sel: `tbody tr:nth-child(${rowIndex})` });
+  }
+
+  // ------------------------- UTILITY / SAFETY ------------------------- //
+
+  async safeClick(locator: Locator, retries = 3): Promise<void> {
+    for (let i = 0; i < retries; i++) {
+      try {
+        await locator.click();
+        return;
+      } catch (e) {
+        await this.page.waitForTimeout(200);
+      }
+    }
+    throw new Error('safeClick failed after retries');
+  }
+
+  async waitForCellValue(table: Locator, rowIndex: number, colIndex: number, expected: string, timeout = 5000): Promise<void> {
+    const cell = table.locator(`tbody tr:nth-child(${rowIndex}) td:nth-child(${colIndex})`);
+    await expect.poll(async () => (await cell.innerText()).trim(), { timeout }).toBe(expected);
+  }
+
+  // ------------------------- EXTRA: Virtualized / Client-only lists ------------------------- //
+
+  async findInVirtualRows(container: Locator, rowSelector: string, text: string, scrollStep = 300, maxScrolls = 50): Promise<number> {
+    for (let i = 0; i < maxScrolls; i++) {
+      const rows = await container.locator(rowSelector).allInnerTexts();
+      const idx = rows.findIndex(r => r.includes(text));
+      if (idx !== -1) return idx + 1;
+      await container.evaluate(el => el.scrollBy(0, 300));
+      await this.page.waitForTimeout(200);
+    }
+    throw new Error(`Item ${text} not found in virtual rows`);
+  }
+
+  // ------------------------- CLEANUP / TEARDOWN ------------------------- //
+
+  async clearFiltersAndReset(table: Locator, resetButtonSelector?: string): Promise<void> {
+    if (resetButtonSelector) {
+      await this.page.locator(resetButtonSelector).click();
+    } else {
+      // try clearing common filter inputs
+      const inputs = table.locator('thead input, thead select');
+      const count = await inputs.count();
+      for (let i = 0; i < count; i++) await inputs.nth(i).fill('');
+    }
+    await this.page.waitForLoadState('networkidle');
+  }
+
+}
