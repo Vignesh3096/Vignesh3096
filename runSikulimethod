@@ -23,3 +23,50 @@ export class SikuliUtil {
     });
   }
 }
+
+
+
+
+
+import { execFile } from "child_process";
+
+export class SikuliUtil {
+  private static readonly jarPath = "libs/sikuliUtility-1.0-SNAPSHOT-jar-with-dependencies.jar";
+
+  static runSikuli(method: string, args: string[] = []): Promise<string> {
+    return new Promise((resolve, reject) => {
+      execFile(
+        "java",
+        ["-jar", this.jarPath, method, ...args],
+        (error, stdout, stderr) => {
+          const output = stdout.trim();
+          const errOutput = stderr?.trim();
+
+          // Handle Sikuli error (e.g., FindFailed, or Java exception)
+          if (error || errOutput) {
+            const errMsg = `⚠️ Sikuli Execution Error:\nMethod: ${method}\nArgs: ${args.join(", ")}\n\n${errOutput || error.message}`;
+            const stack = new Error().stack?.split("\n").slice(2, 6).join("\n") || "";
+            console.error(`\n--- Sikuli Error Trace ---\n${errMsg}\nStack:\n${stack}\n`);
+            return reject(new Error(errMsg));
+          }
+
+          // If Sikuli printed 'false' (image not found)
+          if (output.toLowerCase() === "false") {
+            const errMsg = `❌ Sikuli image/action failed: ${args[0] || method}`;
+            const stack = new Error().stack?.split("\n").slice(2, 6).join("\n") || "";
+            console.error(`\n--- Sikuli Image Not Found ---\n${errMsg}\nStack:\n${stack}\n`);
+            return reject(new Error(errMsg));
+          }
+
+          console.log("🟢 Sikuli Output:", output);
+          resolve(output);
+        }
+      );
+    });
+  }
+}
+
+
+
+
+
