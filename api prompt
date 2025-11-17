@@ -1,0 +1,142 @@
+PROMPT START — COPY EVERYTHING BELOW
+
+I want you to generate a complete enterprise-grade Playwright API Automation Framework (Ultra Edition) in TypeScript.
+Follow all instructions exactly.
+
+⸻
+
+1️⃣ PROJECT REQUIREMENTS
+
+Build a fully functional API automation framework with:
+	•	Playwright Test runner
+	•	Reusable API Client
+	•	Request Builder class
+	•	Endpoints management
+	•	TokenManager with auto-refresh
+	•	Config-driven base URLs
+	•	Environment switching (dev/qa/stage/prod)
+	•	Excel + JSON data-driven capability
+	•	JSON Schema validation
+	•	Generic validators module
+	•	Pre-request & post-response hooks
+	•	Logging module (file + console)
+	•	HTML reporting
+	•	Utilities module
+	•	Automatic header injector
+	•	Swagger parser helper (to auto-generate endpoints)
+	•	Support for:
+	•	GET
+	•	POST
+	•	PUT
+	•	DELETE
+	•	PATCH
+	•	file upload
+	•	Rate-limit safe retry logic
+
+All code must follow clean architecture, SOLID principles, and enterprise folder structure similar to TCS / Cognizant / Accenture API frameworks.
+
+⸻
+
+2️⃣ FOLDER STRUCTURE TO GENERATE
+
+
+⸻
+
+3️⃣ IMPLEMENTATION RULES
+
+✔ Use dependency injection wherever possible
+
+✔ apiClient must:
+	•	handle all HTTP methods
+	•	inject headers automatically
+	•	log request/response
+	•	allow overriding headers
+	•	support file uploads
+	•	support query parameters
+
+✔ tokenManager must:
+	•	fetch token
+	•	refresh token on expiry
+	•	store token in memory
+	•	auto-inject token into headers
+
+✔ requestBuilder must:
+	•	set URL
+	•	set headers
+	•	set query params
+	•	set body
+	•	support chaining
+
+✔ validators:
+	•	generic status validator
+	•	keys validator
+	•	array validator
+	•	schema validator (Ajv)
+	•	snapshot validator optional
+
+✔ retryHandler:
+	•	exponential backoff
+	•	retry only for 429, 500, 502, 503
+
+✔ logging:
+	•	write logs to /logs/api-<date>.log
+	•	pretty print to console
+
+✔ test example must include:
+	•	token authentication
+	•	POST create user using data from JSON
+	•	schema validation
+	•	response verification
+	•	retry logic
+
+⸻
+
+4️⃣ EXAMPLE TEST TO GENERATE
+
+Example: tests/sample/createUser.test.ts
+
+It must:
+	1.	Load JSON payload
+	2.	Use RequestBuilder
+	3.	Authenticate using tokenManager
+	4.	Call /users POST endpoint
+	5.	Validate:
+	•	status
+	•	response keys
+	•	schema
+	6.	Log entire flow
+	7.	Retry if failure
+	8.	Use environment config
+
+⸻
+
+5️⃣ OUTPUT FORMAT
+
+You must output:
+
+✔ Every file with complete content
+✔ No placeholders — real working code
+✔ All imports correct
+✔ No missing modules
+✔ End-to-end runnable project
+✔ Extremely clean formatting
+✔ Production-ready comments
+
+⸻
+
+🟦 PROMPT END — COPY ABOVE INTO COPILOT
+
+⸻
+
+⭐ You are ready!
+
+Paste this whole prompt into GitHub Copilot Chat →
+Copilot will generate the full Ultra Edition Playwright API framework.
+
+If you want, I can also generate:
+	•	A ZIP file structure
+	•	Dockerfile + CI/CD for GitHub Actions
+	•	VSCode workspace setup
+
+Just tell me — “Generate CI/CD” or “Add Docker”.
+
