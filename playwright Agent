@@ -197,3 +197,41 @@ List all test failures.
 Generate insights.
 Tell me steps to access the HTML report.
 
+
+
+# Orders Module — Acceptance Criteria (GWT)
+
+## Scenario Name:
+Place an Order Successfully
+
+### Objective:
+Verify the user can place an order end-to-end.
+
+---
+
+## Given
+- The user is logged into the application.
+- The product catalog page is available.
+- At least one product has stock available.
+
+## When
+- The user selects a product.
+- The user adds the product to the cart.
+- The user proceeds to checkout.
+- The user enters valid delivery details.
+- The user completes the payment process.
+
+## Then
+- The order should be successfully placed.
+- An order confirmation page should be displayed.
+- Order ID should be generated.
+- The order should appear under "My Orders".
+
+---
+
+## Notes / Rules
+- Priority: Regression
+- Module: Orders
+
+
+
