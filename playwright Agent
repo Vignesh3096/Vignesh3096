@@ -1,0 +1,199 @@
+✅ FULL END-TO-END SETUP FOR AUTONOMOUS-LIKE TESTING WITH COPILOT (COPY-PASTE VERSION)
+
+⸻
+
+PART 1 — PREPARE YOUR FRAMEWORK SO COPILOT UNDERSTANDS EVERYTHING
+
+⸻
+
+STEP 1 — Create /docs/framework-context.md
+
+
+# Framework Context (Playwright + TypeScript + POM)
+
+This repository uses:
+- Playwright Test
+- TypeScript
+- Page Object Model architecture
+- Locator strategy: getByRole > getByTestId > getByText > nth() > xpath
+- Utility folders:
+  /pages
+  /tests
+  /fixtures
+  /common
+  /api
+  /db
+  /config
+
+## RULES
+1. Copilot must reuse existing Page Object methods.
+2. Copilot must reuse common methods from /common.
+3. Copilot must not duplicate methods.
+4. Copilot must create missing methods inside the correct Page class.
+5. Copilot must follow the naming conventions used in the project.
+6. Use fixtures for all tests.
+7. Use Playwright Test runner.
+8. Generate HTML reports after execution.
+9. All waits must use custom wait utilities unless explicitly required.
+
+## EXECUTION FLOW
+- Test files are located under /tests.
+- Page objects under /pages.
+- Test runner command:
+  npx playwright test --reporter html
+- Reports generated under /playwright-report.
+
+This file defines the core framework understanding Copilot must follow
+whenever generating, fixing, or updating test scripts.
+
+
+STEP 2 — Create /github/copilot-instructions.md
+
+# Copilot Global Instructions
+
+Follow the rules in framework-context.md at all times.
+
+## While Creating Tests
+- Read the acceptance criteria from .txt or .md files.
+- Identify test scope: Smoke / Sanity / Regression.
+- Identify modules involved.
+- Break high-level scenarios into test steps.
+- Map acceptance criteria steps to Page Object methods.
+- Reuse existing methods before creating new ones.
+- If required, create missing Page Object methods inside the correct file in /pages.
+- Use existing common utilities for waits, actions, and assertions.
+- Do not create duplicate methods.
+
+## While Understanding Framework
+- Scan and load all pages under /pages.
+- Scan and load all fixtures under /fixtures.
+- Scan and load all utilities under /common.
+- Understand naming conventions.
+- Understand cross-module dependencies.
+
+## While Debugging or Fixing Failures
+- Read stack traces clearly.
+- Identify root cause of failure.
+- Apply self-healing logic to locators:
+  1. Try getByRole
+  2. Try getByTestId
+  3. Try getByText
+  4. Try nth()
+  5. Use xpath only as last fallback
+- Fix broken locators or missing imports.
+- Update or create methods inside the correct Page class.
+- Regenerate the updated test file if needed.
+
+## After Fixing
+- Ensure fixed methods follow framework rules.
+- Ensure tests run cleanly.
+- Ensure all changed files are consistent.
+
+Always act like a Senior Playwright Automation Architect.
+
+
+
+STEP 3 — Pin these files in VS Code
+
+Pin the following:
+/docs/framework-context.md
+/.github/copilot-instructions.md
+/pages/<all important page files>
+/common/utils.ts
+/fixtures/base.ts
+
+
+STEP 4 — Warmup Prompt (Paste into Copilot Chat)
+Warmup the framework. 
+
+Scan and understand the full folder structure:
+/tests, /pages, /common, /fixtures, /api, /db.
+
+Load all Page Object classes.
+Load all common utility methods.
+Load all fixtures.
+Identify reusable methods and naming conventions.
+
+Tell me once the full framework is loaded.
+
+
+
+
+PART 2 — MAKE COPILOT READ ACCEPTANCE CRITERIA
+
+⸻
+
+STEP 5 — Create acceptance criteria files
+
+Store as:
+
+/requirements/smoke.md
+/requirements/regression.md
+/requirements/sanity.md
+/requirements/module-login.md
+/requirements/module-orders.md
+
+
+
+
+STEP 6 — Ask Copilot to read acceptance criteria
+
+Open any .md or .txt file and say:
+Copilot, read this entire acceptance criteria.
+
+1. Identify if this belongs to Smoke / Sanity / Regression.
+2. Identify the modules involved.
+3. Break it down into test steps.
+4. Map each step to Page Object methods.
+5. Identify missing Page methods.
+6. Identify reusable methods from common utilities.
+7. Prepare the test case generation plan.
+
+
+PART 3 — GENERATE FULL TEST SCRIPTS
+
+⸻
+
+STEP 7 — Ask Copilot to generate your tests
+
+Use this prompt:
+Generate the complete Playwright Test file using our framework.
+Use fixtures.
+Reuse existing Page Object methods.
+Create new Page methods only if missing.
+Follow naming conventions.
+Place the test file inside the correct module folder under /tests.
+
+
+
+STEP 8 — Ask Copilot to add missing Page Object methods
+
+Add missing Page Object methods inside the correct Page class.
+Follow framework-context.md.
+Do not duplicate methods.
+
+
+PART 5 — SELF-HEALING & AUTO-FIXING
+
+⸻
+
+STEP 10 — When a test fails, paste the error
+
+Analyze this failure.
+Identify the root cause.
+Self-heal the locator or method.
+Fix inside the correct Page class or utility class.
+Regenerate the updated test file if needed.
+
+
+
+
+
+STEP 12 — Ask Copilot to prepare the summary
+
+Summarize the regression execution.
+List all fixed issues.
+List all test failures.
+Generate insights.
+Tell me steps to access the HTML report.
+
