@@ -1,0 +1,151 @@
+import org.sikuli.script.*;
+
+public class SikuliHelper {
+
+    private Screen screen = new Screen();
+
+    // =========================================================
+    // CORE ENGINE → Multi-Resolution Pattern Finder
+    // =========================================================
+    private Match findBestMatch(Pattern pattern, int timeoutSeconds) {
+        float[] similarities = {0.90f, 0.85f, 0.80f};
+        double[] scales = {1.0, 0.9, 0.8, 1.1, 1.2};
+
+        long endTime = System.currentTimeMillis() + (timeoutSeconds * 1000);
+
+        while (System.currentTimeMillis() < endTime) {
+            for (float sim : similarities) {
+                for (double scale : scales) {
+                    try {
+                        Pattern adjusted = new Pattern(pattern.getFilename())
+                                .similar(sim)
+                                .resize(scale);
+
+                        Match match = screen.exists(adjusted, 0.5);
+                        if (match != null) {
+                            System.out.println("Matched: sim=" + sim + " scale=" + scale);
+                            return match;
+                        }
+                    } catch (Exception e) {
+                        // ignore and continue
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    // =========================================================
+    // CLICK
+    // =========================================================
+    public boolean click(Pattern pattern) {
+        Match match = findBestMatch(pattern, 10);
+        if (match != null) {
+            try {
+                match.click();
+                System.out.println("Click success: " + pattern.getFilename());
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.err.println("Click failed: " + pattern.getFilename());
+        return false;
+    }
+
+    // =========================================================
+    // DOUBLE CLICK
+    // =========================================================
+    public boolean doubleClick(Pattern pattern) {
+        Match match = findBestMatch(pattern, 10);
+        if (match != null) {
+            try {
+                match.doubleClick();
+                System.out.println("DoubleClick success: " + pattern.getFilename());
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.err.println("DoubleClick failed: " + pattern.getFilename());
+        return false;
+    }
+
+    // =========================================================
+    // RIGHT CLICK
+    // =========================================================
+    public boolean rightClick(Pattern pattern) {
+        Match match = findBestMatch(pattern, 10);
+        if (match != null) {
+            try {
+                match.rightClick();
+                System.out.println("RightClick success: " + pattern.getFilename());
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.err.println("RightClick failed: " + pattern.getFilename());
+        return false;
+    }
+
+    // =========================================================
+    // HOVER
+    // =========================================================
+    public boolean hover(Pattern pattern) {
+        Match match = findBestMatch(pattern, 10);
+        if (match != null) {
+            try {
+                match.hover();
+                System.out.println("Hover success: " + pattern.getFilename());
+                return true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        System.err.println("Hover failed: " + pattern.getFilename());
+        return false;
+    }
+
+    // =========================================================
+    // WAIT
+    // =========================================================
+    public boolean wait(Pattern pattern, int timeoutSeconds) {
+        Match match = findBestMatch(pattern, timeoutSeconds);
+        if (match != null) {
+            System.out.println("Wait success: " + pattern.getFilename());
+            return true;
+        }
+        System.err.println("Wait failed: " + pattern.getFilename());
+        return false;
+    }
+
+    // =========================================================
+    // WAIT VANISH
+    // =========================================================
+    public boolean waitVanish(Pattern pattern, int timeoutSeconds) {
+        long endTime = System.currentTimeMillis() + (timeoutSeconds * 1000);
+
+        while (System.currentTimeMillis() < endTime) {
+            Match match = findBestMatch(pattern, 1);
+            if (match == null) {
+                System.out.println("Vanish success: " + pattern.getFilename());
+                return true;
+            }
+        }
+        System.err.println("Vanish failed: " + pattern.getFilename());
+        return false;
+    }
+
+    // =========================================================
+    // EXISTS
+    // =========================================================
+    public boolean exists(Pattern pattern, int timeoutSeconds) {
+        Match match = findBestMatch(pattern, timeoutSeconds);
+        if (match != null) {
+            System.out.println("Exists success: " + pattern.getFilename());
+            return true;
+        }
+        return false;
+    }
+}
