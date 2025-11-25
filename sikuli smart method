@@ -149,3 +149,183 @@ public class SikuliHelper {
         return false;
     }
 }
+
+
+
+
+package utils;
+
+import org.sikuli.script.*;
+
+public class SikuliHelper {
+
+    private final Screen screen = new Screen();
+
+    // ------------------------------
+    //  CLEAN NAME (Removes %20 etc.)
+    // ------------------------------
+    private String getCleanName(Pattern pattern) {
+        return pattern.getFilename().replace("%20", " ");
+    }
+
+    // ------------------------------
+    //  MAIN MATCHING ENGINE
+    // ------------------------------
+    private Match findBestMatch(Pattern pattern, int timeoutSeconds) {
+
+        double[] similarityLevels = {0.99, 0.97, 0.95, 0.90, 0.85};
+        float[] scaleLevels = {1.0f, 0.95f, 0.90f, 1.10f, 1.20f};
+
+        long end = System.currentTimeMillis() + timeoutSeconds * 1000L;
+        String cleanName = getCleanName(pattern);
+
+        Match best = null;
+
+        while (System.currentTimeMillis() < end) {
+
+            for (double sim : similarityLevels) {
+
+                for (float scale : scaleLevels) {
+
+                    try {
+                        Pattern adjusted = pattern.clone()
+                                .similar((float) sim)
+                                .resize(scale);
+
+                        best = screen.exists(adjusted, 0.5);
+
+                        if (best != null) {
+                            System.out.println("FOUND → " + cleanName +
+                                    " | similarity=" + sim +
+                                    " | scale=" + scale);
+
+                            return best;
+                        }
+
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+
+        return null;
+    }
+
+    // ------------------------------
+    //  CLICK
+    // ------------------------------
+    public boolean click(Pattern pattern) throws FindFailed {
+
+        Match match = findBestMatch(pattern, 10);
+        String cleanName = getCleanName(pattern);
+
+        if (match == null) {
+            throw new FindFailed("CLICK FAILED → Image not found: " + cleanName);
+        }
+
+        match.click();
+        return true;
+    }
+
+    // ------------------------------
+    //  DOUBLE CLICK
+    // ------------------------------
+    public boolean doubleClick(Pattern pattern) throws FindFailed {
+
+        Match match = findBestMatch(pattern, 10);
+        String cleanName = getCleanName(pattern);
+
+        if (match == null) {
+            throw new FindFailed("DOUBLE CLICK FAILED → Image not found: " + cleanName);
+        }
+
+        match.doubleClick();
+        return true;
+    }
+
+    // ------------------------------
+    //  RIGHT CLICK
+    // ------------------------------
+    public boolean rightClick(Pattern pattern) throws FindFailed {
+
+        Match match = findBestMatch(pattern, 10);
+        String cleanName = getCleanName(pattern);
+
+        if (match == null) {
+            throw new FindFailed("RIGHT CLICK FAILED → Image not found: " + cleanName);
+        }
+
+        match.rightClick();
+        return true;
+    }
+
+    // ------------------------------
+    //  HOVER / MOUSE OVER
+    // ------------------------------
+    public boolean hover(Pattern pattern) throws FindFailed {
+
+        Match match = findBestMatch(pattern, 10);
+        String cleanName = getCleanName(pattern);
+
+        if (match == null) {
+            throw new FindFailed("HOVER FAILED → Image not found: " + cleanName);
+        }
+
+        match.hover();
+        return true;
+    }
+
+    // ------------------------------
+    //  WAIT FOR IMAGE
+    // ------------------------------
+    public boolean wait(Pattern pattern, int timeoutSeconds) throws FindFailed {
+
+        Match match = findBestMatch(pattern, timeoutSeconds);
+        String cleanName = getCleanName(pattern);
+
+        if (match == null) {
+            throw new FindFailed("WAIT FAILED → Image not found within timeout: " + cleanName);
+        }
+
+        return true;
+    }
+
+    // ------------------------------
+    //  WAIT VANISH
+    // ------------------------------
+    public boolean waitVanish(Pattern pattern, int timeoutSeconds) throws FindFailed {
+
+        long end = System.currentTimeMillis() + timeoutSeconds * 1000L;
+        String cleanName = getCleanName(pattern);
+
+        while (System.currentTimeMillis() < end) {
+
+            Match m = findBestMatch(pattern, 1);
+            if (m == null) {
+                System.out.println("VANISHED → " + cleanName);
+                return true;
+            }
+        }
+
+        throw new FindFailed("WAIT VANISH FAILED → Image still visible: " + cleanName);
+    }
+
+    // ------------------------------
+    // EXISTS (STRICT)
+    // ------------------------------
+    public boolean exists(Pattern pattern, int timeoutSeconds) throws FindFailed {
+
+        Match match = findBestMatch(pattern, timeoutSeconds);
+        String cleanName = getCleanName(pattern);
+
+        if (match == null) {
+            throw new FindFailed("EXISTS FAILED → Image not found: " + cleanName);
+        }
+
+        return true;
+    }
+
+}
+
+
+
