@@ -1,0 +1,41 @@
+🔥 Prioritized & Strong Playwright Advantages over Selenium + TestNG
+
+1️⃣ Faster and More Stable Execution
+
+Playwright communicates directly with browsers and uses built-in auto waits, delivering faster execution and eliminating flaky timing issues common in Selenium.
+
+⸻
+
+2️⃣ Lower Maintenance through Auto Waits & Smart Locators
+
+Playwright’s automatic waiting and role-based locators reduce failures caused by UI or timing changes, significantly lowering long-term maintenance effort.
+
+⸻
+
+3️⃣ Rapid Test Creation using CodeGen + GitHub Copilot
+
+Playwright CodeGen records real user actions and generates working scripts instantly, and GitHub Copilot helps refactor this code into clean, reusable methods and page objects, accelerating scalable test development.
+
+⸻
+
+4️⃣ Faster Debugging with Inspector, Debugger & Trace Viewer
+
+Playwright provides Inspector, step-by-step debugging, and Trace Viewer with screenshots, DOM, network, and video—making root-cause analysis much faster than Selenium logs.
+
+⸻
+
+5️⃣ AI-Assisted Migration using GitHub Copilot
+
+Playwright’s modern APIs allow GitHub Copilot to assist in converting Selenium TestNG scripts, reducing migration effort, risk, and manual rewrite.
+
+⸻
+
+6️⃣ Built-In Reporting for Clear Visibility
+
+Playwright offers rich HTML reports with retries, screenshots, and videos out of the box, eliminating the need for external reporting tools.
+
+⸻
+
+7️⃣ All-in-One Framework with Minimal Setup
+
+Playwright includes runner, parallel execution, retries, debugging, and reporting by default, avoiding the heavy configuration and dependency sprawl of Selenium TestNG.
