@@ -39,3 +39,8 @@ Playwright offers rich HTML reports with retries, screenshots, and videos out of
 7️⃣ All-in-One Framework with Minimal Setup
 
 Playwright includes runner, parallel execution, retries, debugging, and reporting by default, avoiding the heavy configuration and dependency sprawl of Selenium TestNG.
+
+
+GitHub Copilot automatically suggests code fixes, refactors, and updates when tests fail or application changes occur, reducing manual effort and accelerating test stabilization and maintenance.
+
+
