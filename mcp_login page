@@ -1,0 +1,200 @@
+Open https://example.com/login
+Fill Username with admin
+Fill Password with admin123
+Click Login
+
+
+import fs from 'fs';
+
+export function bootstrap(app: string) {
+  const paths = [
+    `pages/${app}`,
+    `tests/auto`,
+  ];
+
+  paths.forEach(p => {
+    if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+  });
+
+  const testFile = `tests/auto/${app}.auto.spec.ts`;
+  if (!fs.existsSync(testFile)) {
+    fs.writeFileSync(testFile, testTemplate(app));
+  }
+}
+
+function testTemplate(app: string) {
+  return `
+import { test } from '@playwright/test';
+import { run } from '../../mcp/engine/runner';
+
+test('${app} MCP auto test', async ({ page }) => {
+  await run(page, '${app}');
+});
+`;
+}
+
+
+import fs from 'fs';
+
+export function parseMD(app: string) {
+  const content = fs.readFileSync(`testcases/${app}/flow.md`, 'utf-8');
+
+  return content.split('\n').filter(Boolean).map(line => {
+    if (line.startsWith('Open'))
+      return { type: 'open', url: line.split(' ')[1] };
+
+    if (line.startsWith('Fill')) {
+      const [, field, value] = line.match(/Fill (.*) with (.*)/)!;
+      return { type: 'fill', field, value };
+    }
+
+    if (line.startsWith('Click'))
+      return { type: 'click', target: line.split(' ')[1] };
+  });
+}
+
+
+
+import fs from 'fs';
+
+export function resolvePage(app: string, url: string) {
+  const pageName = url.includes('login') ? 'LoginPage' : 'GenericPage';
+  const file = `pages/${app}/${pageName}.ts`;
+
+  if (!fs.existsSync(file)) {
+    fs.writeFileSync(file, pageTemplate(pageName));
+  }
+
+  return { pageName, file };
+}
+
+function pageTemplate(name: string) {
+  return `
+import { Page, Locator } from '@playwright/test';
+
+export class ${name} {
+  constructor(private page: Page) {
+    // ===== LOCATOR INIT =====
+  }
+
+  // ===== LOCATORS (MCP MANAGED) =====
+}
+`;
+}
+
+
+
+export async function scanDOM(page: any, step: any) {
+  return await page.evaluate(step => {
+    let el: any;
+
+    if (step.type === 'fill') {
+      el =
+        document.querySelector(\`input[placeholder*="\${step.field}"]\`) ||
+        document.querySelector(\`input[name*="\${step.field.toLowerCase()}"]\`);
+    }
+
+    if (step.type === 'click') {
+      el = [...document.querySelectorAll('button,a')]
+        .find(e => e.textContent?.includes(step.target));
+    }
+
+    if (!el) throw new Error('Element not found');
+
+    return {
+      label: el.getAttribute('aria-label'),
+      placeholder: el.getAttribute('placeholder'),
+      id: el.id,
+      text: el.textContent?.trim(),
+    };
+  }, step);
+}
+
+
+
+export function buildLocator(meta: any) {
+  if (meta.label) return `getByLabel('${meta.label}')`;
+  if (meta.placeholder) return `getByPlaceholder('${meta.placeholder}')`;
+  if (meta.text) return `getByText('${meta.text}')`;
+  if (meta.id) return `locator('#${meta.id}')`;
+
+  return `locator('xpath=//*')`;
+}
+
+
+import fs from 'fs';
+
+export function writeLocator(file: string, name: string, locator: string) {
+  let src = fs.readFileSync(file, 'utf-8');
+
+  if (!src.includes(`${name}!: Locator`)) {
+    src = src.replace(
+      '// ===== LOCATORS (MCP MANAGED) =====',
+      `// ===== LOCATORS (MCP MANAGED) =====\n  ${name}!: Locator;`
+    );
+
+    src = src.replace(
+      '// ===== LOCATOR INIT =====',
+      `// ===== LOCATOR INIT =====\n    this.${name} = this.page.${locator};`
+    );
+  }
+
+  fs.writeFileSync(file, src);
+}
+
+
+export async function heal(action: Function, retries = 3) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      await action();
+      return;
+    } catch (e) {
+      if (i === retries - 1) throw e;
+    }
+  }
+}
+
+
+
+
+import { bootstrap } from './bootstrap';
+import { parseMD } from './mdParser';
+import { resolvePage } from './pageResolver';
+import { scanDOM } from './domScanner';
+import { buildLocator } from './locatorEngine';
+import { writeLocator } from './pageWriter';
+import { heal } from './healer';
+
+export async function run(page: any, app: string) {
+  bootstrap(app);
+  const steps = parseMD(app);
+
+  for (const step of steps) {
+    if (step.type === 'open') {
+      await page.goto(step.url);
+      continue;
+    }
+
+    const { file } = resolvePage(app, page.url());
+    const meta = await scanDOM(page, step);
+    const locator = buildLocator(meta);
+
+    const name = step.field?.toLowerCase() || step.target.toLowerCase();
+    writeLocator(file, name, locator);
+
+    await heal(async () => {
+      const el = page[locator.includes('getBy') ? locator : `locator(${locator})`];
+      step.type === 'fill'
+        ? await el.fill(step.value)
+        : await el.click();
+    });
+  }
+}
+
+
+
+
+
+
+
+
